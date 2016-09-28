@@ -23,6 +23,7 @@ public class UserInterface : MonoBehaviour
         RegisterPanel.SetActive(false);
         AboutUsPanel.SetActive(false);
         ContactUsPanel.SetActive(false);
+
         WelcomePanel.SetActive(true);
 	}
 
@@ -34,7 +35,26 @@ public class UserInterface : MonoBehaviour
         UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
         SidePanel.OnProductButtonClicked += SidePanel_OnProductButtonClicked;
         SidePanel.OnAboutButtonClicked += SidePanel_OnAboutButtonClicked;
+        SidePanel.OnContactButtonClicked += SidePanel_OnContactButtonClicked;
 
+    }
+
+    void OnDisable()
+    {
+        SigninPanel.OnSignedIn -= SigninPanel_OnSignedIn;
+        UserBar.OnSignedOut -= UserBar_OnSignedOut;
+        UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
+        UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
+        SidePanel.OnProductButtonClicked -= SidePanel_OnProductButtonClicked;
+        SidePanel.OnAboutButtonClicked -= SidePanel_OnAboutButtonClicked;
+    }
+
+    private void SidePanel_OnContactButtonClicked(object arg1, string arg2)
+    {
+        ContactUsPanel.SetActive(true);
+        ContactUsPanel.transform.SetAsLastSibling();
+        UserBar.transform.SetAsLastSibling();
+        SidePanel.transform.SetAsLastSibling();
     }
 
     private void SidePanel_OnAboutButtonClicked(object arg1, string arg2)
@@ -42,16 +62,23 @@ public class UserInterface : MonoBehaviour
         AboutUsPanel.SetActive(true);
         AboutUsPanel.transform.SetAsLastSibling();
         UserBar.transform.SetAsLastSibling();
+        SidePanel.transform.SetAsLastSibling();
+
     }
 
     private void SidePanel_OnProductButtonClicked(object arg1, string arg2)
     {
-        RightPanel.SetActive(true);
         SigninPanel.gameObject.SetActive(false);
         RegisterPanel.SetActive(false);
         AboutUsPanel.SetActive(false);
         ContactUsPanel.SetActive(false);
         WelcomePanel.SetActive(false);
+
+        UserBar.transform.SetAsLastSibling();
+        SidePanel.transform.SetAsLastSibling();
+
+        RightPanel.SetActive(true);
+        RightPanel.transform.SetAsLastSibling();
     }
 
     private void UserBar_OnRegisterPressed(object arg1, string arg2)
@@ -83,15 +110,6 @@ public class UserInterface : MonoBehaviour
         SigninPanel.gameObject.SetActive(true);
     }
 
-    void OnDisable()
-    {
-        SigninPanel.OnSignedIn -= SigninPanel_OnSignedIn;
-        UserBar.OnSignedOut -= UserBar_OnSignedOut;
-        UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
-        UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
-        SidePanel.OnProductButtonClicked -= SidePanel_OnProductButtonClicked;
-        SidePanel.OnAboutButtonClicked -= SidePanel_OnAboutButtonClicked;
-    }
 
     private void SigninPanel_OnSignedIn(object sender, SignInEventArgs args)
     {

@@ -34,7 +34,7 @@ public class UserBar : MonoBehaviour
 
     private void SigninPanel_OnSignedIn(object sender, SignInEventArgs args)
     {
-        UserLabel.text = args.Username;
+        UpdateName(args.Username);
         SignoutButton.SetActive(true);
 
         RegisterButton.SetActive(false);
