@@ -4,13 +4,18 @@ using System.Collections;
 
 public class SidePanel : MonoBehaviour
 {
+    // Side panel button events
     public static event System.Action<object, string> OnAboutButtonClicked;
     public static event System.Action<object, string> OnProductButtonClicked;
     public static event System.Action<object, string> OnContactButtonClicked;
+    public static event System.Action<object, string> OnShowcaseButtonClicked;
+    public static event System.Action<object, string> OnLifeScaleButtonClicked;
 
     public ButtonGroup AboutButton;    
     public ButtonGroup ProductsButton;
     public GameObject ShowcaseGroup;
+    public ButtonGroup ShowcaseButton;
+    public ButtonGroup LifeScaleButton;
     public ButtonGroup ContactButton;
 
     private RectTransform m_ContactRect;
@@ -36,20 +41,20 @@ public class SidePanel : MonoBehaviour
         AboutButton.onClick.AddListener(ShowAboutUs);
         ProductsButton.onClick.AddListener(ShowProducts);
         ContactButton.onClick.AddListener(ShowContactUs);
+        ShowcaseButton.onClick.AddListener(ShowcaseClicked);
+        LifeScaleButton.onClick.AddListener(LifeScaleClicked);
     }
     void OnDisable()
     {
         AboutButton.onClick.RemoveAllListeners();
         ProductsButton.onClick.RemoveAllListeners();
         ContactButton.onClick.RemoveAllListeners();
+        ShowcaseButton.onClick.RemoveAllListeners();
+        LifeScaleButton.onClick.RemoveAllListeners();
     }
 
     public void Initialize()
     {
-        //AboutButton.image.sprite = AboutButton.spriteState.pressedSprite;
-        //ProductsButton.image.sprite = ProductsButton.spriteState.disabledSprite;
-        //ContactButton.image.sprite = ContactButton.spriteState.disabledSprite;
-
         AboutButton.SelectButton();
         ProductsButton.DeselectButton();
         ContactButton.DeselectButton();
@@ -63,10 +68,6 @@ public class SidePanel : MonoBehaviour
 
     public void ShowAboutUs()
     {
-        //AboutButton.image.sprite = AboutButton.spriteState.pressedSprite;
-        //ProductsButton.image.sprite = ProductsButton.spriteState.disabledSprite;
-        //ContactButton.image.sprite = ContactButton.spriteState.disabledSprite;
-
         if (m_PanelType == PanelType.About)
             return;
 
@@ -86,10 +87,6 @@ public class SidePanel : MonoBehaviour
 
     public void ShowProducts()
     {
-        //AboutButton.image.sprite = AboutButton.spriteState.disabledSprite;
-        //ProductsButton.image.sprite = ProductsButton.spriteState.pressedSprite;
-        //ContactButton.image.sprite = ContactButton.spriteState.disabledSprite;
-
         if (m_PanelType == PanelType.Products)
             return;
 
@@ -98,6 +95,9 @@ public class SidePanel : MonoBehaviour
         AboutButton.DeselectButton();
         ProductsButton.SelectButton();
         ContactButton.DeselectButton();
+
+        ShowcaseButton.SelectButton();
+        LifeScaleButton.DeselectButton();
 
         ShowcaseGroup.SetActive(true);
 
@@ -110,10 +110,6 @@ public class SidePanel : MonoBehaviour
 
     public void ShowContactUs()
     {
-        //AboutButton.image.sprite = AboutButton.spriteState.disabledSprite;
-        //ProductsButton.image.sprite = ProductsButton.spriteState.disabledSprite;
-        //ContactButton.image.sprite = ContactButton.spriteState.pressedSprite;
-
         if (m_PanelType == PanelType.Contact)
             return;
 
@@ -131,6 +127,28 @@ public class SidePanel : MonoBehaviour
             OnContactButtonClicked(this, "Contact Us button clicked");
     }
 
+    public void ShowcaseClicked()
+    {
+        ShowcaseButton.SelectButton();
+        LifeScaleButton.DeselectButton();
+
+        if (OnShowcaseButtonClicked != null)
+            OnShowcaseButtonClicked(this, "Showcase button clicked");
+    }
+
+    public void LifeScaleClicked()
+    {
+        ShowcaseButton.DeselectButton();
+        LifeScaleButton.SelectButton();
+
+        if (OnLifeScaleButtonClicked != null)
+            OnLifeScaleButtonClicked(this, "Life Scale button clicked");
+    }
+    public void SetAsMain()
+    {
+        gameObject.SetActive(true);
+        transform.SetAsLastSibling();
+    }
 }
 
 public enum PanelType

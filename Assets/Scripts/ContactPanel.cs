@@ -5,12 +5,15 @@ using System.Collections;
 #if UNITY_ANDROID
 using DeadMosquito.AndroidGoodies;
 using AndroidGoodiesExamples;
+#elif UNITY_IOS
+// Add iOS libraries
 #endif
 
 public class ContactPanel : MonoBehaviour
 {
     public string MapLocation;
     public string WebAddress;
+    public string EmailAddress;
 
     public void OnOpenMapAddress()
     {
@@ -27,13 +30,13 @@ public class ContactPanel : MonoBehaviour
         Application.OpenURL(WebAddress);
     }
 
-    // Use this for initialization
-    void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
-	}
+    public void OnSendEmailClick()
+    {
+        if (AndroidGoodiesExampleUtils.IfNotAndroid())
+        {
+            return;
+        }
+
+        AndroidShare.SendEmail(new[] { EmailAddress }, "", "");
+    }
 }

@@ -18,10 +18,33 @@ public class PhotocopierController : MonoBehaviour
 
     public Vuforia.DefaultTrackableEventHandler trackableEventHandler;
 
+    public ButtonGroup scannerButton;
+    public ButtonGroup panelButton;
+    public ButtonGroup tonerButton;
+    public ButtonGroup sideTrayButton;
+    public ButtonGroup paperTrayButton;
+
     private string openTrigger = "open";
     private string closeTrigger = "close";
     private string upTrigger = "up";
     private string downTrigger = "down";
+
+    private CanvasGroup m_canvasGroup;
+    public CanvasGroup CanvasGroup
+    {
+        get
+        {
+            if (m_canvasGroup == null)
+            {
+                m_canvasGroup = GetComponent<CanvasGroup>();
+                if (m_canvasGroup == null)
+                {
+                    m_canvasGroup = gameObject.AddComponent<CanvasGroup>();
+                }
+            }
+            return m_canvasGroup;
+        }
+    }
 
     public bool Initialize()
     {
@@ -41,6 +64,29 @@ public class PhotocopierController : MonoBehaviour
     void Start()
     {
         Initialize();
+    }
+
+    void OnEnable()
+    {
+        scannerButton.onClick.AddListener(AnimateScanner);
+        scannerButton.onClick.AddListener(scannerButton.ToggleState);
+        panelButton.onClick.AddListener(AnimatePanel);
+        panelButton.onClick.AddListener(panelButton.ToggleState);
+        tonerButton.onClick.AddListener(AnimateToner);
+        tonerButton.onClick.AddListener(tonerButton.ToggleState);
+        sideTrayButton.onClick.AddListener(AnimateSideTray);
+        sideTrayButton.onClick.AddListener(sideTrayButton.ToggleState);
+        paperTrayButton.onClick.AddListener(AnimatePaperTray);
+        paperTrayButton.onClick.AddListener(paperTrayButton.ToggleState);
+    }
+
+    void OnDisable()
+    {
+        scannerButton.onClick.RemoveAllListeners();
+        panelButton.onClick.RemoveAllListeners();
+        tonerButton.onClick.RemoveAllListeners();
+        sideTrayButton.onClick.RemoveAllListeners();
+        paperTrayButton.onClick.RemoveAllListeners();
     }
 
     public void AnimateScanner()

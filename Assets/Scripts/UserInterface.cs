@@ -10,7 +10,7 @@ public class UserInterface : MonoBehaviour
     public GameObject ContactUsPanel;
 
     public SidePanel SidePanel;
-    public GameObject RightPanel;
+    public RightPanel RightPanel;
 
     public UserBar UserBar;
 
@@ -18,7 +18,7 @@ public class UserInterface : MonoBehaviour
 	void Start ()
     {
         SidePanel.gameObject.SetActive(false);
-        RightPanel.SetActive(false);
+        RightPanel.gameObject.SetActive(false);
         SigninPanel.gameObject.SetActive(false);
         RegisterPanel.SetActive(false);
         AboutUsPanel.SetActive(false);
@@ -33,8 +33,10 @@ public class UserInterface : MonoBehaviour
         UserBar.OnSignedOut += UserBar_OnSignedOut;
         UserBar.OnSignInPressed += UserBar_OnSignInPressed;
         UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
-        SidePanel.OnProductButtonClicked += SidePanel_OnProductButtonClicked;
         SidePanel.OnAboutButtonClicked += SidePanel_OnAboutButtonClicked;
+        SidePanel.OnProductButtonClicked += SidePanel_OnProductButtonClicked;
+        SidePanel.OnShowcaseButtonClicked += SidePanel_OnShowcaseButtonClicked;
+        SidePanel.OnLifeScaleButtonClicked += SidePanel_OnLifeScaleButtonClicked;
         SidePanel.OnContactButtonClicked += SidePanel_OnContactButtonClicked;
 
     }
@@ -45,8 +47,28 @@ public class UserInterface : MonoBehaviour
         UserBar.OnSignedOut -= UserBar_OnSignedOut;
         UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
         UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
-        SidePanel.OnProductButtonClicked -= SidePanel_OnProductButtonClicked;
         SidePanel.OnAboutButtonClicked -= SidePanel_OnAboutButtonClicked;
+        SidePanel.OnProductButtonClicked -= SidePanel_OnProductButtonClicked;
+        SidePanel.OnShowcaseButtonClicked -= SidePanel_OnShowcaseButtonClicked;
+        SidePanel.OnLifeScaleButtonClicked -= SidePanel_OnLifeScaleButtonClicked;
+        SidePanel.OnContactButtonClicked -= SidePanel_OnContactButtonClicked;
+    }
+
+    private void SidePanel_OnLifeScaleButtonClicked(object arg1, string arg2)
+    {
+        if (RightPanel != null)
+        {
+            RightPanel.Initialize();
+            RightPanel.ToggleInfoPanel(false);
+        }
+        else
+            Debug.LogWarning("RightPanel is null!");
+    }
+
+    private void SidePanel_OnShowcaseButtonClicked(object arg1, string arg2)
+    {
+        if (RightPanel != null)
+            RightPanel.ToggleInfoPanel(true);
     }
 
     private void SidePanel_OnContactButtonClicked(object arg1, string arg2)
@@ -63,7 +85,6 @@ public class UserInterface : MonoBehaviour
         AboutUsPanel.transform.SetAsLastSibling();
         UserBar.transform.SetAsLastSibling();
         SidePanel.transform.SetAsLastSibling();
-
     }
 
     private void SidePanel_OnProductButtonClicked(object arg1, string arg2)
@@ -77,8 +98,8 @@ public class UserInterface : MonoBehaviour
         UserBar.transform.SetAsLastSibling();
         SidePanel.transform.SetAsLastSibling();
 
-        RightPanel.SetActive(true);
-        RightPanel.transform.SetAsLastSibling();
+        RightPanel.SetAsMain();
+        RightPanel.ToggleInfoPanel(true);
     }
 
     private void UserBar_OnRegisterPressed(object arg1, string arg2)
@@ -99,7 +120,7 @@ public class UserInterface : MonoBehaviour
     {
         AboutUsPanel.SetActive(true);
         SidePanel.gameObject.SetActive(false);
-        RightPanel.SetActive(false);
+        RightPanel.gameObject.SetActive(false);
         RegisterPanel.SetActive(false);
         AboutUsPanel.SetActive(false);
         ContactUsPanel.SetActive(false);
@@ -121,7 +142,6 @@ public class UserInterface : MonoBehaviour
         UserBar.transform.SetAsLastSibling();
 
         SidePanel.Initialize();
-        SidePanel.gameObject.SetActive(true);
-        SidePanel.transform.SetAsLastSibling();
+        SidePanel.SetAsMain();
     }
 }

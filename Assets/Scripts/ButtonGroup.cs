@@ -18,4 +18,10 @@ public class ButtonGroup : Button
         image.sprite = InactiveSprite;
         image.SetNativeSize();
     }
+
+    public void ToggleState()
+    {
+        image.sprite = image.sprite == ActiveSprite ? InactiveSprite : ActiveSprite;
+        image.SetNativeSize();
+    }
 }
