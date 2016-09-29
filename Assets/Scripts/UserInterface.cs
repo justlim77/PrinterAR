@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 public class UserInterface : MonoBehaviour
 {
@@ -14,9 +15,14 @@ public class UserInterface : MonoBehaviour
 
     public UserBar UserBar;
 
+    private CanvasScaler m_CanvasScaler;
+
 	// Use this for initialization
 	void Start ()
     {
+        m_CanvasScaler = GetComponent<CanvasScaler>();
+        m_CanvasScaler.dynamicPixelsPerUnit = 4;
+
         SidePanel.gameObject.SetActive(false);
         RightPanel.gameObject.SetActive(false);
         SigninPanel.gameObject.SetActive(false);
