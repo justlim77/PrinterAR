@@ -16,18 +16,18 @@ public class SidePanel : MonoBehaviour
     public GameObject ShowcaseGroup;
     public ButtonGroup ShowcaseButton;
     public ButtonGroup LifeScaleButton;
-    public ButtonGroup ContactButton;
+    //public ButtonGroup ContactButton;
 
-    private RectTransform m_ContactRect;
-    private Vector2 m_ContactInitialPosition;
+    //private RectTransform m_ContactRect;
+    //private Vector2 m_ContactInitialPosition;
 
     private PanelType m_PanelType = PanelType.None;
 
     void Awake()
     {
-        m_ContactRect = ContactButton.GetComponent<RectTransform>();
-        m_ContactInitialPosition = m_ContactRect.anchoredPosition;
-        print(m_ContactInitialPosition);
+        //m_ContactRect = ContactButton.GetComponent<RectTransform>();
+        //m_ContactInitialPosition = m_ContactRect.anchoredPosition;
+        //print(m_ContactInitialPosition);
     }
 
 	// Use this for initialization
@@ -40,7 +40,7 @@ public class SidePanel : MonoBehaviour
     {
         AboutButton.onClick.AddListener(ShowAboutUs);
         ProductsButton.onClick.AddListener(ShowProducts);
-        ContactButton.onClick.AddListener(ShowContactUs);
+        //ContactButton.onClick.AddListener(ShowContactUs);
         ShowcaseButton.onClick.AddListener(ShowcaseClicked);
         LifeScaleButton.onClick.AddListener(LifeScaleClicked);
     }
@@ -48,7 +48,7 @@ public class SidePanel : MonoBehaviour
     {
         AboutButton.onClick.RemoveAllListeners();
         ProductsButton.onClick.RemoveAllListeners();
-        ContactButton.onClick.RemoveAllListeners();
+        //ContactButton.onClick.RemoveAllListeners();
         ShowcaseButton.onClick.RemoveAllListeners();
         LifeScaleButton.onClick.RemoveAllListeners();
     }
@@ -57,13 +57,13 @@ public class SidePanel : MonoBehaviour
     {
         AboutButton.SelectButton();
         ProductsButton.DeselectButton();
-        ContactButton.DeselectButton();
+        //ContactButton.DeselectButton();
 
         m_PanelType = PanelType.About;
 
         ShowcaseGroup.SetActive(false);
 
-        m_ContactRect.anchoredPosition = m_ContactInitialPosition;
+        //m_ContactRect.anchoredPosition = m_ContactInitialPosition;
     }
 
     public void ShowAboutUs()
@@ -75,11 +75,11 @@ public class SidePanel : MonoBehaviour
 
         AboutButton.SelectButton();
         ProductsButton.DeselectButton();
-        ContactButton.DeselectButton();
+        //ContactButton.DeselectButton();
 
         ShowcaseGroup.SetActive(false);
 
-        m_ContactRect.anchoredPosition = m_ContactInitialPosition;
+        //m_ContactRect.anchoredPosition = m_ContactInitialPosition;
 
         if (OnAboutButtonClicked != null)
             OnAboutButtonClicked(this, "About Us button clicked");
@@ -94,38 +94,38 @@ public class SidePanel : MonoBehaviour
 
         AboutButton.DeselectButton();
         ProductsButton.SelectButton();
-        ContactButton.DeselectButton();
+        //ContactButton.DeselectButton();
 
         ShowcaseButton.SelectButton();
         LifeScaleButton.DeselectButton();
 
         ShowcaseGroup.SetActive(true);
 
-        m_ContactRect.anchoredPosition = new Vector2(m_ContactRect.anchoredPosition.x, m_ContactRect.anchoredPosition.y - 230);
+        //m_ContactRect.anchoredPosition = new Vector2(m_ContactRect.anchoredPosition.x, m_ContactRect.anchoredPosition.y - 230);
 
         if (OnProductButtonClicked != null)
             OnProductButtonClicked(this, "Show product button clicked");
     }
 
 
-    public void ShowContactUs()
-    {
-        if (m_PanelType == PanelType.Contact)
-            return;
+    //public void ShowContactUs()
+    //{
+    //    if (m_PanelType == PanelType.Contact)
+    //        return;
 
-        m_PanelType = PanelType.Contact;
+    //    m_PanelType = PanelType.Contact;
 
-        AboutButton.DeselectButton();
-        ProductsButton.DeselectButton();
-        ContactButton.SelectButton();
+    //    AboutButton.DeselectButton();
+    //    ProductsButton.DeselectButton();
+    //    ContactButton.SelectButton();
 
-        ShowcaseGroup.SetActive(false);
+    //    ShowcaseGroup.SetActive(false);
 
-        m_ContactRect.anchoredPosition = m_ContactInitialPosition;
+    //    m_ContactRect.anchoredPosition = m_ContactInitialPosition;
 
-        if (OnContactButtonClicked != null)
-            OnContactButtonClicked(this, "Contact Us button clicked");
-    }
+    //    if (OnContactButtonClicked != null)
+    //        OnContactButtonClicked(this, "Contact Us button clicked");
+    //}
 
     public void ShowcaseClicked()
     {

@@ -43,7 +43,7 @@ public class UserInterface : MonoBehaviour
         SidePanel.OnProductButtonClicked += SidePanel_OnProductButtonClicked;
         SidePanel.OnShowcaseButtonClicked += SidePanel_OnShowcaseButtonClicked;
         SidePanel.OnLifeScaleButtonClicked += SidePanel_OnLifeScaleButtonClicked;
-        SidePanel.OnContactButtonClicked += SidePanel_OnContactButtonClicked;
+        //SidePanel.OnContactButtonClicked += SidePanel_OnContactButtonClicked;
 
     }
 
@@ -57,7 +57,7 @@ public class UserInterface : MonoBehaviour
         SidePanel.OnProductButtonClicked -= SidePanel_OnProductButtonClicked;
         SidePanel.OnShowcaseButtonClicked -= SidePanel_OnShowcaseButtonClicked;
         SidePanel.OnLifeScaleButtonClicked -= SidePanel_OnLifeScaleButtonClicked;
-        SidePanel.OnContactButtonClicked -= SidePanel_OnContactButtonClicked;
+        //SidePanel.OnContactButtonClicked -= SidePanel_OnContactButtonClicked;
     }
 
     private void SidePanel_OnLifeScaleButtonClicked(object arg1, string arg2)
@@ -98,7 +98,7 @@ public class UserInterface : MonoBehaviour
         SigninPanel.gameObject.SetActive(false);
         RegisterPanel.SetActive(false);
         AboutUsPanel.SetActive(false);
-        ContactUsPanel.SetActive(false);
+        //ContactUsPanel.SetActive(false);
         WelcomePanel.SetActive(false);
 
         UserBar.transform.SetAsLastSibling();
@@ -129,7 +129,7 @@ public class UserInterface : MonoBehaviour
         RightPanel.gameObject.SetActive(false);
         RegisterPanel.SetActive(false);
         AboutUsPanel.SetActive(false);
-        ContactUsPanel.SetActive(false);
+        //ContactUsPanel.SetActive(false);
 
         SigninPanel.Initialize();
         SigninPanel.transform.SetAsLastSibling();
