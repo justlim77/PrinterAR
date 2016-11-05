@@ -20,7 +20,13 @@ public class UserInterface : MonoBehaviour
 
     public RectTransform MainPanel;
     public GameObject WelcomePanel;
-    public SigninPanel SigninPanel;
+
+    [Header("Login View")]
+    public LoginView loginView;
+    public InputField userField;
+    public InputField passwordField;
+    public Button loginButton;
+
     public GameObject RegisterPanel;
     public GameObject AboutUsPanel;
     public GameObject ContactUsPanel;
@@ -35,8 +41,19 @@ public class UserInterface : MonoBehaviour
     public static MenuItem menuItem = MenuItem.Welcome;
 
     private CanvasScaler m_CanvasScaler;
-
     private Vector2 m_InitialPanelPosition = new Vector2();
+
+    private LoginService m_loginService;
+
+    /// <summary>
+    /// Processes login response from HTTP server
+    /// </summary>
+    /// <param name="response"></param>
+    void LoginResponseHandler(Response response)
+    {
+        // TODO: Implement notification system
+        Debug.Log(string.Format("Login status: {0}, {1}", response.error, response.message));
+    }
 
 	// Use this for initialization
 	void Start ()
@@ -51,7 +68,7 @@ public class UserInterface : MonoBehaviour
 
     void OnEnable()
     {
-        SigninPanel.OnSignedIn += SigninPanel_OnSignedIn;
+        LoginView.OnSignedIn += SigninPanel_OnSignedIn;
         UserBar.OnSignedOut += UserBar_OnSignedOut;
         UserBar.OnSignInPressed += UserBar_OnSignInPressed;
         UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
@@ -59,12 +76,16 @@ public class UserInterface : MonoBehaviour
         SidePanel.OnProductButtonClicked += SidePanel_OnProductButtonClicked;
         SidePanel.OnShowcaseButtonClicked += SidePanel_OnShowcaseButtonClicked;
         SidePanel.OnLifeScaleButtonClicked += SidePanel_OnLifeScaleButtonClicked;
-        //SidePanel.OnContactButtonClicked += SidePanel_OnContactButtonClicked;
+
+        loginView.loginButton.onClick.AddListener(() =>
+        {
+            StartCoroutine(m_loginService.SendLoginData(loginView.loginData, LoginResponseHandler));
+        });
     }
 
     void OnDisable()
     {
-        SigninPanel.OnSignedIn -= SigninPanel_OnSignedIn;
+        LoginView.OnSignedIn -= SigninPanel_OnSignedIn;
         UserBar.OnSignedOut -= UserBar_OnSignedOut;
         UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
         UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
@@ -72,7 +93,8 @@ public class UserInterface : MonoBehaviour
         SidePanel.OnProductButtonClicked -= SidePanel_OnProductButtonClicked;
         SidePanel.OnShowcaseButtonClicked -= SidePanel_OnShowcaseButtonClicked;
         SidePanel.OnLifeScaleButtonClicked -= SidePanel_OnLifeScaleButtonClicked;
-        //SidePanel.OnContactButtonClicked -= SidePanel_OnContactButtonClicked;
+
+        loginView.loginButton.onClick.RemoveAllListeners();
     }
 
     void Update()
@@ -115,11 +137,6 @@ public class UserInterface : MonoBehaviour
 
     private void SidePanel_OnAboutButtonClicked(object arg1, string arg2)
     {
-        //AboutUsPanel.SetActive(true);
-        //AboutUsPanel.transform.SetAsLastSibling();
-        //UserBar.transform.SetAsLastSibling();
-        //SidePanel.transform.SetAsLastSibling();
-
         LoadMenuItem(MenuItem.About);
 
         MainPanel.anchoredPosition = new Vector2(AboutPanelHorizontalPosition, m_InitialPanelPosition.y);
@@ -127,15 +144,6 @@ public class UserInterface : MonoBehaviour
 
     private void SidePanel_OnProductButtonClicked(object arg1, string arg2)
     {
-        //SigninPanel.gameObject.SetActive(false);
-        //RegisterPanel.SetActive(false);
-        //AboutUsPanel.SetActive(false);
-        ////ContactUsPanel.SetActive(false);
-        //WelcomePanel.SetActive(false);
-
-        //UserBar.transform.SetAsLastSibling();
-        //SidePanel.transform.SetAsLastSibling();
-
         LoadMenuItem(MenuItem.Showcase);
 
         RightPanel.SetAsMain();
@@ -144,39 +152,23 @@ public class UserInterface : MonoBehaviour
 
     private void UserBar_OnRegisterPressed(object arg1, string arg2)
     {
-        //RegisterPanel.SetActive(true);
-        //RegisterPanel.transform.SetAsLastSibling();
-        //UserBar.transform.SetAsLastSibling();
         LoadMenuItem(MenuItem.Register);
-        ResetPanelPosition();
+        SetMainPanelHorizontal();
     }
 
     private void UserBar_OnSignInPressed(object arg1, string arg2)
     {
-        //SigninPanel.gameObject.SetActive(true);
-        //SigninPanel.transform.SetAsLastSibling();
-        //UserBar.transform.SetAsLastSibling();
         LoadMenuItem(MenuItem.Sigin);       
-        ResetPanelPosition();
+        SetMainPanelHorizontal();
     }
 
     private void UserBar_OnSignedOut(object sender, string arg)
     {
-        //AboutUsPanel.SetActive(true);
-        //SidePanel.gameObject.SetActive(false);
-        //RightPanel.gameObject.SetActive(false);
-        //RegisterPanel.SetActive(false);
-        //AboutUsPanel.SetActive(false);
-        //ContactUsPanel.SetActive(false);
-
-        SigninPanel.Initialize();
-        //SigninPanel.transform.SetAsLastSibling();
-        //UserBar.transform.SetAsLastSibling();
-        //SigninPanel.gameObject.SetActive(true);
+        loginView.Initialize();
 
         LoadMenuItem(MenuItem.Sigin);
 
-        ResetPanelPosition();
+        SetMainPanelHorizontal();
     }
 
 
@@ -185,21 +177,16 @@ public class UserInterface : MonoBehaviour
         UserBar.UpdateName(args.Username);
         Debug.Log(string.Format("{0} signed in at {1}:{2}", args.Username, args.Time.Hour, args.Time.Minute));
 
-        //AboutUsPanel.SetActive(true);
-        //AboutUsPanel.transform.SetAsLastSibling();
-        //UserBar.transform.SetAsLastSibling();
-
         SidePanel.Initialize();
-        //SidePanel.SetAsMain();
 
         LoadMenuItem(MenuItem.About);
 
-        MainPanel.anchoredPosition = new Vector2(AboutPanelHorizontalPosition, m_InitialPanelPosition.y);
+        SetMainPanelHorizontal(AboutPanelHorizontalPosition);
     }
 
-    private void ResetPanelPosition()
+    private void SetMainPanelHorizontal(float x = 0)
     {
-        MainPanel.anchoredPosition = m_InitialPanelPosition;
+        MainPanel.anchoredPosition = new Vector2(x, m_InitialPanelPosition.y);
     }
 
     private void LoadMenuItem(MenuItem menuItem)
@@ -210,7 +197,7 @@ public class UserInterface : MonoBehaviour
                 MainPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
-                SigninPanel.gameObject.SetActive(false);
+                loginView.gameObject.SetActive(false);
                 RegisterPanel.SetActive(false);
                 AboutUsPanel.SetActive(false);
                 SidePanel.gameObject.SetActive(false);
@@ -220,7 +207,7 @@ public class UserInterface : MonoBehaviour
                 MainPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(true);
-                SigninPanel.gameObject.SetActive(false);
+                loginView.gameObject.SetActive(false);
                 RegisterPanel.SetActive(false);
                 AboutUsPanel.SetActive(false);
                 SidePanel.gameObject.SetActive(false);
@@ -232,7 +219,7 @@ public class UserInterface : MonoBehaviour
                 MainPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
-                SigninPanel.gameObject.SetActive(true);
+                loginView.gameObject.SetActive(true);
                 RegisterPanel.SetActive(false);
                 AboutUsPanel.SetActive(false);
                 SidePanel.gameObject.SetActive(false);
@@ -244,7 +231,7 @@ public class UserInterface : MonoBehaviour
                 MainPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
-                SigninPanel.gameObject.SetActive(false);
+                loginView.gameObject.SetActive(false);
                 RegisterPanel.SetActive(true);
                 AboutUsPanel.SetActive(false);
                 SidePanel.gameObject.SetActive(false);
@@ -256,7 +243,7 @@ public class UserInterface : MonoBehaviour
                 MainPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
-                SigninPanel.gameObject.SetActive(false);
+                loginView.gameObject.SetActive(false);
                 RegisterPanel.SetActive(false);
                 AboutUsPanel.SetActive(true);
                 SidePanel.gameObject.SetActive(true);

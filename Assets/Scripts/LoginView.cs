@@ -10,7 +10,7 @@ public class SignInEventArgs : EventArgs
     public DateTime Time;
 }
 
-public class SigninPanel : MonoBehaviour
+public class LoginView : MonoBehaviour
 {
     public delegate void SignInEventHandler(object sender, SignInEventArgs args);
     public static event SignInEventHandler OnSignedIn;
@@ -18,7 +18,9 @@ public class SigninPanel : MonoBehaviour
     public InputField UserInputField;
     public InputField PassInputField;
     public Toggle RememberMeToggle;
-    public Button SigninButton;
+    public Button loginButton;
+
+    public LoginData loginData;
 
     private string username = "";
     private string password = "";
@@ -30,16 +32,16 @@ public class SigninPanel : MonoBehaviour
 
     void OnEnable()
     {
-        UserInputField.onEndEdit.AddListener((x) => username = x);
-        PassInputField.onEndEdit.AddListener((x) => password = x);
-        SigninButton.onClick.AddListener(Signin);
+        UserInputField.onEndEdit.AddListener((x) => username = loginData.username = x);
+        PassInputField.onEndEdit.AddListener((x) => password = loginData.password = x);
+        loginButton.onClick.AddListener(Signin);
     }
 
     void OnDisable()
     {
         UserInputField.onEndEdit.RemoveAllListeners();
         PassInputField.onEndEdit.RemoveAllListeners();
-        SigninButton.onClick.RemoveAllListeners();
+        loginButton.onClick.RemoveAllListeners();
     }
 
     public void ClearUserInputField()
@@ -56,6 +58,7 @@ public class SigninPanel : MonoBehaviour
     {
         ClearUserInputField();
         ClearPassInputField();
+        loginData.Clear();
         return true;
     }
 
