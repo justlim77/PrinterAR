@@ -18,16 +18,16 @@ public class UserInterface : MonoBehaviour
     public Text Header;
     public GameObject Background;
 
-    public RectTransform MainPanel;
+    public RectTransform contentPanel;
     public GameObject WelcomePanel;
 
-    [Header("Login View")]
+    [Header("Login")]
     public LoginView loginView;
-    public InputField userField;
-    public InputField passwordField;
-    public Button loginButton;
 
+    [Header("Registration")]
+    public RegistrationView registrationView;
     public GameObject RegisterPanel;
+
     public GameObject AboutUsPanel;
     public GameObject ContactUsPanel;
 
@@ -43,7 +43,8 @@ public class UserInterface : MonoBehaviour
     private CanvasScaler m_CanvasScaler;
     private Vector2 m_InitialPanelPosition = new Vector2();
 
-    private LoginService m_loginService;
+    private LoginService m_loginService = new LoginService();
+    private RegistrationService m_registrationService = new RegistrationService();
 
     /// <summary>
     /// Processes login response from HTTP server
@@ -55,20 +56,33 @@ public class UserInterface : MonoBehaviour
         Debug.Log(string.Format("Login status: {0}, {1}", response.error, response.message));
     }
 
-	// Use this for initialization
-	void Start ()
+    /// <summary>
+    /// Processes registration response from HTTP server
+    /// </summary>
+    /// <param name="response"></param>
+    void RegistrationResponseHandler(Response response)
     {
+        // TODO: Implement notification system
+        Debug.Log(string.Format("Registration status: {0}, {1}", response.error, response.message));
+    }
+
+    // Use this for initialization
+    void Start ()
+    {
+        //m_loginService = new LoginService();
+        //m_registrationService = new RegistrationService();
+
         m_CanvasScaler = GetComponent<CanvasScaler>();
         m_CanvasScaler.dynamicPixelsPerUnit = 4;
 
-        m_InitialPanelPosition = MainPanel.anchoredPosition;
+        m_InitialPanelPosition = contentPanel.anchoredPosition;
 
         LoadMenuItem(MenuItem.Welcome);
 	}
 
     void OnEnable()
     {
-        LoginView.OnSignedIn += SigninPanel_OnSignedIn;
+        LoginView.OnLoggedIn += SigninPanel_OnSignedIn;
         UserBar.OnSignedOut += UserBar_OnSignedOut;
         UserBar.OnSignInPressed += UserBar_OnSignInPressed;
         UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
@@ -81,11 +95,16 @@ public class UserInterface : MonoBehaviour
         {
             StartCoroutine(m_loginService.SendLoginData(loginView.loginData, LoginResponseHandler));
         });
+
+        registrationView.registerButton.onClick.AddListener(() =>
+        {
+            StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData, RegistrationResponseHandler));
+        });
     }
 
     void OnDisable()
     {
-        LoginView.OnSignedIn -= SigninPanel_OnSignedIn;
+        LoginView.OnLoggedIn -= SigninPanel_OnSignedIn;
         UserBar.OnSignedOut -= UserBar_OnSignedOut;
         UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
         UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
@@ -95,6 +114,7 @@ public class UserInterface : MonoBehaviour
         SidePanel.OnLifeScaleButtonClicked -= SidePanel_OnLifeScaleButtonClicked;
 
         loginView.loginButton.onClick.RemoveAllListeners();
+        registrationView.registerButton.onClick.RemoveAllListeners();
     }
 
     void Update()
@@ -139,7 +159,7 @@ public class UserInterface : MonoBehaviour
     {
         LoadMenuItem(MenuItem.About);
 
-        MainPanel.anchoredPosition = new Vector2(AboutPanelHorizontalPosition, m_InitialPanelPosition.y);
+        contentPanel.anchoredPosition = new Vector2(AboutPanelHorizontalPosition, m_InitialPanelPosition.y);
     }
 
     private void SidePanel_OnProductButtonClicked(object arg1, string arg2)
@@ -172,7 +192,7 @@ public class UserInterface : MonoBehaviour
     }
 
 
-    private void SigninPanel_OnSignedIn(object sender, SignInEventArgs args)
+    private void SigninPanel_OnSignedIn(object sender, LoginEventArgs args)
     {
         UserBar.UpdateName(args.Username);
         Debug.Log(string.Format("{0} signed in at {1}:{2}", args.Username, args.Time.Hour, args.Time.Minute));
@@ -186,7 +206,7 @@ public class UserInterface : MonoBehaviour
 
     private void SetMainPanelHorizontal(float x = 0)
     {
-        MainPanel.anchoredPosition = new Vector2(x, m_InitialPanelPosition.y);
+        contentPanel.anchoredPosition = new Vector2(x, m_InitialPanelPosition.y);
     }
 
     private void LoadMenuItem(MenuItem menuItem)
@@ -194,7 +214,7 @@ public class UserInterface : MonoBehaviour
         switch (menuItem)
         {
             case MenuItem.None:
-                MainPanel.gameObject.SetActive(true);
+                contentPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
                 loginView.gameObject.SetActive(false);
@@ -204,7 +224,7 @@ public class UserInterface : MonoBehaviour
                 RightPanel.gameObject.SetActive(false);
                 break;
             case MenuItem.Welcome:
-                MainPanel.gameObject.SetActive(true);
+                contentPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(true);
                 loginView.gameObject.SetActive(false);
@@ -216,7 +236,7 @@ public class UserInterface : MonoBehaviour
                 Header.text = "Welcome";
                 break;
             case MenuItem.Sigin:
-                MainPanel.gameObject.SetActive(true);
+                contentPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
                 loginView.gameObject.SetActive(true);
@@ -228,7 +248,7 @@ public class UserInterface : MonoBehaviour
                 Header.text = "Sign in";
                 break;
             case MenuItem.Register:
-                MainPanel.gameObject.SetActive(true);
+                contentPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
                 loginView.gameObject.SetActive(false);
@@ -240,7 +260,7 @@ public class UserInterface : MonoBehaviour
                 Header.text = "Register";
                 break;
             case MenuItem.About:
-                MainPanel.gameObject.SetActive(true);
+                contentPanel.gameObject.SetActive(true);
 
                 WelcomePanel.SetActive(false);
                 loginView.gameObject.SetActive(false);
@@ -252,14 +272,14 @@ public class UserInterface : MonoBehaviour
                 Header.text = "About Us";
                 break;
             case MenuItem.Showcase:
-                MainPanel.gameObject.SetActive(false);
+                contentPanel.gameObject.SetActive(false);
 
                 if (RightPanel != null)
                     RightPanel.ToggleInfoPanel(true);
 
                 break;
             case MenuItem.LifeScale:
-                MainPanel.gameObject.SetActive(false);
+                contentPanel.gameObject.SetActive(false);
                 break;
         }
 

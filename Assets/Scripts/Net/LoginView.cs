@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 
-public class SignInEventArgs : EventArgs
+public class LoginEventArgs : EventArgs
 {
     public string Username;
     public string Password;
@@ -12,15 +12,15 @@ public class SignInEventArgs : EventArgs
 
 public class LoginView : MonoBehaviour
 {
-    public delegate void SignInEventHandler(object sender, SignInEventArgs args);
-    public static event SignInEventHandler OnSignedIn;
+    public delegate void LoginEventHandler(object sender, LoginEventArgs args);
+    public static event LoginEventHandler OnLoggedIn;
 
     public InputField UserInputField;
     public InputField PassInputField;
     public Toggle RememberMeToggle;
     public Button loginButton;
 
-    public LoginData loginData;
+    public LoginData loginData = new LoginData();
 
     private string username = "";
     private string password = "";
@@ -28,20 +28,20 @@ public class LoginView : MonoBehaviour
     void Start()
     {
         Initialize();
+        loginButton.onClick.AddListener(Login);
     }
 
     void OnEnable()
     {
         UserInputField.onEndEdit.AddListener((x) => username = loginData.username = x);
         PassInputField.onEndEdit.AddListener((x) => password = loginData.password = x);
-        loginButton.onClick.AddListener(Signin);
     }
 
     void OnDisable()
     {
         UserInputField.onEndEdit.RemoveAllListeners();
         PassInputField.onEndEdit.RemoveAllListeners();
-        loginButton.onClick.RemoveAllListeners();
+        //loginButton.onClick.RemoveAllListeners();
     }
 
     public void ClearUserInputField()
@@ -62,11 +62,11 @@ public class LoginView : MonoBehaviour
         return true;
     }
 
-    public void Signin()
+    public void Login()
     {
-        if (OnSignedIn != null)
+        if (OnLoggedIn != null)
         {
-            OnSignedIn(this, new SignInEventArgs { Username = username, Password = password, Time = DateTime.Now });
+            OnLoggedIn(this, new LoginEventArgs { Username = username, Password = password, Time = DateTime.Now });
         }
     }
 }

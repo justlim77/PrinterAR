@@ -24,15 +24,15 @@ public class UserBar : MonoBehaviour
 
     void OnEnable()
     {
-        LoginView.OnSignedIn += SigninPanel_OnSignedIn;
+        LoginView.OnLoggedIn += SigninPanel_OnSignedIn;
     }
 
     void OnDisable()
     {
-        LoginView.OnSignedIn -= SigninPanel_OnSignedIn;
+        LoginView.OnLoggedIn -= SigninPanel_OnSignedIn;
     }
 
-    private void SigninPanel_OnSignedIn(object sender, SignInEventArgs args)
+    private void SigninPanel_OnSignedIn(object sender, LoginEventArgs args)
     {
         UpdateName(args.Username);
         SignoutButton.SetActive(true);

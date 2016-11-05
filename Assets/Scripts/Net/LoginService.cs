@@ -9,7 +9,7 @@
 using UnityEngine;
 using System.Collections;
 
-public class LoginService : MonoBehaviour
+public class LoginService
 {
     public static string LOGIN_URL = "http://unity-test-server.appspot.com/authentication/login";   // @WebServiceDeveloper Please set this to the web service URL
     public static string LOGIN_SUCCESS = "login-success";   // @WebServiceDeveloper Please set return value from successful login request
