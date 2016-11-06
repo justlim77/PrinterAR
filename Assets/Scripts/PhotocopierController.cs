@@ -18,6 +18,8 @@ public class PhotocopierController : MonoBehaviour
 
     public Vuforia.DefaultTrackableEventHandler trackableEventHandler;
 
+    public ButtonGroup printSpeedButton;
+    public string printSpeedURL;
     public ButtonGroup scannerButton;
     public ButtonGroup panelButton;
     public ButtonGroup tonerButton;
@@ -50,7 +52,7 @@ public class PhotocopierController : MonoBehaviour
     {
         if (trackableEventHandler != null)
         {
-            Transform model = trackableEventHandler.transform.GetChildByName("Model");
+            Transform model = trackableEventHandler.transform.GetChildByName("model");
             scannerAnimator = model.GetChildByName("scanner-pivot").GetComponent<Animator>();
             panelAnimator = model.GetChildByName("panel-pivot").GetComponent<Animator>();
             tonerAnimator = model.GetChildByName("toner-pivot").GetComponent<Animator>();
@@ -68,6 +70,7 @@ public class PhotocopierController : MonoBehaviour
 
     void OnEnable()
     {
+        printSpeedButton.onClick.AddListener(ShowPrintSpeed);
         scannerButton.onClick.AddListener(AnimateScanner);
         scannerButton.onClick.AddListener(scannerButton.ToggleState);
         panelButton.onClick.AddListener(AnimatePanel);
@@ -82,11 +85,17 @@ public class PhotocopierController : MonoBehaviour
 
     void OnDisable()
     {
+        printSpeedButton.onClick.RemoveAllListeners();
         scannerButton.onClick.RemoveAllListeners();
         panelButton.onClick.RemoveAllListeners();
         tonerButton.onClick.RemoveAllListeners();
         sideTrayButton.onClick.RemoveAllListeners();
         paperTrayButton.onClick.RemoveAllListeners();
+    }
+
+    public void ShowPrintSpeed()
+    {
+        Handheld.PlayFullScreenMovie(printSpeedURL);
     }
 
     public void AnimateScanner()
