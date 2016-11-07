@@ -2,7 +2,7 @@
 /// =====CRM Integration=====
 /// Replace temporary REGISTER_URL value with link to web service
 /// Replace temporary RETISTER_SUCCESS value with return value from successful registration request
-/// Currently set up to query [dbo.tblRegister] for [CUserID], [CPwd], [CEmail] *Currently does not exist*, and [Company]
+/// Currently set up to query [dbo.tblRegister] for [CName], [CUserID], [CPwd], [Email] *Currently does not exist*, and [Company]
 /// =========================
 /// 
 
@@ -13,19 +13,44 @@ namespace CopierAR
 {
     public class RegistrationService
     {
-        public static string REGISTER_URL = "http://unity-test-server.appspot.com/authentication/register";   // @WebServiceDeveloper Please set this to the web service registration URL
-        public static string REGISTER_SUCCESS = "register-success";   // @WebServiceDeveloper Please set return value from successful register request
+        public static string REGISTER_URL = "http://unity-test-server.appspot.com/authentication/register";
+        public static string REGISTER_SUCCESS = "register-success";
 
         public IEnumerator SendRegistrationData(RegistrationData registerData, System.Action<Response> responseHandler)
         {
-            // Check for missing fields:
-            if (registerData.CName == "")
-            {
+            Response response = new Response();
 
+            // Fetch for existing database entry using CUserID
+            RegistrationData _data = DBManager.GetRegistrationData(registerData.CUserID);
+
+            // Cross-ref database to check for existing username (CUserID)
+            if (_data.CUserID == registerData.CUserID)
+            {
+                Debug.Log("Username already exists");
+                response.error = true;
+                response.message = "Username already exists";
+                responseHandler(response);
+                yield break;
             }
 
+            // Cross-ref database to check for existing email (Email)
+            if (_data.Email == registerData.Email)
+            {
+                Debug.Log("Email already exists");
+                response.error = true;
+                response.message = "Email already exists";
+                responseHandler(response);
+                yield break;
+            }
+
+            Debug.Log("Username and Email valid for registration");
+            response.error = false;
+            response.message = "Username and Email valid for registration";
+            responseHandler(response);
+            yield break;
+
             // Check if user exists, if so, get registration data:
-            RegistrationData _data = new RegistrationData();
+            //RegistrationData _data = new RegistrationData();
             _data = registerData;
             _data = DBManager.GetRegistrationData(_data.CUserID);
             Debug.Log(_data.CopierModel);

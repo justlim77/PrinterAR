@@ -17,22 +17,22 @@ namespace CopierAR
         public static event RegistrationEventHandler OnRegistered;
 
         public InputField nameField;
-        public Text nameComment;
         public InputField usernameField;
-        public Text usernameComment;
         public InputField passwordField;
-        public Text passwordComment;
         public InputField emailField;
-        public Text emailComment;
         public InputField companyField;
+        public Text nameComment;
+        public Text usernameComment;
+        public Text passwordComment;
+        public Text emailComment;
         public Text companyComment;
-
         public Button registerButton;
 
         public RegistrationData registrationData { get; private set; }
 
         void Start()
         {
+            registrationData = new RegistrationData();
             Initialize();
             registerButton.onClick.AddListener(Register);
         }
@@ -40,17 +40,15 @@ namespace CopierAR
         void OnEnable()
         {
             nameField.onEndEdit.AddListener((x) => registrationData.CName = x);
-            nameField.onEndEdit.AddListener(delegate { ValidateName(nameField); });
+            nameField.onEndEdit.AddListener(delegate { ValidateName(); });
             usernameField.onEndEdit.AddListener((x) => registrationData.CUserID = x);
-            usernameField.onEndEdit.AddListener(delegate { ValidateUsername(usernameField); });
+            usernameField.onEndEdit.AddListener(delegate { ValidateUsername(); });
             passwordField.onEndEdit.AddListener((x) => registrationData.CPwd = x);
-            passwordField.onEndEdit.AddListener(delegate { ValidatePassword(passwordField); });
+            passwordField.onEndEdit.AddListener(delegate { ValidatePassword(); });
             emailField.onEndEdit.AddListener((x) => registrationData.Email = x);
-            emailField.onEndEdit.AddListener(delegate { ValidateEmail(emailField); });
+            emailField.onEndEdit.AddListener(delegate { ValidateEmail(); });
             companyField.onEndEdit.AddListener((x) => registrationData.Company = x);
-            companyField.onEndEdit.AddListener(delegate { ValidateCompany(companyField); });
-            // Validate input
-            //nameField.onValidateInput += delegate (string input, int charIndex, char addedChar) { return ValidateName(addedChar); };
+            companyField.onEndEdit.AddListener(delegate { ValidateCompany(); });
         }
 
         void OnDisable()
@@ -60,30 +58,34 @@ namespace CopierAR
             passwordField.onEndEdit.RemoveAllListeners();
             emailField.onEndEdit.RemoveAllListeners();
             companyField.onEndEdit.RemoveAllListeners();
-            //registerButton.onClick.RemoveAllListeners();
         }
 
         public void ClearNameInputField()
         {
             nameField.text = "";
+            nameComment.text = "";
         }
         public void ClearUserInputField()
         {
             usernameField.text = "";
+            usernameComment.text = "";
         }
 
         public void ClearPassInputField()
         {
             passwordField.text = "";
+            passwordComment.text = "";
         }
 
         public void ClearEmailField()
         {
             emailField.text = "";
+            emailComment.text = "";
         }
         public void ClearCompanyField()
         {
             companyField.text = "";
+            companyComment.text = "";
         }
 
         public bool Initialize()
@@ -100,7 +102,8 @@ namespace CopierAR
         public void Register()
         {
             // Check for required fields:
-
+            if (!ValidateName() || !ValidateUsername() || !ValidatePassword() || !ValidateEmail() || !ValidateCompany())
+                return;
 
             if (OnRegistered != null)
             {
@@ -112,87 +115,115 @@ namespace CopierAR
             }
         }
 
-        private void ValidateName(InputField input)
+        private bool ValidateName()
         {
             // Check length
-            if (input.text.Length == 0)
+            if (nameField.text.Length == 0)
             {
-                ShowComment("Enter a name", ref nameComment);
+                ShowComment("Required field", ref nameComment);
             }
-            else if (input.text.Length < 2)
+            else if (nameField.text.Length < 2)
             {
-                ShowComment("Name too short", ref nameComment);
+                ShowComment("Minimum 2 characters", ref nameComment);
             }
             else
             {
                 HideComment(ref nameComment);
+                return true;
             }
+            return false;
         }
 
-        private void ValidateUsername(InputField input)
+        private bool ValidateUsername()
         {
             // Check length
-            if (input.text.Length == 0)
+            if (usernameField.text.Length == 0)
             {
-                ShowComment("Enter a username", ref usernameComment);
+                ShowComment("Required field", ref usernameComment);
             }
-            else if (input.text.Length < 5)
+            else if (usernameField.text.Length < 5)
             {
-                ShowComment("Username too short", ref usernameComment);
+                ShowComment("Minimum 5 characters", ref usernameComment);
             }
             else
             {
                 HideComment(ref usernameComment);
+                return true;
             }
+            return false;
         }
 
-        private void ValidatePassword(InputField input)
+        private bool ValidatePassword()
         {
             // Check length
-            if (input.text.Length == 0)
+            if (passwordField.text.Length == 0)
             {
-                ShowComment("Enter a password", ref passwordComment);
+                ShowComment("Required field", ref passwordComment);
             }
-            else if (input.text.Length < 6)
+            else if (passwordField.text.Length < 6)
             {
                 ShowComment("Minimum 6 characters", ref passwordComment);
             }
             else
             {
                 HideComment(ref passwordComment);
+                return true;
             }
+            return false;
         }
-        private void ValidateEmail(InputField input)
+        private bool ValidateEmail()
         {
             // Check length
-            if (input.text.Length == 0)
+            if (emailField.text == null)
             {
-                ShowComment("Enter an email", ref emailComment);
+                ShowComment("Required field", ref emailComment);
+                return false;
             }
-            else if (input.)
+
+            int atSymbolPosition = emailField.text.IndexOf("@");
+
+            // Check if the @ symbol is not found, at the start or end of the address.
+            // Examples:
+            // mail.com
+            // @mail.com
+            // johnsmith@
+            // johnsmith@mail.com@
+            if (atSymbolPosition < 1 || emailField.text.EndsWith("@"))
             {
-                ShowComment("", ref emailComment);
+                ShowComment("Invalid email format", ref emailComment);
+                return false;
             }
-            else
+
+            int periodSymbolPosition = emailField.text.IndexOf(".", atSymbolPosition);
+
+            // Check if the period is not found, and that it's not beside the @ symbol, and it's not at the end.  
+            // Examples:
+            // johnsmith@mail
+            // johnsmith@.mail.com
+            // johnsmith@mail.
+            // johnsmith@mail.co.
+            if (periodSymbolPosition > (atSymbolPosition + 1) && !emailField.text.EndsWith("."))
             {
                 HideComment(ref emailComment);
+                return true;
             }
+
+            ShowComment("Invalid email format", ref emailComment);
+            return false;   
         }
-        private void ValidateCompany(InputField input)
+        private bool ValidateCompany()
         {
             // Check length
-            if (input.text.Length == 0)
+            if (companyField.text.Length == 0)
             {
-                ShowComment("Enter a username", ref companyComment);
-            }
-            else if (input.text.Length < 5)
-            {
-                ShowComment("Username too short", ref companyComment);
+                ShowComment("Required field", ref companyComment);
             }
             else
             {
                 HideComment(ref companyComment);
+                return true;
             }
+            return false;
         }
 
         private void ShowComment(string message, ref Text commentLabel)

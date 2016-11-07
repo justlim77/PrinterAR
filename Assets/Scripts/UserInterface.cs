@@ -66,6 +66,8 @@ namespace CopierAR
         {
             // TODO: Implement notification system
             Debug.Log(string.Format("Registration status: {0}, {1}", response.error, response.message));
+
+            // TODO: Register user on database
         }
 
         // Use this for initialization
@@ -103,7 +105,7 @@ namespace CopierAR
             {
                 StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData, RegistrationResponseHandler));
             });
-        }
+        }       
 
         void OnDisable()
         {
