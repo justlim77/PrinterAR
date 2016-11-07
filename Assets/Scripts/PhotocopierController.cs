@@ -95,7 +95,11 @@ public class PhotocopierController : MonoBehaviour
 
     public void ShowPrintSpeed()
     {
+#if UNITY_ANDROID
+        Application.OpenURL(printSpeedURL);
+#elif UNITY_IOS
         Handheld.PlayFullScreenMovie(printSpeedURL);
+#endif
     }
 
     public void AnimateScanner()
