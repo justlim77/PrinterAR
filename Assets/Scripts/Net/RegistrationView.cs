@@ -3,89 +3,206 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 
-public class RegistrationEventArgs : EventArgs
+namespace CopierAR
 {
-    public string Username;
-    public string Password;
-    public string Email;
-    public string Company;
-    public DateTime Time;
-}
-
-public class RegistrationView : MonoBehaviour
-{
-    public delegate void RegistrationEventHandler(object sender, RegistrationEventArgs args);
-    public static event RegistrationEventHandler OnRegistered;
-
-    public InputField usernameField;
-    public InputField passwordField;
-    public InputField emailField;
-    public InputField companyField;
-    public Button registerButton;
-
-    public RegistrationData registrationData = new RegistrationData();
-
-    private string username = "";
-    private string password = "";
-    private string email = "";
-    private string company = "";
-
-    void Start()
+    public class RegistrationEventArgs : EventArgs
     {
-        Initialize();
-        registerButton.onClick.AddListener(Register);
+        public RegistrationData registrationData;
+        public DateTime time;
     }
 
-    void OnEnable()
+    public class RegistrationView : MonoBehaviour
     {
-        usernameField.onEndEdit.AddListener((x) => username = registrationData.username = x);
-        passwordField.onEndEdit.AddListener((x) => password = registrationData.password = x);
-        emailField.onEndEdit.AddListener((x) => email = registrationData.email = x);
-        companyField.onEndEdit.AddListener((x) => company = registrationData.company = x);
-    }
+        public delegate void RegistrationEventHandler(object sender, RegistrationEventArgs args);
+        public static event RegistrationEventHandler OnRegistered;
 
-    void OnDisable()
-    {
-        usernameField.onEndEdit.RemoveAllListeners();
-        passwordField.onEndEdit.RemoveAllListeners();
-        emailField.onEndEdit.RemoveAllListeners();
-        companyField.onEndEdit.RemoveAllListeners();
-        //registerButton.onClick.RemoveAllListeners();
-    }
+        public InputField nameField;
+        public Text nameComment;
+        public InputField usernameField;
+        public Text usernameComment;
+        public InputField passwordField;
+        public Text passwordComment;
+        public InputField emailField;
+        public Text emailComment;
+        public InputField companyField;
+        public Text companyComment;
 
-    public void ClearUserInputField()
-    {
-        usernameField.text = "";
-        username = "";
-    }
+        public Button registerButton;
 
-    public void ClearPassInputField()
-    {
-        passwordField.text = "";
-        password = "";
-    }
+        public RegistrationData registrationData { get; private set; }
 
-    public bool Initialize()
-    {
-        ClearUserInputField();
-        ClearPassInputField();
-        emailField.text = email = "";
-        companyField.text = company = "";
-        registrationData.Clear();
-        return true;
-    }
-
-    public void Register()
-    {
-        if (OnRegistered != null)
+        void Start()
         {
-            OnRegistered(this, new RegistrationEventArgs {
-                Username = username,
-                Password = password,
-                Email = email,
-                Company = company,
-                Time = DateTime.Now
-            });
+            Initialize();
+            registerButton.onClick.AddListener(Register);
+        }
+
+        void OnEnable()
+        {
+            nameField.onEndEdit.AddListener((x) => registrationData.CName = x);
+            nameField.onEndEdit.AddListener(delegate { ValidateName(nameField); });
+            usernameField.onEndEdit.AddListener((x) => registrationData.CUserID = x);
+            usernameField.onEndEdit.AddListener(delegate { ValidateUsername(usernameField); });
+            passwordField.onEndEdit.AddListener((x) => registrationData.CPwd = x);
+            passwordField.onEndEdit.AddListener(delegate { ValidatePassword(passwordField); });
+            emailField.onEndEdit.AddListener((x) => registrationData.Email = x);
+            emailField.onEndEdit.AddListener(delegate { ValidateEmail(emailField); });
+            companyField.onEndEdit.AddListener((x) => registrationData.Company = x);
+            companyField.onEndEdit.AddListener(delegate { ValidateCompany(companyField); });
+            // Validate input
+            //nameField.onValidateInput += delegate (string input, int charIndex, char addedChar) { return ValidateName(addedChar); };
+        }
+
+        void OnDisable()
+        {
+            nameField.onEndEdit.RemoveAllListeners();
+            usernameField.onEndEdit.RemoveAllListeners();
+            passwordField.onEndEdit.RemoveAllListeners();
+            emailField.onEndEdit.RemoveAllListeners();
+            companyField.onEndEdit.RemoveAllListeners();
+            //registerButton.onClick.RemoveAllListeners();
+        }
+
+        public void ClearNameInputField()
+        {
+            nameField.text = "";
+        }
+        public void ClearUserInputField()
+        {
+            usernameField.text = "";
+        }
+
+        public void ClearPassInputField()
+        {
+            passwordField.text = "";
+        }
+
+        public void ClearEmailField()
+        {
+            emailField.text = "";
+        }
+        public void ClearCompanyField()
+        {
+            companyField.text = "";
+        }
+
+        public bool Initialize()
+        {
+            ClearNameInputField();
+            ClearUserInputField();
+            ClearPassInputField();
+            ClearEmailField();
+            ClearCompanyField();
+            registrationData.Clear();
+            return true;
+        }
+
+        public void Register()
+        {
+            // Check for required fields:
+
+
+            if (OnRegistered != null)
+            {
+                OnRegistered(this, new RegistrationEventArgs
+                {
+                    registrationData = this.registrationData,
+                    time = DateTime.Now
+                });
+            }
+        }
+
+        private void ValidateName(InputField input)
+        {
+            // Check length
+            if (input.text.Length == 0)
+            {
+                ShowComment("Enter a name", ref nameComment);
+            }
+            else if (input.text.Length < 2)
+            {
+                ShowComment("Name too short", ref nameComment);
+            }
+            else
+            {
+                HideComment(ref nameComment);
+            }
+        }
+
+        private void ValidateUsername(InputField input)
+        {
+            // Check length
+            if (input.text.Length == 0)
+            {
+                ShowComment("Enter a username", ref usernameComment);
+            }
+            else if (input.text.Length < 5)
+            {
+                ShowComment("Username too short", ref usernameComment);
+            }
+            else
+            {
+                HideComment(ref usernameComment);
+            }
+        }
+
+        private void ValidatePassword(InputField input)
+        {
+            // Check length
+            if (input.text.Length == 0)
+            {
+                ShowComment("Enter a password", ref passwordComment);
+            }
+            else if (input.text.Length < 6)
+            {
+                ShowComment("Minimum 6 characters", ref passwordComment);
+            }
+            else
+            {
+                HideComment(ref passwordComment);
+            }
+        }
+        private void ValidateEmail(InputField input)
+        {
+            // Check length
+            if (input.text.Length == 0)
+            {
+                ShowComment("Enter an email", ref emailComment);
+            }
+            else if (input.)
+            {
+                ShowComment("", ref emailComment);
+            }
+            else
+            {
+                HideComment(ref emailComment);
+            }
+        }
+        private void ValidateCompany(InputField input)
+        {
+            // Check length
+            if (input.text.Length == 0)
+            {
+                ShowComment("Enter a username", ref companyComment);
+            }
+            else if (input.text.Length < 5)
+            {
+                ShowComment("Username too short", ref companyComment);
+            }
+            else
+            {
+                HideComment(ref companyComment);
+            }
+        }
+
+        private void ShowComment(string message, ref Text commentLabel)
+        {
+            commentLabel.text = message;
+        }
+
+        private void HideComment(ref Text commentLabel)
+        {
+            commentLabel.text = "";
         }
     }
 }
