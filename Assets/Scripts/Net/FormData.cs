@@ -12,17 +12,27 @@
 
 public class RegistrationData
 {
-    public string username = "";
-    public string password = "";
-    public string email = "";
-    public string company = "";
+    public int CID = 0;
+    public string CName = "";
+    public string Company = "";
+    public string CUserID = "";
+    public string CPwd = "";
+    public string CopierModel = "";
+    public string Frequency = "0";
+    public decimal PostalCode = 0;
+    public string Email = "";
 
     public void Clear()
     {
-        username = "";
-        password = "";
-        email = "";
-        company = "";
+        CID = 0;
+        CName = "";
+        Company = "";
+        CUserID = "";
+        CPwd = "";
+        CopierModel = "";
+        Frequency = "0";
+        PostalCode = 0;
+        Email = "";
     }
 }
 
