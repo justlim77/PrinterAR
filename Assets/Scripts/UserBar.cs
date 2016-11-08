@@ -2,71 +2,75 @@
 using UnityEngine.UI;
 using System.Collections;
 
-public class UserBar : MonoBehaviour
+namespace CopierAR
 {
-    public static event System.Action<object, string> OnSignedOut;
-    public static event System.Action<object, string> OnRegisterPressed;
-    public static event System.Action<object, string> OnSignInPressed;
-
-    public Text UserLabel;
-    public GameObject RegisterButton;
-    public GameObject SigninButton;
-    public GameObject SignoutButton;
-
-	// Use this for initialization
-	void Start ()
+    public class UserBar : MonoBehaviour
     {
-        UserLabel.text = "";
-        RegisterButton.SetActive(true);
-        SigninButton.SetActive(true);
-        SignoutButton.SetActive(false);
-	}
+        public static event System.Action<object, string> OnSignedOut;
+        public static event System.Action<object, string> OnRegisterPressed;
+        public static event System.Action<object, string> OnSignInPressed;
 
-    void OnEnable()
-    {
-        LoginView.OnLoggedIn += SigninPanel_OnSignedIn;
-    }
+        public Text UserLabel;
+        public GameObject RegisterButton;
+        public GameObject SigninButton;
+        public GameObject SignoutButton;
 
-    void OnDisable()
-    {
-        LoginView.OnLoggedIn -= SigninPanel_OnSignedIn;
-    }
+        // Use this for initialization
+        void Start()
+        {
+            UserLabel.text = "";
+            RegisterButton.SetActive(true);
+            SigninButton.SetActive(true);
+            SignoutButton.SetActive(false);
+        }
 
-    private void SigninPanel_OnSignedIn(object sender, LoginEventArgs args)
-    {
-        UpdateName(args.LoginData.username);
-        SignoutButton.SetActive(true);
+        void OnEnable()
+        {
+            LoginView.OnLoggedIn += SigninPanel_OnSignedIn;
+        }
 
-        RegisterButton.SetActive(false);
-        SigninButton.SetActive(false);
-    }
+        void OnDisable()
+        {
+            LoginView.OnLoggedIn -= SigninPanel_OnSignedIn;
+        }
 
-    public void Signin()
-    {
-        if (OnSignInPressed != null)
-            OnSignInPressed(this, "Sign in button pressed");
-    }
+        private void SigninPanel_OnSignedIn(object sender, LoginEventArgs args)
+        {
+            UpdateName(args.loginData.CUserID);
+            SignoutButton.SetActive(true);
 
-    public void Register()
-    {
-        if (OnRegisterPressed != null)
-            OnRegisterPressed(this, "Register button pressed");
-    }
+            RegisterButton.SetActive(false);
+            SigninButton.SetActive(false);
+        }
 
-    public void UpdateName(string name)
-    {
-        UserLabel.text = string.Format("Hi {0},", name);
-    }
+        public void Signin()
+        {
+            if (OnSignInPressed != null)
+                OnSignInPressed(this, "Sign in button pressed");
+        }
 
-    public void Signout()
-    {
-        UserLabel.text = "";
-        SignoutButton.SetActive(false);
+        public void Register()
+        {
+            if (OnRegisterPressed != null)
+                OnRegisterPressed(this, "Register button pressed");
+        }
 
-        SigninButton.SetActive(true);
-        RegisterButton.SetActive(true);
+        public void UpdateName(string name)
+        {
+            UserLabel.text = string.Format("Hi {0},", name);
+        }
 
-        if (OnSignedOut != null)
-            OnSignedOut(this, "Signed out");
+        public void Signout()
+        {
+            UserLabel.text = "";
+            SignoutButton.SetActive(false);
+
+            SigninButton.SetActive(true);
+            RegisterButton.SetActive(true);
+
+            if (OnSignedOut != null)
+                OnSignedOut(this, "Signed out");
+        }
     }
 }
+

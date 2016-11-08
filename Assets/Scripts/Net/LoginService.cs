@@ -21,7 +21,7 @@ namespace CopierAR
             Response response = new Response();
 
             // Check if user exists
-            bool userExists = DBManager.CheckUserExists(loginData.username);
+            bool userExists = DBManager.CheckUserExists(loginData.CUserID);
 
             if (!userExists)
             {
@@ -36,22 +36,21 @@ namespace CopierAR
             }
             
             // If user exists, check password
-            RegistrationData _data = DBManager.GetRegistrationData(loginData.username);
+            RegistrationData _data = DBManager.GetRegistrationData(loginData.CUserID);
+            
+            if (_data.CPwd == loginData.CPwd)
             {
-                if (_data.CPwd == loginData.password)
-                {
-                    response.error = false;
-                    response.message = "Login success";
-                    response.responseType = ResponseType.None;
-                }
-                else
-                {
-                    // Wrong password
-                    response.error = true;
-                    response.message = "Incorrect password";
-                    response.responseType = ResponseType.IncorrectPassword;
-                }
+                response.error = false;
+                response.message = "Login success";
+                response.responseType = ResponseType.None;
             }
+            else
+            {
+                // Wrong password
+                response.error = true;
+                response.message = "Incorrect password";
+                response.responseType = ResponseType.IncorrectPassword;
+            }            
 
             // Calling response handler
             responseHandler(response);

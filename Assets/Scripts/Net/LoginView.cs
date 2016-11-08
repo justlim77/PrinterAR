@@ -3,163 +3,173 @@ using UnityEngine.UI;
 using System.Collections;
 using System;
 
-public class LoginEventArgs : EventArgs
+namespace CopierAR
 {
-    public LoginData LoginData;
-    public DateTime Time;
-}
-
-public class LoginView : MonoBehaviour
-{
-    public delegate void LoginEventHandler(object sender, LoginEventArgs args);
-    public static event LoginEventHandler OnLoggedIn;
-
-    public InputField UserInputField;
-    public InputField PassInputField;
-    public Toggle RememberMeToggle;
-    public Text usernameComment;
-    public Text passwordComment;
-    public Text loginComment;
-    public Button loginButton;
-
-    public LoginData loginData { get; private set; }
-
-    void Start()
+    public class LoginEventArgs : EventArgs
     {
-        loginData = new LoginData();
-        Initialize();
-        loginButton.onClick.AddListener(Login);
-        UserBar.OnSignInPressed += UserBar_OnSignInPressed;
+        public LoginData loginData;
+        public DateTime time;
     }
 
-    void OnEnable()
+    public class LoginView : MonoBehaviour
     {
-        UserInputField.onEndEdit.AddListener((x) => loginData.username = x);
-        UserInputField.onEndEdit.AddListener(delegate { ValidateUsername(); });
-        UserInputField.onValueChanged.AddListener(delegate { usernameComment.text = ""; });
+        public delegate void LoginEventHandler(object sender, LoginEventArgs args);
+        public static event LoginEventHandler OnLoggedIn;
 
-        PassInputField.onEndEdit.AddListener((x) => loginData.password = x);
-        PassInputField.onEndEdit.AddListener(delegate { ValidatePassword(); });
-        PassInputField.onValueChanged.AddListener(delegate { passwordComment.text = ""; });
-    }
+        public InputField UserInputField;
+        public InputField PassInputField;
+        public Toggle RememberMeToggle;
+        public Text usernameComment;
+        public Text passwordComment;
+        public Text loginComment;
+        public Button loginButton;
 
-    private void UserBar_OnSignInPressed(object arg1, string arg2)
-    {
-        Initialize();
-    }
+        public LoginData loginData { get; private set; }
 
-    void OnDisable()
-    {
-        UserInputField.onEndEdit.RemoveAllListeners();
-        UserInputField.onValueChanged.RemoveAllListeners();
-
-        PassInputField.onEndEdit.RemoveAllListeners();
-        PassInputField.onValueChanged.RemoveAllListeners();
-        //loginButton.onClick.RemoveAllListeners();
-    }
-
-    public void ClearUserInputField()
-    {
-        UserInputField.text = "";
-        usernameComment.text = "";
-    }
-
-    public void ClearPassInputField()
-    {
-        PassInputField.text = "";
-        passwordComment.text = "";
-    }
-
-    public bool Initialize()
-    {
-        ClearUserInputField();
-        ClearPassInputField();
-        loginData.Clear();
-        HideError();
-        return true;
-    }
-
-    private bool ValidateUsername()
-    {
-        if (UserInputField.text == null)
+        void Start()
         {
-            Response response = new Response(true, "Required field", ResponseType.InvalidUserID);
-            ShowError(response);
-            return false;
+            loginData = new LoginData();
+            Initialize();
+            loginButton.onClick.AddListener(Login);
+            UserBar.OnSignInPressed += UserBar_OnSignInPressed;
         }
 
-        if (UserInputField.text.Length < 5)
+        void OnDestroy()
         {
-            Response response = new Response(true, "Minimum 5 characters", ResponseType.InvalidUserID);
-            ShowError(response);
-            return false;
+            loginButton.onClick.RemoveAllListeners();
+            UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
         }
 
-        return true;
-    }
-    private bool ValidatePassword()
-    {
-        bool valid = true;
-
-        if (PassInputField.text == null)
+        void OnEnable()
         {
-            Response response = new Response(true, "Required field", ResponseType.IncorrectPassword);
-            ShowError(response);
-            valid = false;
+            UserInputField.onEndEdit.AddListener((x) => loginData.CUserID = x);
+            UserInputField.onEndEdit.AddListener(delegate { ValidateUsername(); });
+            UserInputField.onValueChanged.AddListener(delegate { usernameComment.text = ""; });
+
+            PassInputField.onEndEdit.AddListener((x) => loginData.CPwd = x);
+            PassInputField.onEndEdit.AddListener(delegate { ValidatePassword(); });
+            PassInputField.onValueChanged.AddListener(delegate { passwordComment.text = ""; });
         }
 
-        if (PassInputField.text.Length < 5)
+        private void UserBar_OnSignInPressed(object arg1, string arg2)
         {
-            Response response = new Response(true, "Minimum 5 characters", ResponseType.IncorrectPassword);
-            ShowError(response);
-            valid = false;
+            Initialize();
         }
 
-        return valid;
-    }
-
-    public bool isValid
-    {
-        get
+        void OnDisable()
         {
-            return (ValidateUsername() && ValidatePassword());
+            UserInputField.onEndEdit.RemoveAllListeners();
+            UserInputField.onValueChanged.RemoveAllListeners();
+
+            PassInputField.onEndEdit.RemoveAllListeners();
+            PassInputField.onValueChanged.RemoveAllListeners();
         }
-    }
 
-    public void ShowError(Response response)
-    {        
-        switch (response.responseType)
+        public void ClearUserInputField()
         {
-            case ResponseType.IncorrectPassword:
-                passwordComment.text = response.message;
-                break;
-            case ResponseType.InvalidUserID:
-                usernameComment.text = response.message;
-                break;            
+            UserInputField.text = "";
+            usernameComment.text = "";
         }
-    }
 
-    public void HideError()
-    {
-        loginComment.text = "";
-    }
-
-    public void Login()
-    {
-        // Check for required fields
-        if (!isValid)
-            return;
-
-        // Clear error messages
-        HideError();
-
-        if (OnLoggedIn != null)
+        public void ClearPassInputField()
         {
-            OnLoggedIn(this, new LoginEventArgs
+            PassInputField.text = "";
+            passwordComment.text = "";
+        }
+
+        public bool Initialize()
+        {
+            ClearUserInputField();
+            ClearPassInputField();
+            loginData.Clear();
+            HideError();
+            return true;
+        }
+
+        private bool ValidateUsername()
+        {
+            bool valid = true;
+
+            if (UserInputField.text == null)
             {
-                LoginData = this.loginData,
-                Time = DateTime.Now
-            });
+                Response response = new Response(true, "Required field", ResponseType.InvalidUserID);
+                ShowError(response);
+                valid = false;
+            }
+
+            if (UserInputField.text.Length < 5)
+            {
+                Response response = new Response(true, "Minimum 5 characters", ResponseType.InvalidUserID);
+                ShowError(response);
+                valid = false;
+            }
+
+            return valid;
+        }
+        private bool ValidatePassword()
+        {
+            bool valid = true;
+
+            if (PassInputField.text == null)
+            {
+                Response response = new Response(true, "Required field", ResponseType.IncorrectPassword);
+                ShowError(response);
+                valid = false;
+            }
+
+            if (PassInputField.text.Length < 5)
+            {
+                Response response = new Response(true, "Minimum 5 characters", ResponseType.IncorrectPassword);
+                ShowError(response);
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        public bool isValid
+        {
+            get
+            {
+                return (ValidateUsername() && ValidatePassword());
+            }
+        }
+
+        public void ShowError(Response response)
+        {
+            switch (response.responseType)
+            {
+                case ResponseType.IncorrectPassword:
+                    passwordComment.text = response.message;
+                    break;
+                case ResponseType.InvalidUserID:
+                    usernameComment.text = response.message;
+                    break;
+            }
+        }
+
+        public void HideError()
+        {
+            loginComment.text = "";
+        }
+
+        public void Login(bool success = false)
+        {
+            // Check for required fields
+            if (!isValid || !success)
+                return;
+
+            // Clear error messages
+            HideError();
+
+            if (OnLoggedIn != null)
+            {
+                OnLoggedIn(this, new LoginEventArgs
+                {
+                    loginData = this.loginData,
+                    time = DateTime.Now
+                });
+            }
         }
     }
 }
