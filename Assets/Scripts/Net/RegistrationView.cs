@@ -7,8 +7,8 @@ namespace CopierAR
 {
     public class RegistrationEventArgs : EventArgs
     {
-        public RegistrationData registrationData;
-        public DateTime time;
+        public RegistrationData RegistrationData;
+        public DateTime Time;
     }
 
     public class RegistrationView : MonoBehaviour
@@ -35,6 +35,7 @@ namespace CopierAR
             registrationData = new RegistrationData();
             Initialize();
             registerButton.onClick.AddListener(Register);
+            UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
         }
 
         void OnEnable()
@@ -49,6 +50,11 @@ namespace CopierAR
             emailField.onEndEdit.AddListener(delegate { ValidateEmail(); });
             companyField.onEndEdit.AddListener((x) => registrationData.Company = x);
             companyField.onEndEdit.AddListener(delegate { ValidateCompany(); });
+        }
+
+        private void UserBar_OnRegisterPressed(object arg1, string arg2)
+        {
+            Initialize();
         }
 
         void OnDisable()
@@ -101,17 +107,28 @@ namespace CopierAR
 
         public void Register()
         {
-            // Check for required fields:
-            if (!ValidateName() || !ValidateUsername() || !ValidatePassword() || !ValidateEmail() || !ValidateCompany())
+            //if (!ValidateName() || !ValidateUsername() || !ValidatePassword() || !ValidateEmail() || !ValidateCompany())
+            //    return;
+
+            // Check for required fields
+            if (!isValid)
                 return;
 
             if (OnRegistered != null)
             {
                 OnRegistered(this, new RegistrationEventArgs
                 {
-                    registrationData = this.registrationData,
-                    time = DateTime.Now
+                    RegistrationData = this.registrationData,
+                    Time = DateTime.Now
                 });
+            }
+        }
+
+        public bool isValid
+        {
+            get
+            {
+                return (ValidateName() && ValidateUsername() && ValidatePassword() && ValidateEmail() && ValidateCompany());
             }
         }
 

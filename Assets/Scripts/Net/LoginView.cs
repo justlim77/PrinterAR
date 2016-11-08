@@ -5,8 +5,7 @@ using System;
 
 public class LoginEventArgs : EventArgs
 {
-    public string Username;
-    public string Password;
+    public LoginData LoginData;
     public DateTime Time;
 }
 
@@ -18,40 +17,57 @@ public class LoginView : MonoBehaviour
     public InputField UserInputField;
     public InputField PassInputField;
     public Toggle RememberMeToggle;
+    public Text usernameComment;
+    public Text passwordComment;
+    public Text loginComment;
     public Button loginButton;
 
-    public LoginData loginData = new LoginData();
-
-    private string username = "";
-    private string password = "";
+    public LoginData loginData { get; private set; }
 
     void Start()
     {
+        loginData = new LoginData();
         Initialize();
         loginButton.onClick.AddListener(Login);
+        UserBar.OnSignInPressed += UserBar_OnSignInPressed;
     }
 
     void OnEnable()
     {
-        UserInputField.onEndEdit.AddListener((x) => username = loginData.username = x);
-        PassInputField.onEndEdit.AddListener((x) => password = loginData.password = x);
+        UserInputField.onEndEdit.AddListener((x) => loginData.username = x);
+        UserInputField.onEndEdit.AddListener(delegate { ValidateUsername(); });
+        UserInputField.onValueChanged.AddListener(delegate { usernameComment.text = ""; });
+
+        PassInputField.onEndEdit.AddListener((x) => loginData.password = x);
+        PassInputField.onEndEdit.AddListener(delegate { ValidatePassword(); });
+        PassInputField.onValueChanged.AddListener(delegate { passwordComment.text = ""; });
+    }
+
+    private void UserBar_OnSignInPressed(object arg1, string arg2)
+    {
+        Initialize();
     }
 
     void OnDisable()
     {
         UserInputField.onEndEdit.RemoveAllListeners();
+        UserInputField.onValueChanged.RemoveAllListeners();
+
         PassInputField.onEndEdit.RemoveAllListeners();
+        PassInputField.onValueChanged.RemoveAllListeners();
         //loginButton.onClick.RemoveAllListeners();
     }
 
     public void ClearUserInputField()
     {
         UserInputField.text = "";
+        usernameComment.text = "";
     }
 
     public void ClearPassInputField()
     {
         PassInputField.text = "";
+        passwordComment.text = "";
     }
 
     public bool Initialize()
@@ -59,14 +75,91 @@ public class LoginView : MonoBehaviour
         ClearUserInputField();
         ClearPassInputField();
         loginData.Clear();
+        HideError();
         return true;
+    }
+
+    private bool ValidateUsername()
+    {
+        if (UserInputField.text == null)
+        {
+            Response response = new Response(true, "Required field", ResponseType.InvalidUserID);
+            ShowError(response);
+            return false;
+        }
+
+        if (UserInputField.text.Length < 5)
+        {
+            Response response = new Response(true, "Minimum 5 characters", ResponseType.InvalidUserID);
+            ShowError(response);
+            return false;
+        }
+
+        return true;
+    }
+    private bool ValidatePassword()
+    {
+        bool valid = true;
+
+        if (PassInputField.text == null)
+        {
+            Response response = new Response(true, "Required field", ResponseType.IncorrectPassword);
+            ShowError(response);
+            valid = false;
+        }
+
+        if (PassInputField.text.Length < 5)
+        {
+            Response response = new Response(true, "Minimum 5 characters", ResponseType.IncorrectPassword);
+            ShowError(response);
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    public bool isValid
+    {
+        get
+        {
+            return (ValidateUsername() && ValidatePassword());
+        }
+    }
+
+    public void ShowError(Response response)
+    {        
+        switch (response.responseType)
+        {
+            case ResponseType.IncorrectPassword:
+                passwordComment.text = response.message;
+                break;
+            case ResponseType.InvalidUserID:
+                usernameComment.text = response.message;
+                break;            
+        }
+    }
+
+    public void HideError()
+    {
+        loginComment.text = "";
     }
 
     public void Login()
     {
+        // Check for required fields
+        if (!isValid)
+            return;
+
+        // Clear error messages
+        HideError();
+
         if (OnLoggedIn != null)
         {
-            OnLoggedIn(this, new LoginEventArgs { Username = username, Password = password, Time = DateTime.Now });
+            OnLoggedIn(this, new LoginEventArgs
+            {
+                LoginData = this.loginData,
+                Time = DateTime.Now
+            });
         }
     }
 }

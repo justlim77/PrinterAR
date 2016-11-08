@@ -13,7 +13,6 @@ namespace CopierAR
 
         public const string get_register_params_withuser = "SELECT * FROM dbo.tblRegister WHERE CUserID=@CUserID";
 
-
         public static void InitCommands()
         {
             // TODO
