@@ -12,6 +12,7 @@ namespace CopierAR
             Welcome,
             Sigin,
             Register,
+            Location,
             About,
             Showcase,
             LifeScale
@@ -29,6 +30,9 @@ namespace CopierAR
         [Header("Registration")]
         public RegistrationView registrationView;
         public GameObject RegisterPanel;
+
+        [Header("Location")]
+        public GameObject LocationPanel;
 
         public GameObject AboutUsPanel;
         public GameObject ContactUsPanel;
@@ -107,12 +111,14 @@ namespace CopierAR
 
             loginView.loginButton.onClick.AddListener(() =>
             {
-                StartCoroutine(m_loginService.SendLoginData(loginView.loginData, LoginResponseHandler));
+                if(loginView.isValid)
+                    StartCoroutine(m_loginService.SendLoginData(loginView.loginData, LoginResponseHandler));
             });
 
             registrationView.registerButton.onClick.AddListener(() =>
             {
-                StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData, RegistrationResponseHandler));
+                if(registrationView.isValid)
+                    StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData, RegistrationResponseHandler));
             });
         }       
 

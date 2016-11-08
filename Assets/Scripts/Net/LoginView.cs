@@ -28,21 +28,31 @@ public class LoginView : MonoBehaviour
     {
         loginData = new LoginData();
         Initialize();
-        //loginButton.onClick.AddListener(Login);
+        loginButton.onClick.AddListener(Login);
+        UserBar.OnSignInPressed += UserBar_OnSignInPressed;
     }
 
     void OnEnable()
     {
         UserInputField.onEndEdit.AddListener((x) => loginData.username = x);
+        UserInputField.onEndEdit.AddListener(delegate { ValidateUsername(); });
         UserInputField.onValueChanged.AddListener(delegate { usernameComment.text = ""; });
+
         PassInputField.onEndEdit.AddListener((x) => loginData.password = x);
+        PassInputField.onEndEdit.AddListener(delegate { ValidatePassword(); });
         PassInputField.onValueChanged.AddListener(delegate { passwordComment.text = ""; });
+    }
+
+    private void UserBar_OnSignInPressed(object arg1, string arg2)
+    {
+        Initialize();
     }
 
     void OnDisable()
     {
         UserInputField.onEndEdit.RemoveAllListeners();
         UserInputField.onValueChanged.RemoveAllListeners();
+
         PassInputField.onEndEdit.RemoveAllListeners();
         PassInputField.onValueChanged.RemoveAllListeners();
         //loginButton.onClick.RemoveAllListeners();
@@ -69,6 +79,53 @@ public class LoginView : MonoBehaviour
         return true;
     }
 
+    private bool ValidateUsername()
+    {
+        if (UserInputField.text == null)
+        {
+            Response response = new Response(true, "Required field", ResponseType.InvalidUserID);
+            ShowError(response);
+            return false;
+        }
+
+        if (UserInputField.text.Length < 5)
+        {
+            Response response = new Response(true, "Minimum 5 characters", ResponseType.InvalidUserID);
+            ShowError(response);
+            return false;
+        }
+
+        return true;
+    }
+    private bool ValidatePassword()
+    {
+        bool valid = true;
+
+        if (PassInputField.text == null)
+        {
+            Response response = new Response(true, "Required field", ResponseType.IncorrectPassword);
+            ShowError(response);
+            valid = false;
+        }
+
+        if (PassInputField.text.Length < 5)
+        {
+            Response response = new Response(true, "Minimum 5 characters", ResponseType.IncorrectPassword);
+            ShowError(response);
+            valid = false;
+        }
+
+        return valid;
+    }
+
+    public bool isValid
+    {
+        get
+        {
+            return (ValidateUsername() && ValidatePassword());
+        }
+    }
+
     public void ShowError(Response response)
     {        
         switch (response.responseType)
@@ -89,6 +146,10 @@ public class LoginView : MonoBehaviour
 
     public void Login()
     {
+        // Check for required fields
+        if (!isValid)
+            return;
+
         // Clear error messages
         HideError();
 

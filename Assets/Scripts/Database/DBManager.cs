@@ -24,7 +24,7 @@ namespace CopierAR
             {
                 return @"Data Source=SQL5028.SmarterASP.NET;Initial Catalog = DB_A12D5C_Copier; User Id = DB_A12D5C_Copier_admin; Password=Copier123;";
             }
-        } 
+        }
 
         static SqlConnection DBCONN = null;
 
