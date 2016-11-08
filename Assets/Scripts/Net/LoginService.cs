@@ -18,11 +18,47 @@ namespace CopierAR
 
         public IEnumerator SendLoginData(LoginData loginData, System.Action<Response> responseHandler)
         {
-            // Check database if user exists:
-            DBManager.CheckUserExists(loginData.username);
-
             Response response = new Response();
 
+            // Check if user exists
+            bool userExists = DBManager.CheckUserExists(loginData.username);
+
+            if (!userExists)
+            {
+                response.error = true;
+                response.message = "User does not exist";
+                response.responseType = ResponseType.InvalidUserID;
+
+                // Calling response handler
+                responseHandler(response);
+
+                yield break;
+            }
+            
+            // If user exists, check password
+            RegistrationData _data = DBManager.GetRegistrationData(loginData.username);
+            {
+                if (_data.CPwd == loginData.password)
+                {
+                    response.error = false;
+                    response.message = "Login success";
+                    response.responseType = ResponseType.None;
+                }
+                else
+                {
+                    // Wrong password
+                    response.error = true;
+                    response.message = "Incorrect password";
+                    response.responseType = ResponseType.IncorrectPassword;
+                }
+            }
+
+            // Calling response handler
+            responseHandler(response);
+
+            yield break;
+
+            /*
             Debug.Log(string.Format("Sending login request to {0}", LOGIN_URL));
 
             // Create form with username and password fields:
@@ -54,10 +90,11 @@ namespace CopierAR
                     response.error = false;
                     response.message = "";
                 }
-            }
+            }           
 
             // Calling response handler
             responseHandler(response);
+            */
         }
     }
 }

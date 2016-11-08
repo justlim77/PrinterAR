@@ -5,8 +5,7 @@ using System;
 
 public class LoginEventArgs : EventArgs
 {
-    public string Username;
-    public string Password;
+    public LoginData LoginData;
     public DateTime Time;
 }
 
@@ -18,40 +17,47 @@ public class LoginView : MonoBehaviour
     public InputField UserInputField;
     public InputField PassInputField;
     public Toggle RememberMeToggle;
+    public Text usernameComment;
+    public Text passwordComment;
+    public Text loginComment;
     public Button loginButton;
 
-    public LoginData loginData = new LoginData();
-
-    private string username = "";
-    private string password = "";
+    public LoginData loginData { get; private set; }
 
     void Start()
     {
+        loginData = new LoginData();
         Initialize();
-        loginButton.onClick.AddListener(Login);
+        //loginButton.onClick.AddListener(Login);
     }
 
     void OnEnable()
     {
-        UserInputField.onEndEdit.AddListener((x) => username = loginData.username = x);
-        PassInputField.onEndEdit.AddListener((x) => password = loginData.password = x);
+        UserInputField.onEndEdit.AddListener((x) => loginData.username = x);
+        UserInputField.onValueChanged.AddListener(delegate { usernameComment.text = ""; });
+        PassInputField.onEndEdit.AddListener((x) => loginData.password = x);
+        PassInputField.onValueChanged.AddListener(delegate { passwordComment.text = ""; });
     }
 
     void OnDisable()
     {
         UserInputField.onEndEdit.RemoveAllListeners();
+        UserInputField.onValueChanged.RemoveAllListeners();
         PassInputField.onEndEdit.RemoveAllListeners();
+        PassInputField.onValueChanged.RemoveAllListeners();
         //loginButton.onClick.RemoveAllListeners();
     }
 
     public void ClearUserInputField()
     {
         UserInputField.text = "";
+        usernameComment.text = "";
     }
 
     public void ClearPassInputField()
     {
         PassInputField.text = "";
+        passwordComment.text = "";
     }
 
     public bool Initialize()
@@ -59,14 +65,40 @@ public class LoginView : MonoBehaviour
         ClearUserInputField();
         ClearPassInputField();
         loginData.Clear();
+        HideError();
         return true;
+    }
+
+    public void ShowError(Response response)
+    {        
+        switch (response.responseType)
+        {
+            case ResponseType.IncorrectPassword:
+                passwordComment.text = response.message;
+                break;
+            case ResponseType.InvalidUserID:
+                usernameComment.text = response.message;
+                break;            
+        }
+    }
+
+    public void HideError()
+    {
+        loginComment.text = "";
     }
 
     public void Login()
     {
+        // Clear error messages
+        HideError();
+
         if (OnLoggedIn != null)
         {
-            OnLoggedIn(this, new LoginEventArgs { Username = username, Password = password, Time = DateTime.Now });
+            OnLoggedIn(this, new LoginEventArgs
+            {
+                LoginData = this.loginData,
+                Time = DateTime.Now
+            });
         }
     }
 }

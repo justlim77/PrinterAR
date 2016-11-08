@@ -36,8 +36,17 @@ public class RegistrationData
     }
 }
 
+public enum ResponseType
+{
+    None,
+    InvalidUserID,
+    IncorrectPassword,
+    UserAlreadyExists
+}
+
 public class Response
 {
     public bool error = false;
     public string message = "";
+    public ResponseType responseType = ResponseType.None;
 }

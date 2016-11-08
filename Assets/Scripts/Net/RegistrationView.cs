@@ -7,8 +7,8 @@ namespace CopierAR
 {
     public class RegistrationEventArgs : EventArgs
     {
-        public RegistrationData registrationData;
-        public DateTime time;
+        public RegistrationData RegistrationData;
+        public DateTime Time;
     }
 
     public class RegistrationView : MonoBehaviour
@@ -101,7 +101,7 @@ namespace CopierAR
 
         public void Register()
         {
-            // Check for required fields:
+            // Check for required fields
             if (!ValidateName() || !ValidateUsername() || !ValidatePassword() || !ValidateEmail() || !ValidateCompany())
                 return;
 
@@ -109,8 +109,8 @@ namespace CopierAR
             {
                 OnRegistered(this, new RegistrationEventArgs
                 {
-                    registrationData = this.registrationData,
-                    time = DateTime.Now
+                    RegistrationData = this.registrationData,
+                    Time = DateTime.Now
                 });
             }
         }

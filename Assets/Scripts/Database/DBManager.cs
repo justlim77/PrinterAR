@@ -6,14 +6,24 @@ using System.Reflection;
 using System.Data;
 using System.Data.SqlClient;
 using Mono.Data.Sqlite;
+using I18N;
+using I18N.CJK;
+using I18N.Common;
+using I18N.MidEast;
+using I18N.Other;
+using I18N.Rare;
+using I18N.West;
 
 namespace CopierAR
 {
     public static class DBManager
     {
-        public static string CONN_STRING()
+        public static string CONN_STRING
         {
-            return @"Data Source=SQL5028.SmarterASP.NET;Initial Catalog = DB_A12D5C_Copier; User Id = DB_A12D5C_Copier_admin; Password=Copier123;";
+            get
+            {
+                return @"Data Source=SQL5028.SmarterASP.NET;Initial Catalog = DB_A12D5C_Copier; User Id = DB_A12D5C_Copier_admin; Password=Copier123;";
+            }
         } 
 
         static SqlConnection DBCONN = null;
@@ -22,27 +32,35 @@ namespace CopierAR
         {
             if (DBCONN == null)
             {
-                DBCONN = (SqlConnection)new SqlConnection(CONN_STRING());
+                DBCONN = (SqlConnection)new SqlConnection(CONN_STRING);
                 try
                 {
                     DBCONN.Open();
                     DBCommands.InitCommands();
                     Debug.Log("Database connection open");
+                    DebugLog.Log("Database connection open");
                 }
                 catch (SqlException e)
                 {
                     Debug.Log(e.Message);
+                    DebugLog.Log(e.Message);
+                }
+                catch (UnityException e)
+                {
+                    Debug.Log(e.Message);
+                    DebugLog.Log(e.Message);
                 }
                 catch (Exception e)
                 {
                     Debug.Log(e.Message);
+                    DebugLog.Log(e.Message);
                 }
             }
         }
 
         public static void Uninitialize()
         {
-            Debug.Log("Closing database connection");
+            //Debug.Log("Closing database connection");
             if (DBCONN != null)
                 DBCONN.Close();
             DBCONN = null;
@@ -74,6 +92,7 @@ namespace CopierAR
         delegate bool ProcessDBEvent(ref SqlTransaction transaction);
         static bool ProcessDB(ProcessDBEvent dbEvent)
         {
+            Initialize();
             bool result = false;
             try
             {
@@ -96,7 +115,7 @@ namespace CopierAR
             {
                 Debug.Log(e.Message);
             }
-
+            Uninitialize();
             return result;
         }
         #endregion
@@ -190,10 +209,12 @@ namespace CopierAR
                     if (exists)
                     {
                         Debug.Log("User already exists.");
+                        DebugLog.Log("User already exists.");
                     }
                     else
                     {
                         Debug.Log("User does not exist.");
+                        DebugLog.Log("User does not exist.");
                     }
                 }
 

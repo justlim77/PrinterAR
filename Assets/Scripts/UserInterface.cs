@@ -56,6 +56,15 @@ namespace CopierAR
         {
             // TODO: Implement notification system
             Debug.Log(string.Format("Login status: {0}, {1}", response.error, response.message));
+
+            if (response.error == false)
+            {
+                loginView.Login();
+            }
+            else
+            {
+                loginView.ShowError(response);
+            }
         }
 
         /// <summary>
@@ -75,7 +84,7 @@ namespace CopierAR
         {
             //m_loginService = new LoginService();
             //m_registrationService = new RegistrationService();
-            DBManager.Initialize();
+            //DBManager.Initialize();
 
             m_CanvasScaler = GetComponent<CanvasScaler>();
             m_CanvasScaler.dynamicPixelsPerUnit = 4;
@@ -87,7 +96,7 @@ namespace CopierAR
 
         void OnEnable()
         {
-            LoginView.OnLoggedIn += SigninPanel_OnSignedIn;
+            LoginView.OnLoggedIn += LoginView_OnLoggedIn;
             UserBar.OnSignedOut += UserBar_OnSignedOut;
             UserBar.OnSignInPressed += UserBar_OnSignInPressed;
             UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
@@ -109,7 +118,7 @@ namespace CopierAR
 
         void OnDisable()
         {
-            LoginView.OnLoggedIn -= SigninPanel_OnSignedIn;
+            LoginView.OnLoggedIn -= LoginView_OnLoggedIn;
             UserBar.OnSignedOut -= UserBar_OnSignedOut;
             UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
             UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
@@ -196,11 +205,11 @@ namespace CopierAR
             SetMainPanelHorizontal();
         }
 
-
-        private void SigninPanel_OnSignedIn(object sender, LoginEventArgs args)
+        private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
         {
-            UserBar.UpdateName(args.Username);
-            Debug.Log(string.Format("{0} signed in at {1}:{2}", args.Username, args.Time.Hour, args.Time.Minute));
+            UserBar.UpdateName(args.LoginData.username);
+            Debug.Log(string.Format("{0} signed in at {1}:{2}", args.LoginData.username, args.Time.Hour, args.Time.Minute));
+            DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.LoginData.username, args.Time.Hour, args.Time.Minute));
 
             SidePanel.Initialize();
 
