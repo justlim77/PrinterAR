@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PhotocopierController : MonoBehaviour
+public class CopierController : MonoBehaviour
 {
     public Animator scannerAnimator;
     public Animator panelAnimator;
@@ -10,11 +10,11 @@ public class PhotocopierController : MonoBehaviour
     public Animator paperTrayAnimator;
 
     // Default animator states
-    public PhotocopierAnimationType scannerState = PhotocopierAnimationType.ScannerDown;
-    public PhotocopierAnimationType panelState = PhotocopierAnimationType.PanelDown;
-    public PhotocopierAnimationType tonerState = PhotocopierAnimationType.TonerClose;
-    public PhotocopierAnimationType sideTrayState = PhotocopierAnimationType.SideTrayClose;
-    public PhotocopierAnimationType paperTrayState = PhotocopierAnimationType.PaperTrayClose;
+    public CopierAnimation scannerState = CopierAnimation.ScannerDown;
+    public CopierAnimation panelState = CopierAnimation.PanelDown;
+    public CopierAnimation tonerState = CopierAnimation.TonerClose;
+    public CopierAnimation sideTrayState = CopierAnimation.SideTrayClose;
+    public CopierAnimation paperTrayState = CopierAnimation.PaperTrayClose;
 
     public Vuforia.DefaultTrackableEventHandler trackableEventHandler;
 
@@ -95,7 +95,7 @@ public class PhotocopierController : MonoBehaviour
 
     public void ShowPrintSpeed()
     {
-#if UNITY_ANDROID
+#if UNITY_ANDROID || UNITY_EDITOR
         Application.OpenURL(printSpeedURL);
 #elif UNITY_IOS
         Handheld.PlayFullScreenMovie(printSpeedURL);
@@ -104,72 +104,72 @@ public class PhotocopierController : MonoBehaviour
 
     public void AnimateScanner()
     {
-        string state = scannerState == PhotocopierAnimationType.ScannerDown
+        string state = scannerState == CopierAnimation.ScannerDown
                 ? upTrigger
                 : downTrigger;
 
         scannerAnimator.SetTrigger(state);
 
-        scannerState = scannerState == PhotocopierAnimationType.ScannerDown
-            ? PhotocopierAnimationType.ScannerUp
-            : PhotocopierAnimationType.ScannerDown;
+        scannerState = scannerState == CopierAnimation.ScannerDown
+            ? CopierAnimation.ScannerUp
+            : CopierAnimation.ScannerDown;
     }
 
     public void AnimatePanel()
     {
-        string state = panelState == PhotocopierAnimationType.PanelDown
+        string state = panelState == CopierAnimation.PanelDown
                 ? upTrigger
                 : downTrigger;
 
         panelAnimator.SetTrigger(state);
 
-        panelState = panelState == PhotocopierAnimationType.PanelDown
-            ? PhotocopierAnimationType.PanelUp
-            : PhotocopierAnimationType.PanelDown;
+        panelState = panelState == CopierAnimation.PanelDown
+            ? CopierAnimation.PanelUp
+            : CopierAnimation.PanelDown;
     }
 
     public void AnimateToner()
     {
-        string state = tonerState == PhotocopierAnimationType.TonerClose
+        string state = tonerState == CopierAnimation.TonerClose
                 ? openTrigger
                 : closeTrigger;
 
         tonerAnimator.SetTrigger(state);
 
-        tonerState = tonerState == PhotocopierAnimationType.TonerClose
-            ? PhotocopierAnimationType.TonerOpen
-            : PhotocopierAnimationType.TonerClose;
+        tonerState = tonerState == CopierAnimation.TonerClose
+            ? CopierAnimation.TonerOpen
+            : CopierAnimation.TonerClose;
     }
 
     public void AnimateSideTray()
     {
-        string state = sideTrayState == PhotocopierAnimationType.SideTrayClose
+        string state = sideTrayState == CopierAnimation.SideTrayClose
                 ? openTrigger
                 : closeTrigger;
 
         sideTrayAnimator.SetTrigger(state);
 
-        sideTrayState = sideTrayState == PhotocopierAnimationType.SideTrayClose
-            ? PhotocopierAnimationType.SideTrayOpen
-            : PhotocopierAnimationType.SideTrayClose;
+        sideTrayState = sideTrayState == CopierAnimation.SideTrayClose
+            ? CopierAnimation.SideTrayOpen
+            : CopierAnimation.SideTrayClose;
     }
 
     public void AnimatePaperTray()
     {
-        string state = paperTrayState == PhotocopierAnimationType.PaperTrayClose
+        string state = paperTrayState == CopierAnimation.PaperTrayClose
                 ? openTrigger
                 : closeTrigger;
 
         paperTrayAnimator.SetTrigger(state);
 
-        paperTrayState = paperTrayState == PhotocopierAnimationType.PaperTrayClose
-            ? PhotocopierAnimationType.PaperTrayOpen
-            : PhotocopierAnimationType.PaperTrayClose;
+        paperTrayState = paperTrayState == CopierAnimation.PaperTrayClose
+            ? CopierAnimation.PaperTrayOpen
+            : CopierAnimation.PaperTrayClose;
     }
 }
 
 [System.Serializable]
-public enum PhotocopierAnimationType
+public enum CopierAnimation
 {
     ScannerUp,
     ScannerDown,

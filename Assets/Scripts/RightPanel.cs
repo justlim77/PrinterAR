@@ -5,7 +5,7 @@ using System.Collections;
 public class RightPanel : MonoBehaviour
 {
     public GameObject InfoPanel;
-    public PhotocopierController PhotocopierController;
+    public CopierController PhotocopierController;
 
     public bool Initialize()
     {
