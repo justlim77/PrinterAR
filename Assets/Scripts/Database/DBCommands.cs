@@ -11,7 +11,7 @@ namespace CopierAR
         public const string get_all_salesinfo_params = "SELECT * FROM dbo.tblSalesInfo";
         public const string get_all_postalcode_params = "SELECT * FROM dbo.tblPostalcode";
 
-        public const string get_register_params_withuser = "SELECT * FROM dbo.tblRegister WHERE CUserID=@CUserID";
+        public const string get_register_params_withuser = "SELECT * FROM dbo.tblRegister WHERE CName=@CName";
         public const string get_postalcode_params_withcode = "SELECT * FROM dbo.tblPostalcode WHERE code=@code";
 
         public static void InitCommands()

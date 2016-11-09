@@ -36,7 +36,7 @@ namespace CopierAR
 
         private void SigninPanel_OnSignedIn(object sender, LoginEventArgs args)
         {
-            UpdateName(args.loginData.CUserID);
+            UpdateName(args.loginData.CName);
             SignoutButton.SetActive(true);
 
             RegisterButton.SetActive(false);

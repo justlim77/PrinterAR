@@ -242,9 +242,9 @@ namespace CopierAR
 
         private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
         {
-            UserBar.UpdateName(args.loginData.CUserID);
-            Debug.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CUserID, args.time.Hour, args.time.Minute));
-            DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CUserID, args.time.Hour, args.time.Minute));
+            UserBar.UpdateName(args.loginData.CName);
+            Debug.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
+            DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
 
             LoadMenuItem(MenuItem.Location);
 

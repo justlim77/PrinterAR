@@ -22,7 +22,7 @@ namespace CopierAR
             {
                 response.error = false;
                 response.message = "Valid postal code";
-                response.responseType = ResponseType.None;
+                response.responseType = ResponseType.Success;
             }
 
             responseHandler(response);

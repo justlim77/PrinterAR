@@ -140,20 +140,8 @@ namespace CopierAR
                     case "Company":
                         data.Company = reader.GetString(i);
                         break;
-                    case "CUserID":
-                        data.CUserID = reader.GetString(i);
-                        break;
                     case "CPwd":
                         data.CPwd = reader.GetString(i);
-                        break;
-                    case "CopierModel":
-                        data.CopierModel = reader.GetString(i);
-                        break;
-                    case "Frequency":
-                        data.Frequency = reader.GetString(i);
-                        break;
-                    case "PostalCode":
-                        data.PostalCode = reader.GetDecimal(i);
                         break;
                     case "Email":
                         data.Email = reader.GetString(i);
@@ -165,7 +153,7 @@ namespace CopierAR
             }
         }
 
-        public static RegistrationData GetRegistrationData(string userID)
+        public static RegistrationData GetRegistrationData(string name)
         {
             RegistrationData data = new RegistrationData();
             ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
@@ -174,7 +162,7 @@ namespace CopierAR
                 {
                     command.Transaction = transaction;
                     command.CommandText = DBCommands.get_register_params_withuser;
-                    command.Parameters.Add(new SqlParameter("CUserID", userID));
+                    command.Parameters.Add(new SqlParameter("CName", name));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -254,8 +242,8 @@ namespace CopierAR
                 {
                     command.Parameters.Clear();
                     command.Transaction = transaction;
-                    command.CommandText = GenerateSelectExistsCommand("dbo.tblRegister", "CUserID");
-                    command.Parameters.Add(new SqlParameter("CUserID", username));
+                    command.CommandText = GenerateSelectExistsCommand("dbo.tblRegister", "CName");
+                    command.Parameters.Add(new SqlParameter("CName", username));
 
                     exists = (int)command.ExecuteScalar() > 0;
 

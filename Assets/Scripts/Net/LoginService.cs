@@ -21,13 +21,13 @@ namespace CopierAR
             Response response = new Response();
 
             // Check if user exists
-            bool userExists = DBManager.CheckUserExists(loginData.CUserID);
+            bool userExists = DBManager.CheckUserExists(loginData.CName);
 
             if (!userExists)
             {
                 response.error = true;
                 response.message = "User does not exist";
-                response.responseType = ResponseType.InvalidUserID;
+                response.responseType = ResponseType.InvalidUser;
 
                 // Calling response handler
                 responseHandler(response);
@@ -36,13 +36,13 @@ namespace CopierAR
             }
             
             // If user exists, check password
-            RegistrationData _data = DBManager.GetRegistrationData(loginData.CUserID);
+            RegistrationData _data = DBManager.GetRegistrationData(loginData.CName);
             
             if (_data.CPwd == loginData.CPwd)
             {
                 response.error = false;
                 response.message = "Login success";
-                response.responseType = ResponseType.None;
+                response.responseType = ResponseType.Success;
             }
             else
             {

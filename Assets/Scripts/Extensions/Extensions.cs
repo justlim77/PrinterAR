@@ -14,4 +14,13 @@ public static class Extensions {
         }
         return null;
     }
+
+    public static Transform Clear(this Transform trans)
+    {
+        foreach (Transform child in trans)
+        {
+            GameObject.Destroy(child.gameObject);
+        }
+        return trans;
+    }
 }

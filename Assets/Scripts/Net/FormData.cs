@@ -2,12 +2,12 @@
 {
     public class LoginData
     {
-        public string CUserID = "";
+        public string CName = "";
         public string CPwd = "";
 
         public void Clear()
         {
-            CUserID = "";
+            CName = "";
             CPwd = "";
         }
     }
@@ -17,11 +17,7 @@
         public int CID = 0;
         public string CName = "";
         public string Company = "";
-        public string CUserID = "";
         public string CPwd = "";
-        public string CopierModel = "";
-        public string Frequency = "0";
-        public decimal PostalCode = 0;
         public string Email = "";
 
         public void Clear()
@@ -29,11 +25,7 @@
             CID = 0;
             CName = "";
             Company = "";
-            CUserID = "";
             CPwd = "";
-            CopierModel = "";
-            Frequency = "0";
-            PostalCode = 0;
             Email = "";
         }
     }
@@ -60,6 +52,7 @@
         public System.DateTime? LoginTime = null;
         public string PhotoCopierModel = "";
         public string DemoDuration = "";
+        public string Frequency = "";
 
         public void Clear()
         {
@@ -69,12 +62,13 @@
             LoginTime = null;
             PhotoCopierModel = "";
             DemoDuration = "";
+            Frequency = "";
         }
     }
     public enum ResponseType
     {
-        None,
-        InvalidUserID,
+        Success,
+        InvalidUser,
         IncorrectPassword,
         UserAlreadyExists,
         InvalidPostalCode
@@ -84,13 +78,13 @@
     {
         public bool error = false;
         public string message = "";
-        public ResponseType responseType = ResponseType.None;
+        public ResponseType responseType = ResponseType.Success;
 
         public Response()
         {
             error = false;
             message = "";
-            responseType = ResponseType.None;
+            responseType = ResponseType.Success;
         }
 
         public Response(bool error, string message, ResponseType responseType)

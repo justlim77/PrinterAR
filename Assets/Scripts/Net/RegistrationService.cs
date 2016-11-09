@@ -21,10 +21,10 @@ namespace CopierAR
             Response response = new Response();
 
             // Fetch for existing database entry using CUserID
-            RegistrationData _data = DBManager.GetRegistrationData(registerData.CUserID);
+            RegistrationData _data = DBManager.GetRegistrationData(registerData.CName);
 
             // Cross-ref database to check for existing username (CUserID)
-            if (_data.CUserID == registerData.CUserID)
+            if (_data.CName == registerData.CName)
             {
                 Debug.Log("Username already exists");
                 response.error = true;
@@ -52,8 +52,7 @@ namespace CopierAR
             // Check if user exists, if so, get registration data:
             //RegistrationData _data = new RegistrationData();
             _data = registerData;
-            _data = DBManager.GetRegistrationData(_data.CUserID);
-            Debug.Log(_data.CopierModel);
+            _data = DBManager.GetRegistrationData(_data.CName);
             yield return 0;
             
             /*Response response = new Response();

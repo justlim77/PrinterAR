@@ -42,7 +42,7 @@ namespace CopierAR
 
         void OnEnable()
         {
-            UserInputField.onEndEdit.AddListener((x) => loginData.CUserID = x);
+            UserInputField.onEndEdit.AddListener((x) => loginData.CName = x);
             UserInputField.onEndEdit.AddListener(delegate { ValidateUsername(); });
             UserInputField.onValueChanged.AddListener(delegate { usernameComment.text = ""; });
 
@@ -92,14 +92,14 @@ namespace CopierAR
 
             if (UserInputField.text == null)
             {
-                Response response = new Response(true, "Required field", ResponseType.InvalidUserID);
+                Response response = new Response(true, "Required field", ResponseType.InvalidUser);
                 ShowError(response);
                 valid = false;
             }
 
             if (UserInputField.text.Length < 5)
             {
-                Response response = new Response(true, "Minimum 5 characters", ResponseType.InvalidUserID);
+                Response response = new Response(true, "Minimum 5 characters", ResponseType.InvalidUser);
                 ShowError(response);
                 valid = false;
             }
@@ -142,7 +142,7 @@ namespace CopierAR
                 case ResponseType.IncorrectPassword:
                     passwordComment.text = response.message;
                     break;
-                case ResponseType.InvalidUserID:
+                case ResponseType.InvalidUser:
                     usernameComment.text = response.message;
                     break;
             }

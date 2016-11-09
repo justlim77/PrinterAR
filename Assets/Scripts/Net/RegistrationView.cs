@@ -16,12 +16,10 @@ namespace CopierAR
         public delegate void RegistrationEventHandler(object sender, RegistrationEventArgs args);
         public static event RegistrationEventHandler OnRegistered;
 
-        public InputField nameField;
         public InputField usernameField;
         public InputField passwordField;
         public InputField emailField;
         public InputField companyField;
-        public Text nameComment;
         public Text usernameComment;
         public Text passwordComment;
         public Text emailComment;
@@ -40,9 +38,7 @@ namespace CopierAR
 
         void OnEnable()
         {
-            nameField.onEndEdit.AddListener((x) => registrationData.CName = x);
-            nameField.onEndEdit.AddListener(delegate { ValidateName(); });
-            usernameField.onEndEdit.AddListener((x) => registrationData.CUserID = x);
+            usernameField.onEndEdit.AddListener((x) => registrationData.CName = x);
             usernameField.onEndEdit.AddListener(delegate { ValidateUsername(); });
             passwordField.onEndEdit.AddListener((x) => registrationData.CPwd = x);
             passwordField.onEndEdit.AddListener(delegate { ValidatePassword(); });
@@ -59,18 +55,12 @@ namespace CopierAR
 
         void OnDisable()
         {
-            nameField.onEndEdit.RemoveAllListeners();
             usernameField.onEndEdit.RemoveAllListeners();
             passwordField.onEndEdit.RemoveAllListeners();
             emailField.onEndEdit.RemoveAllListeners();
             companyField.onEndEdit.RemoveAllListeners();
         }
 
-        public void ClearNameInputField()
-        {
-            nameField.text = "";
-            nameComment.text = "";
-        }
         public void ClearUserInputField()
         {
             usernameField.text = "";
@@ -96,7 +86,6 @@ namespace CopierAR
 
         public bool Initialize()
         {
-            ClearNameInputField();
             ClearUserInputField();
             ClearPassInputField();
             ClearEmailField();
@@ -128,27 +117,8 @@ namespace CopierAR
         {
             get
             {
-                return (ValidateName() && ValidateUsername() && ValidatePassword() && ValidateEmail() && ValidateCompany());
+                return (ValidateUsername() && ValidatePassword() && ValidateEmail() && ValidateCompany());
             }
-        }
-
-        private bool ValidateName()
-        {
-            // Check length
-            if (nameField.text.Length == 0)
-            {
-                ShowComment("Required field", ref nameComment);
-            }
-            else if (nameField.text.Length < 2)
-            {
-                ShowComment("Minimum 2 characters", ref nameComment);
-            }
-            else
-            {
-                HideComment(ref nameComment);
-                return true;
-            }
-            return false;
         }
 
         private bool ValidateUsername()
