@@ -13,7 +13,7 @@ namespace CopierAR
     {
         public string CopierName;
         public GameObject CopierPrefab;
-        public Texture CopierHeader;
-        public Texture CopierDescription;
+        public Sprite CopierLabel;
+        public Sprite CopierInfo;
     }
 }
