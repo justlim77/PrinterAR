@@ -140,20 +140,8 @@ namespace CopierAR
                     case "Company":
                         data.Company = reader.GetString(i);
                         break;
-                    case "CUserID":
-                        data.CUserID = reader.GetString(i);
-                        break;
                     case "CPwd":
                         data.CPwd = reader.GetString(i);
-                        break;
-                    case "CopierModel":
-                        data.CopierModel = reader.GetString(i);
-                        break;
-                    case "Frequency":
-                        data.Frequency = reader.GetString(i);
-                        break;
-                    case "PostalCode":
-                        data.PostalCode = reader.GetDecimal(i);
                         break;
                     case "Email":
                         data.Email = reader.GetString(i);
@@ -165,7 +153,7 @@ namespace CopierAR
             }
         }
 
-        public static RegistrationData GetRegistrationData(string userID)
+        public static RegistrationData GetRegistrationData(string name)
         {
             RegistrationData data = new RegistrationData();
             ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
@@ -174,7 +162,7 @@ namespace CopierAR
                 {
                     command.Transaction = transaction;
                     command.CommandText = DBCommands.get_register_params_withuser;
-                    command.Parameters.Add(new SqlParameter("CUserID", userID));
+                    command.Parameters.Add(new SqlParameter("CName", name));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
                         while (reader.Read())
@@ -189,6 +177,59 @@ namespace CopierAR
             };
             ProcessDB(dbEvent);
             return data;
+        }        
+
+        static void ReadPostalCodeData(SqlDataReader reader, ref LocationData data)
+        {
+            for (int i = 0; i < reader.FieldCount; i++)
+            {
+                if (reader.IsDBNull(i))
+                    continue;
+
+                string column = reader.GetName(i);
+                switch (column)
+                {
+                    case "code":
+                        data.code = reader.GetString(i);
+                        break;
+                    case "Postal_Name":
+                        data.Postal_Name = reader.GetString(i);
+                        break;
+                    case "Postal_Code":
+                        data.Postal_Code = reader.GetString(i);
+                        break;                    
+                    default:
+                        Debug.Log("Invalid column name.");
+                        break;
+                }
+            }
+        }
+
+        public static LocationData[] GetAllPostalCodeData()
+        {
+            List<LocationData> data = new List<LocationData>();
+            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
+            {
+                using (SqlCommand command = DBCONN.CreateCommand())
+                {
+                    command.Transaction = transaction;
+                    command.CommandText = DBCommands.get_all_postalcode_params;
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            LocationData ld = new LocationData();
+                            ReadPostalCodeData(reader, ref ld);
+                            data.Add(ld);
+                        }
+                    }
+                }
+
+                return true;
+            };
+
+            ProcessDB(dbEvent);
+            return data.ToArray();
         }
 
         public static bool CheckUserExists(string username)
@@ -201,8 +242,8 @@ namespace CopierAR
                 {
                     command.Parameters.Clear();
                     command.Transaction = transaction;
-                    command.CommandText = GenerateSelectExistsCommand("dbo.tblRegister", "CUserID");
-                    command.Parameters.Add(new SqlParameter("CUserID", username));
+                    command.CommandText = GenerateSelectExistsCommand("dbo.tblRegister", "CName");
+                    command.Parameters.Add(new SqlParameter("CName", username));
 
                     exists = (int)command.ExecuteScalar() > 0;
 
@@ -224,6 +265,41 @@ namespace CopierAR
             ProcessDB(dbEvent);
 
             return exists;         
+        }
+
+        public static bool CheckPostalExists(string code)
+        {
+            bool exists = false;
+
+            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
+            {
+                using (SqlCommand command = DBCONN.CreateCommand())
+                {
+                    command.Parameters.Clear();
+                    command.Transaction = transaction;
+                    command.CommandText = GenerateSelectExistsCommand("dbo.tblPostalcode", "code");
+                    command.Parameters.Add(new SqlParameter("code", code));
+
+                    exists = (int)command.ExecuteScalar() > 0;
+
+                    if (exists)
+                    {
+                        Debug.Log("Postal code exists.");
+                        DebugLog.Log("Postal code exists.");
+                    }
+                    else
+                    {
+                        Debug.Log("Postal code does not exist.");
+                        DebugLog.Log("Postal code does not exist.");
+                    }
+                }
+
+                return exists;
+            };
+
+            ProcessDB(dbEvent);
+
+            return exists;
         }
         #endregion
     }

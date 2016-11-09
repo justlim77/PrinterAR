@@ -29,10 +29,9 @@ namespace CopierAR
 
         [Header("Registration")]
         public RegistrationView registrationView;
-        public GameObject RegisterPanel;
 
         [Header("Location")]
-        public GameObject LocationPanel;
+        public LocationView locationView;
 
         public GameObject AboutUsPanel;
         public GameObject ContactUsPanel;
@@ -51,19 +50,20 @@ namespace CopierAR
 
         private LoginService m_loginService = new LoginService();
         private RegistrationService m_registrationService = new RegistrationService();
+        private LocationService m_locationService = new LocationService();
 
         /// <summary>
-        /// Processes login response from HTTP server
+        /// Processes login response from database
         /// </summary>
         /// <param name="response"></param>
         void LoginResponseHandler(Response response)
         {
             // TODO: Implement notification system
-            Debug.Log(string.Format("Login status: {0}, {1}", response.error, response.message));
+            Debug.Log(string.Format("Login status: Error {0}, {1}", response.error, response.message));
 
             if (response.error == false)
             {
-                loginView.Login();
+                loginView.Login(true);
             }
             else
             {
@@ -72,15 +72,35 @@ namespace CopierAR
         }
 
         /// <summary>
-        /// Processes registration response from HTTP server
+        /// Processes registration response from database
         /// </summary>
         /// <param name="response"></param>
         void RegistrationResponseHandler(Response response)
         {
             // TODO: Implement notification system
-            Debug.Log(string.Format("Registration status: {0}, {1}", response.error, response.message));
+            Debug.Log(string.Format("Registration status: Error {0}, {1}", response.error, response.message));
 
             // TODO: Register user on database
+        }
+
+        /// <summary>
+        /// Processes location response from database
+        /// </summary>
+        /// <param name="response"></param>
+        void LocationResponseHandler(Response response)
+        {
+            // TODO: Implement notification system
+            Debug.Log(string.Format("Location status: Error {0}, {1}", response.error, response.message));
+
+            // TODO: Query location validation
+            if (response.error == false)
+            {
+                locationView.SelectLocation(true);
+            }
+            else
+            {
+                locationView.ShowError(response);
+            }
         }
 
         // Use this for initialization
@@ -101,6 +121,7 @@ namespace CopierAR
         void OnEnable()
         {
             LoginView.OnLoggedIn += LoginView_OnLoggedIn;
+            LocationView.OnLocationSelected += LocationView_OnLocationSelected;
             UserBar.OnSignedOut += UserBar_OnSignedOut;
             UserBar.OnSignInPressed += UserBar_OnSignInPressed;
             UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
@@ -120,11 +141,18 @@ namespace CopierAR
                 if(registrationView.isValid)
                     StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData, RegistrationResponseHandler));
             });
-        }       
+
+            locationView.selectButton.onClick.AddListener(() =>
+            {
+                if (locationView.isValid)
+                    StartCoroutine(m_locationService.SendLocationData(locationView.locationData, LocationResponseHandler));
+            });
+        }
 
         void OnDisable()
         {
             LoginView.OnLoggedIn -= LoginView_OnLoggedIn;
+            LocationView.OnLocationSelected -= LocationView_OnLocationSelected;
             UserBar.OnSignedOut -= UserBar_OnSignedOut;
             UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
             UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
@@ -135,6 +163,7 @@ namespace CopierAR
 
             loginView.loginButton.onClick.RemoveAllListeners();
             registrationView.registerButton.onClick.RemoveAllListeners();
+            locationView.selectButton.onClick.RemoveAllListeners();
         }
 
         void Update()
@@ -213,9 +242,18 @@ namespace CopierAR
 
         private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
         {
-            UserBar.UpdateName(args.LoginData.username);
-            Debug.Log(string.Format("{0} signed in at {1}:{2}", args.LoginData.username, args.Time.Hour, args.Time.Minute));
-            DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.LoginData.username, args.Time.Hour, args.Time.Minute));
+            UserBar.UpdateName(args.loginData.CName);
+            Debug.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
+            DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
+
+            LoadMenuItem(MenuItem.Location);
+
+            //SetMainPanelHorizontal(AboutPanelHorizontalPosition);
+        }
+        private void LocationView_OnLocationSelected(object sender, LocationSelectedEventArgs args)
+        {
+            Debug.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
+            DebugLog.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
 
             SidePanel.Initialize();
 
@@ -238,7 +276,8 @@ namespace CopierAR
 
                     WelcomePanel.SetActive(false);
                     loginView.gameObject.SetActive(false);
-                    RegisterPanel.SetActive(false);
+                    registrationView.gameObject.SetActive(false);
+                    locationView.gameObject.SetActive(false);
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
@@ -248,7 +287,8 @@ namespace CopierAR
 
                     WelcomePanel.SetActive(true);
                     loginView.gameObject.SetActive(false);
-                    RegisterPanel.SetActive(false);
+                    registrationView.gameObject.SetActive(false);
+                    locationView.gameObject.SetActive(false);
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
@@ -260,7 +300,8 @@ namespace CopierAR
 
                     WelcomePanel.SetActive(false);
                     loginView.gameObject.SetActive(true);
-                    RegisterPanel.SetActive(false);
+                    registrationView.gameObject.SetActive(false);
+                    locationView.gameObject.SetActive(false);
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
@@ -272,19 +313,34 @@ namespace CopierAR
 
                     WelcomePanel.SetActive(false);
                     loginView.gameObject.SetActive(false);
-                    RegisterPanel.SetActive(true);
+                    registrationView.gameObject.SetActive(true);
+                    locationView.gameObject.SetActive(false);
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
 
                     Header.text = "Register";
                     break;
+                case MenuItem.Location:
+                    contentPanel.gameObject.SetActive(true);
+
+                    WelcomePanel.SetActive(false);
+                    loginView.gameObject.SetActive(false);
+                    registrationView.gameObject.SetActive(false);
+                    locationView.gameObject.SetActive(true);
+                    AboutUsPanel.SetActive(false);
+                    SidePanel.gameObject.SetActive(false);
+                    RightPanel.gameObject.SetActive(false);
+
+                    Header.text = "Location";
+                    break;
                 case MenuItem.About:
                     contentPanel.gameObject.SetActive(true);
 
                     WelcomePanel.SetActive(false);
                     loginView.gameObject.SetActive(false);
-                    RegisterPanel.SetActive(false);
+                    registrationView.gameObject.SetActive(false);
+                    locationView.gameObject.SetActive(false);
                     AboutUsPanel.SetActive(true);
                     SidePanel.gameObject.SetActive(true);
                     RightPanel.gameObject.SetActive(false);
@@ -308,6 +364,9 @@ namespace CopierAR
 
         void OnApplicationQuit()
         {
+            // TODO Send update to dbo.tblSalesInfo
+
+            // Close database connection if not yet done so
             DBManager.Uninitialize();
         }
     }    
