@@ -36,6 +36,9 @@ namespace CopierAR
         public GameObject AboutUsPanel;
         public GameObject ContactUsPanel;
 
+        [Header("Showcase")]
+        public GameObject ShowcasePanel;
+
         public SidePanel SidePanel;
         public RightPanel RightPanel;
 
@@ -216,7 +219,6 @@ namespace CopierAR
             LoadMenuItem(MenuItem.Showcase);
 
             RightPanel.SetAsMain();
-            RightPanel.ToggleInfoPanel(true);
         }
 
         private void UserBar_OnRegisterPressed(object arg1, string arg2)
@@ -281,6 +283,7 @@ namespace CopierAR
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
+                    ShowcasePanel.SetActive(false);
                     break;
                 case MenuItem.Welcome:
                     contentPanel.gameObject.SetActive(true);
@@ -292,6 +295,7 @@ namespace CopierAR
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
+                    ShowcasePanel.SetActive(false);
 
                     Header.text = "Welcome";
                     break;
@@ -305,6 +309,7 @@ namespace CopierAR
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
+                    ShowcasePanel.SetActive(false);
 
                     Header.text = "Sign in";
                     break;
@@ -318,6 +323,7 @@ namespace CopierAR
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
+                    ShowcasePanel.SetActive(false);
 
                     Header.text = "Register";
                     break;
@@ -331,6 +337,7 @@ namespace CopierAR
                     AboutUsPanel.SetActive(false);
                     SidePanel.gameObject.SetActive(false);
                     RightPanel.gameObject.SetActive(false);
+                    ShowcasePanel.SetActive(false);
 
                     Header.text = "Location";
                     break;
@@ -344,18 +351,27 @@ namespace CopierAR
                     AboutUsPanel.SetActive(true);
                     SidePanel.gameObject.SetActive(true);
                     RightPanel.gameObject.SetActive(false);
+                    ShowcasePanel.SetActive(false);
 
                     Header.text = "About Us";
                     break;
                 case MenuItem.Showcase:
                     contentPanel.gameObject.SetActive(false);
 
-                    if (RightPanel != null)
-                        RightPanel.ToggleInfoPanel(true);
+                    RightPanel.Initialize();
+                    RightPanel.ToggleInfoPanel(true);
+                    RightPanel.ToggleInteractionPanel(false);
+
+                    ShowcasePanel.SetActive(true);
 
                     break;
                 case MenuItem.LifeScale:
                     contentPanel.gameObject.SetActive(false);
+
+                    RightPanel.ToggleInfoPanel(false);
+                    RightPanel.ToggleInteractionPanel(true);
+
+                    ShowcasePanel.SetActive(false);
                     break;
             }
 

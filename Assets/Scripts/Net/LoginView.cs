@@ -30,7 +30,7 @@ namespace CopierAR
         {
             loginData = new LoginData();
             Initialize();
-            loginButton.onClick.AddListener(Login);
+            loginButton.onClick.AddListener(delegate { Login(); });
             UserBar.OnSignInPressed += UserBar_OnSignInPressed;
         }
 

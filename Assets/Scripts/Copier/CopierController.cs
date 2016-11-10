@@ -1,184 +1,139 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CopierController : MonoBehaviour
+namespace CopierAR
 {
-    public Animator scannerAnimator;
-    public Animator panelAnimator;
-    public Animator tonerAnimator;
-    public Animator sideTrayAnimator;
-    public Animator paperTrayAnimator;
-
-    // Default animator states
-    public CopierAnimation scannerState = CopierAnimation.ScannerDown;
-    public CopierAnimation panelState = CopierAnimation.PanelDown;
-    public CopierAnimation tonerState = CopierAnimation.TonerClose;
-    public CopierAnimation sideTrayState = CopierAnimation.SideTrayClose;
-    public CopierAnimation paperTrayState = CopierAnimation.PaperTrayClose;
-
-    public Vuforia.DefaultTrackableEventHandler trackableEventHandler;
-
-    public ButtonGroup printSpeedButton;
-    public string printSpeedURL;
-    public ButtonGroup scannerButton;
-    public ButtonGroup panelButton;
-    public ButtonGroup tonerButton;
-    public ButtonGroup sideTrayButton;
-    public ButtonGroup paperTrayButton;
-
-    private string openTrigger = "open";
-    private string closeTrigger = "close";
-    private string upTrigger = "up";
-    private string downTrigger = "down";
-
-    private CanvasGroup m_canvasGroup;
-    public CanvasGroup CanvasGroup
+    public class CopierController : MonoBehaviour
     {
-        get
+        [SerializeField]
+        Animator scannerAnimator;
+        [SerializeField]
+        Animator panelAnimator;
+        [SerializeField]
+        Animator tonerAnimator;
+        [SerializeField]
+        Animator paperTrayAnimator;
+        [SerializeField]
+        Animator sideTrayAnimator;
+
+        // Default animator states
+        public CopierAnimation scannerState = CopierAnimation.ScannerDown;
+        public CopierAnimation panelState = CopierAnimation.PanelDown;
+        public CopierAnimation tonerState = CopierAnimation.TonerClose;
+        public CopierAnimation paperTrayState = CopierAnimation.PaperTrayClose;
+        public CopierAnimation sideTrayState = CopierAnimation.SideTrayClose;
+
+        [SerializeField]
+        string openTrigger = "open";
+        [SerializeField]
+        string closeTrigger = "close";
+        [SerializeField]
+        string upTrigger = "up";
+        [SerializeField]
+        string downTrigger = "down";
+
+        public void ShowPrintSpeed(string url)
         {
-            if (m_canvasGroup == null)
-            {
-                m_canvasGroup = GetComponent<CanvasGroup>();
-                if (m_canvasGroup == null)
-                {
-                    m_canvasGroup = gameObject.AddComponent<CanvasGroup>();
-                }
-            }
-            return m_canvasGroup;
-        }
-    }
-
-    public bool Initialize()
-    {
-        if (trackableEventHandler != null)
-        {
-            Transform model = trackableEventHandler.transform.GetChildByName("Model");
-            scannerAnimator = model.GetChildByName("Scanner_Pivot").GetComponent<Animator>();
-            panelAnimator = model.GetChildByName("Panel_Pivot").GetComponent<Animator>();
-            tonerAnimator = model.GetChildByName("Toner_Pivot").GetComponent<Animator>();
-            sideTrayAnimator = model.GetChildByName("SideTray_Pivot").GetComponent<Animator>();
-            paperTrayAnimator = model.GetChildByName("PaperTray_Pivot").GetComponent<Animator>();
-        }
-
-        return true;
-    }
-
-    void Start()
-    {
-        Initialize();
-    }
-
-    void OnEnable()
-    {
-        printSpeedButton.onClick.AddListener(ShowPrintSpeed);
-        scannerButton.onClick.AddListener(AnimateScanner);
-        scannerButton.onClick.AddListener(scannerButton.ToggleState);
-        panelButton.onClick.AddListener(AnimatePanel);
-        panelButton.onClick.AddListener(panelButton.ToggleState);
-        tonerButton.onClick.AddListener(AnimateToner);
-        tonerButton.onClick.AddListener(tonerButton.ToggleState);
-        sideTrayButton.onClick.AddListener(AnimateSideTray);
-        sideTrayButton.onClick.AddListener(sideTrayButton.ToggleState);
-        paperTrayButton.onClick.AddListener(AnimatePaperTray);
-        paperTrayButton.onClick.AddListener(paperTrayButton.ToggleState);
-    }
-
-    void OnDisable()
-    {
-        printSpeedButton.onClick.RemoveAllListeners();
-        scannerButton.onClick.RemoveAllListeners();
-        panelButton.onClick.RemoveAllListeners();
-        tonerButton.onClick.RemoveAllListeners();
-        sideTrayButton.onClick.RemoveAllListeners();
-        paperTrayButton.onClick.RemoveAllListeners();
-    }
-
-    public void ShowPrintSpeed()
-    {
 #if UNITY_ANDROID || UNITY_EDITOR
-        Application.OpenURL(printSpeedURL);
+            Application.OpenURL(url);
 #elif UNITY_IOS
-        Handheld.PlayFullScreenMovie(printSpeedURL);
+        Handheld.PlayFullScreenMovie(url);
 #endif
+        }
+
+        public void AnimateScanner()
+        {
+            string state = scannerState == CopierAnimation.ScannerDown
+                    ? upTrigger
+                    : downTrigger;
+
+            scannerAnimator.SetTrigger(state);
+
+            scannerState = scannerState == CopierAnimation.ScannerDown
+                ? CopierAnimation.ScannerUp
+                : CopierAnimation.ScannerDown;
+        }
+
+        public void AnimatePanel()
+        {
+            string state = panelState == CopierAnimation.PanelDown
+                    ? upTrigger
+                    : downTrigger;
+
+            panelAnimator.SetTrigger(state);
+
+            panelState = panelState == CopierAnimation.PanelDown
+                ? CopierAnimation.PanelUp
+                : CopierAnimation.PanelDown;
+        }
+
+        public void AnimateToner()
+        {
+            string state = tonerState == CopierAnimation.TonerClose
+                    ? openTrigger
+                    : closeTrigger;
+
+            tonerAnimator.SetTrigger(state);
+
+            tonerState = tonerState == CopierAnimation.TonerClose
+                ? CopierAnimation.TonerOpen
+                : CopierAnimation.TonerClose;
+        }
+
+        public void AnimatePaperTray()
+        {
+            string state = paperTrayState == CopierAnimation.PaperTrayClose
+                    ? openTrigger
+                    : closeTrigger;
+
+            paperTrayAnimator.SetTrigger(state);
+
+            paperTrayState = paperTrayState == CopierAnimation.PaperTrayClose
+                ? CopierAnimation.PaperTrayOpen
+                : CopierAnimation.PaperTrayClose;
+        }
+        public void AnimateSideTray()
+        {
+            string state = sideTrayState == CopierAnimation.SideTrayClose
+                    ? openTrigger
+                    : closeTrigger;
+
+            sideTrayAnimator.SetTrigger(state);
+
+            sideTrayState = sideTrayState == CopierAnimation.SideTrayClose
+                ? CopierAnimation.SideTrayOpen
+                : CopierAnimation.SideTrayClose;
+        }
+
+
+        public void ResetCopier()
+        {
+            scannerState = CopierAnimation.ScannerDown;
+            panelState = CopierAnimation.PanelDown;
+            tonerState = CopierAnimation.TonerClose;
+            paperTrayState = CopierAnimation.PaperTrayClose;
+            sideTrayState = CopierAnimation.SideTrayClose;
+
+            scannerAnimator.SetTrigger(downTrigger);
+            panelAnimator.SetTrigger(downTrigger);
+            tonerAnimator.SetTrigger(closeTrigger);
+            paperTrayAnimator.SetTrigger(closeTrigger);
+            sideTrayAnimator.SetTrigger(closeTrigger);
+        }
     }
 
-    public void AnimateScanner()
+    [System.Serializable]
+    public enum CopierAnimation
     {
-        string state = scannerState == CopierAnimation.ScannerDown
-                ? upTrigger
-                : downTrigger;
-
-        scannerAnimator.SetTrigger(state);
-
-        scannerState = scannerState == CopierAnimation.ScannerDown
-            ? CopierAnimation.ScannerUp
-            : CopierAnimation.ScannerDown;
+        ScannerUp,
+        ScannerDown,
+        PanelUp,
+        PanelDown,
+        TonerOpen,
+        TonerClose,
+        PaperTrayOpen,
+        PaperTrayClose,
+        SideTrayOpen,
+        SideTrayClose
     }
-
-    public void AnimatePanel()
-    {
-        string state = panelState == CopierAnimation.PanelDown
-                ? upTrigger
-                : downTrigger;
-
-        panelAnimator.SetTrigger(state);
-
-        panelState = panelState == CopierAnimation.PanelDown
-            ? CopierAnimation.PanelUp
-            : CopierAnimation.PanelDown;
-    }
-
-    public void AnimateToner()
-    {
-        string state = tonerState == CopierAnimation.TonerClose
-                ? openTrigger
-                : closeTrigger;
-
-        tonerAnimator.SetTrigger(state);
-
-        tonerState = tonerState == CopierAnimation.TonerClose
-            ? CopierAnimation.TonerOpen
-            : CopierAnimation.TonerClose;
-    }
-
-    public void AnimateSideTray()
-    {
-        string state = sideTrayState == CopierAnimation.SideTrayClose
-                ? openTrigger
-                : closeTrigger;
-
-        sideTrayAnimator.SetTrigger(state);
-
-        sideTrayState = sideTrayState == CopierAnimation.SideTrayClose
-            ? CopierAnimation.SideTrayOpen
-            : CopierAnimation.SideTrayClose;
-    }
-
-    public void AnimatePaperTray()
-    {
-        string state = paperTrayState == CopierAnimation.PaperTrayClose
-                ? openTrigger
-                : closeTrigger;
-
-        paperTrayAnimator.SetTrigger(state);
-
-        paperTrayState = paperTrayState == CopierAnimation.PaperTrayClose
-            ? CopierAnimation.PaperTrayOpen
-            : CopierAnimation.PaperTrayClose;
-    }
-}
-
-[System.Serializable]
-public enum CopierAnimation
-{
-    ScannerUp,
-    ScannerDown,
-    PanelUp,
-    PanelDown,
-    TonerOpen,
-    TonerClose,
-    SideTrayOpen,
-    SideTrayClose,
-    PaperTrayOpen,
-    PaperTrayClose
 }
