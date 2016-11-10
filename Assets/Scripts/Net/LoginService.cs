@@ -23,6 +23,7 @@ namespace CopierAR
             // Check if user exists
             bool userExists = DBManager.CheckUserExists(loginData.CName);
 
+            // If user exists, check password
             if (!userExists)
             {
                 response.error = true;

@@ -9,12 +9,20 @@ namespace CopierAR
         public Image CopierLabel;
         public Image CopierInfo;
 
-        public Button PreviousBtn;
-        public Button NextBtn;
+        public GameObject InteractionButtonGroup;
+        public ButtonGroup PrintButton;
+        public ButtonGroup ScannerButton;
+        public ButtonGroup PanelButton;
+        public ButtonGroup TonerButton;
+        public ButtonGroup PaperTrayButton;
+        public ButtonGroup SideTrayButton;
+        public Button PreviousButton;
+        public Button NextButton;
 
         public ModelViewer ModelViewer;
 
-        public CopierController PhotocopierController;
+        private CopierController m_copierController;
+        private string m_printSpeedURL;
 
         private CanvasGroup _canvasGroup;
         private CanvasGroup canvasGroup
@@ -30,20 +38,26 @@ namespace CopierAR
             }
         }
 
-        void OnEnable()
+        void Start()
         {
             ModelViewer.OnModelSelected += ModelViewer_OnModelSelected;
+        }
 
-            PreviousBtn.onClick.AddListener(() => { ModelViewer.PreviousModel(); } );
-            NextBtn.onClick.AddListener(() => { ModelViewer.NextModel(); });
+        void OnDestroy()
+        {
+            ModelViewer.OnModelSelected -= ModelViewer_OnModelSelected;
+        }
+
+        void OnEnable()
+        {
+            PreviousButton.onClick.AddListener(() => { ModelViewer.PreviousModel(); });
+            NextButton.onClick.AddListener(() => { ModelViewer.NextModel(); });
         }
 
         void OnDisable()
         {
-            ModelViewer.OnModelSelected -= ModelViewer_OnModelSelected;
-
-            PreviousBtn.onClick.RemoveAllListeners();
-            NextBtn.onClick.RemoveAllListeners();
+            PreviousButton.onClick.RemoveAllListeners();
+            NextButton.onClick.RemoveAllListeners();
         }
 
         private void ModelViewer_OnModelSelected(object sender, ModelSelectedEventArgs args)
@@ -51,39 +65,78 @@ namespace CopierAR
             Copier copier = (Copier)args.Copier;
             CopierLabel.sprite = copier.CopierLabel;
             CopierInfo.sprite = copier.CopierInfo;
+
+            // Re-mapping animation buttons to current copier controller          
+            ResetCopier();
         }
 
         public bool Initialize()
         {
-            if (PhotocopierController != null)
-            {
-                return PhotocopierController.Initialize();
-            }
-            else
-            {
-                Debug.LogWarning("PhotocopierController is null!");
-                return false;
-            }
+            m_copierController = null;
+            m_printSpeedURL = "";
+
+            ModelViewer.Showcase();
+            ModelViewer.ShowCurrentModel();
+
+            return true;
         }
 
         public void ToggleInfoPanel(bool value = true)
         {
-            //if (CopierLabel != null)
-            //{
-            //    CopierLabel.CrossFadeAlpha(value == true ? 1 : 0, 0.5f, true);                
-            //}
-            //if (CopierInfo != null)
-            //{
-            //    CopierInfo.CrossFadeAlpha(value == true ? 1 : 0, 0.5f, true);
-            //}
+            CopierInfo.enabled = value;
+        }
 
-            canvasGroup.alpha = value ? 1 : 0;            
+        public void ToggleInteractionPanel(bool value = true)
+        {
+            InteractionButtonGroup.SetActive(value);
         }
 
         public void SetAsMain()
         {
             gameObject.SetActive(true);
             transform.SetAsLastSibling();
+        }
+
+        private void ResetCopier()
+        {
+            m_copierController = ModelViewer.GetActiveController();
+
+            m_copierController.ResetCopier();
+
+            // Remove onClick listeners
+            PrintButton.onClick.RemoveAllListeners();
+            ScannerButton.onClick.RemoveAllListeners();
+            PanelButton.onClick.RemoveAllListeners();
+            TonerButton.onClick.RemoveAllListeners();
+            PaperTrayButton.onClick.RemoveAllListeners();
+            SideTrayButton.onClick.RemoveAllListeners();
+
+            // Reset buttons to inactive state
+            PrintButton.DeselectButton();
+            ScannerButton.DeselectButton();
+            PanelButton.DeselectButton();
+            TonerButton.DeselectButton();
+            PaperTrayButton.DeselectButton();
+            SideTrayButton.DeselectButton();
+
+            // Add onClick listeners
+            PrintButton.onClick.AddListener(delegate { m_copierController.ShowPrintSpeed(m_printSpeedURL); });
+            PrintButton.onClick.AddListener(PrintButton.ToggleState);
+
+            ScannerButton.onClick.AddListener(m_copierController.AnimateScanner);
+            ScannerButton.onClick.AddListener(ScannerButton.ToggleState);
+
+            PanelButton.onClick.AddListener(m_copierController.AnimatePanel);
+            PanelButton.onClick.AddListener(PanelButton.ToggleState);
+
+            TonerButton.onClick.AddListener(m_copierController.AnimateToner);
+            TonerButton.onClick.AddListener(TonerButton.ToggleState);
+
+            PaperTrayButton.onClick.AddListener(m_copierController.AnimatePaperTray);
+            PaperTrayButton.onClick.AddListener(PaperTrayButton.ToggleState);
+
+            SideTrayButton.onClick.AddListener(m_copierController.AnimateSideTray);
+            SideTrayButton.onClick.AddListener(SideTrayButton.ToggleState);
         }
     }
 

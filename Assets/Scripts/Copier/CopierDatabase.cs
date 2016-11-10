@@ -15,5 +15,6 @@ namespace CopierAR
         public GameObject CopierPrefab;
         public Sprite CopierLabel;
         public Sprite CopierInfo;
+        public string PrintSpeedLink;
     }
 }

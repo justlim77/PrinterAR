@@ -23,9 +23,9 @@ namespace CopierAR
 
         public Dictionary<int, Copier> CopierList = new Dictionary<int, Copier>();
         public Dictionary<int, GameObject> ModelList = new Dictionary<int, GameObject>();
+        public Dictionary<int, CopierController> ControllerList = new Dictionary<int, CopierController>();
 
         private int m_viewIndex = 0;
-        private int m_maxViewIndex = 0;
 
         // Use this for initialization
         void Start()
@@ -41,20 +41,26 @@ namespace CopierAR
             }
 
             m_viewIndex = 0;
-            m_maxViewIndex = CopierDatabase.copiers.Length - 1;
 
             // Clear lists
             ModelGroup.transform.Clear();
             CopierList.Clear();
             ModelList.Clear();
 
-            // Initialize copier and model list
+            // Initialize dictionaries
             for (int i = 0; i < CopierDatabase.copiers.Length; i++)
             {
+                // Add copier data to dictionary
                 CopierList.Add(i, CopierDatabase.copiers[i]);
 
+                // Add copier model to dictionary
                 GameObject model = (GameObject)Instantiate(CopierDatabase.copiers[i].CopierPrefab, ModelGroup.transform);
                 ModelList.Add(i, model);
+
+                // Add copier controller to dictionary
+                CopierController controller = model.GetComponent<CopierController>();
+                ControllerList.Add(i, controller);
+
                 model.SetActive(false);
             }
 
@@ -66,37 +72,42 @@ namespace CopierAR
 
         public void Showcase()
         {            
-            ModelGroup.transform.SetParent(null);
+            ModelGroup.transform.parent = null;
             ShowcaseCamera.enabled = true;
         }
 
         public void LifeScale()
         {
-            ModelGroup.transform.SetParent(LifeScaleParent);
+            ModelGroup.transform.parent = LifeScaleParent;
             ShowcaseCamera.enabled = false;
         }
 
         public void NextModel()
         {
-            m_viewIndex++;
+            ++m_viewIndex;
             m_viewIndex %= CopierDatabase.copiers.Length;
             SelectModel(m_viewIndex); 
         }
 
         public void PreviousModel()
         {
-            m_viewIndex--;
-            m_viewIndex %= CopierDatabase.copiers.Length;
+            --m_viewIndex;
+            if (m_viewIndex < 0)
+            {
+                m_viewIndex = CopierDatabase.copiers.Length - 1;
+            }
             SelectModel(m_viewIndex);
         }
 
         private void SelectModel(int index)
         {
+            // Disable all models
             foreach (GameObject model in ModelList.Values)
             {
                 model.SetActive(false);
             }
 
+            // Enable model by index
             GameObject _model = null;
             if (ModelList.TryGetValue(index, out _model))
             {
@@ -110,6 +121,16 @@ namespace CopierAR
                     Copier = CopierList[index]
                 });
             }
+        }
+
+        public void ShowCurrentModel()
+        {
+            SelectModel(m_viewIndex);
+        }
+
+        public CopierController GetActiveController()
+        {
+            return ControllerList[m_viewIndex];
         }
     }
 }

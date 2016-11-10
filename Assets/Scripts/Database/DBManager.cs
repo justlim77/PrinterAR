@@ -161,7 +161,7 @@ namespace CopierAR
                 using (SqlCommand command = DBCONN.CreateCommand())
                 {
                     command.Transaction = transaction;
-                    command.CommandText = DBCommands.get_register_params_withuser;
+                    command.CommandText = DBCommands.get_register_params_withCName;
                     command.Parameters.Add(new SqlParameter("CName", name));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
@@ -177,7 +177,33 @@ namespace CopierAR
             };
             ProcessDB(dbEvent);
             return data;
-        }        
+        }
+
+        public static RegistrationData GetRegistrationData(int id)
+        {
+            RegistrationData data = new RegistrationData();
+            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
+            {
+                using (SqlCommand command = DBCONN.CreateCommand())
+                {
+                    command.Transaction = transaction;
+                    command.CommandText = DBCommands.get_register_params_withCID;
+                    command.Parameters.Add(new SqlParameter("CID", id));
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            data = new RegistrationData();
+                            ReadRegistrationData(reader, ref data);
+                            break;
+                        }
+                    }
+                }
+                return false;
+            };
+            ProcessDB(dbEvent);
+            return data;
+        }
 
         static void ReadPostalCodeData(SqlDataReader reader, ref LocationData data)
         {
@@ -240,9 +266,10 @@ namespace CopierAR
             {
                 using (SqlCommand command = DBCONN.CreateCommand())
                 {
-                    command.Parameters.Clear();
+                    //command.Parameters.Clear();
                     command.Transaction = transaction;
-                    command.CommandText = GenerateSelectExistsCommand("dbo.tblRegister", "CName");
+                    //command.CommandText = GenerateSelectExistsCommand("dbo.tblRegister", "CName");
+                    command.CommandText = DBCommands.get_register_params_withCName;
                     command.Parameters.Add(new SqlParameter("CName", username));
 
                     exists = (int)command.ExecuteScalar() > 0;

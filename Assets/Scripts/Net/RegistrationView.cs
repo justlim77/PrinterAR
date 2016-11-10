@@ -215,7 +215,7 @@ namespace CopierAR
 
         private void ShowComment(string message, ref Text commentLabel)
         {
-            commentLabel.text = message;
+            commentLabel.text = string.Format("*{0}", message);
         }
 
         private void HideComment(ref Text commentLabel)

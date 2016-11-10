@@ -27,7 +27,7 @@ namespace CopierAR
         {
             locationData = new LocationData();
             Initialize();
-            selectButton.onClick.AddListener(SelectLocation);
+            selectButton.onClick.AddListener(delegate { SelectLocation(); });
         }
 
         void OnDestroy()
@@ -76,7 +76,8 @@ namespace CopierAR
 
         public void ShowError(Response response)
         {
-            locationComment.text = response.message;           
+            //locationComment.text = response.message;
+            locationComment.text = string.Format("*{0}", response.message);
         }
 
         public void HideError()
