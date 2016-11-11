@@ -18,7 +18,13 @@ namespace CopierAR
         public const string get_register_params_withCID = "SELECT * FROM dbo.tblRegister WHERE CID=@CID";
         public const string get_postalcode_params_withcode = "SELECT * FROM dbo.tblPostalcode WHERE code=@code";
 
-        public const string insert_register_params = "INSERT INTO dbo.tblRegister (CID, CName, Company, CPwd, Email) VALUES (@CID, @CName, @Company, @CPwd, @Email)";
+        //public const string insert_register_params = "INSERT INTO dbo.tblRegister (CID, CName, Company, CPwd, Email) VALUES ((SELECT ISNULL(MAX(CID)+1, 0) FROM dbo.tblRegister with (SERIALIZABLE, UPDLOCK)), @CName, @Company, @CPwd, @Email)";
+        //public const string insert_register_params = "INSERT INTO dbo.tblRegister (CName, Company, CPwd, Email) VALUES (@CName, @Company, @CPwd, @Email); SELECT IDENT_CURRENT('dbo.tblRegister');";
+        public const string insert_register_params = "MERGE dbo.tblRegister WITH (HOLDLOCK) AS r "
+            + "USING(SELECT @CName AS CName, @Email as Email) AS new_r ON r.CName = new_r.CName AND r.Email = new_r.Email "
+            + "WHEN NOT MATCHED THEN INSERT (CName, Company, CPwd, Email) "
+            + "VALUES(new_r.CName, @Company, @CPwd, new_r.Email); "
+            + "SELECT IDENT_CURRENT('dbo.tblRegister');";
 
         public static void InitCommands()
         {
@@ -26,3 +32,34 @@ namespace CopierAR
         }     
     }
 }
+
+/*  MSSQL Commands
+    DECLARE @CName varchar(50) = 'Jespa'
+    DECLARE @Company nvarchar(100) = 'iOosh'
+    DECLARE @CPwd nvarchar(100) = 'janice'
+    DECLARE @Email varchar(50) = 'jespa@ioosh.com.sg'
+
+    MERGE dbo.tblRegister WITH (HOLDLOCK) AS f
+    USING (SELECT @CName AS CName, @Email as Email) AS new_register
+    ON f.CName = new_register.CName AND f.Email = new_register.Email
+    WHEN MATCHED THEN 
+    UPDATE SET f.Email = 'update@email.com'
+    WHEN NOT MATCHED THEN INSERT (CName, Company, CPwd, Email) VALUES (new_register.CName, @Company, @CPwd, new_register.Email);
+    Selection
+    SELECT * from dbo.tblRegister
+
+    Update
+    UPDATE dbo.tblRegister
+    SET Email='jespa@ioosh.com.sg', CPwd='janice'
+    WHERE CName='Jespa';
+
+    Delete from
+    DELETE FROM dbo.tblRegister
+    WHERE CName='Jespa' AND Email='jespa@ioosh.com.sg';
+
+    Delete ALL CAUTION
+    DELETE FROM dbo.tblRegister;
+
+    RESEED auto-increment
+    DBCC CHECKIDENT (tblRegister, RESEED, 0)
+ * */

@@ -19,44 +19,54 @@ namespace CopierAR
         public IEnumerator SendRegistrationData(RegistrationData registerData, System.Action<Response> responseHandler)
         {
             Response response = new Response();
+            
+            //// Fetch for existing database entry using CUserID
+            //RegistrationData _data = DBManager.GetRegistrationData(registerData.CName);
 
-            // Fetch for existing database entry using CUserID
-            RegistrationData _data = DBManager.GetRegistrationData(registerData.CName);
+            //// Cross-ref database to check for existing username (CUserID)
+            //if (_data.CName == registerData.CName)
+            //{
+            //    Debug.Log("Username already exists");
+            //    response.error = true;
+            //    response.message = "Username already exists";
+            //    responseHandler(response);
+            //    yield break;
+            //}
 
-            // Cross-ref database to check for existing username (CUserID)
-            if (_data.CName == registerData.CName)
-            {
-                Debug.Log("Username already exists");
-                response.error = true;
-                response.message = "Username already exists";
-                responseHandler(response);
-                yield break;
-            }
+            //// Cross-ref database to check for existing email (Email)
+            //if (_data.Email == registerData.Email)
+            //{
+            //    Debug.Log("Email already exists");
+            //    response.error = true;
+            //    response.message = "Email already exists";
+            //    responseHandler(response);
+            //    yield break;
+            //}
+            
+            yield return new WaitForEndOfFrame();
 
-            // Cross-ref database to check for existing email (Email)
-            if (_data.Email == registerData.Email)
-            {
-                Debug.Log("Email already exists");
-                response.error = true;
-                response.message = "Email already exists";
-                responseHandler(response);
-                yield break;
-            }
+            Debug.Log("Username and Email valid for registration\nCreating user...");
 
             // Send registration DB transaction
+            bool userCreated = DBManager.CreateUser(registerData);
 
-
-            Debug.Log("Username and Email valid for registration");
-            response.error = false;
-            response.message = "Username and Email valid for registration";
+            if (userCreated)
+            {
+                response.message = "Registration successful!";
+            }
+            else
+            {
+                response.message = "Registration failed.";
+            }
+            response.error = userCreated;
             responseHandler(response);
             yield break;
 
             // Check if user exists, if so, get registration data:
             //RegistrationData _data = new RegistrationData();
-            _data = registerData;
-            _data = DBManager.GetRegistrationData(_data.CName);
-            yield return 0;
+            //_data = registerData;
+            //_data = DBManager.GetRegistrationData(_data.CName);
+            //yield return 0;
             
             /*Response response = new Response();
 

@@ -61,6 +61,17 @@ namespace CopierAR
             companyField.onEndEdit.RemoveAllListeners();
         }
 
+        void Update()
+        {
+            if(Input.GetKeyDown(KeyCode.F))
+            {
+                usernameField.text = registrationData.CName = "Justin";
+                passwordField.text = registrationData.CPwd = "janice";
+                emailField.text = registrationData.Email = "gp@mages.edu.sg";
+                companyField.text = registrationData.Company = "MAGES";
+            }
+        }
+
         public void ClearUserInputField()
         {
             usernameField.text = "";

@@ -60,7 +60,7 @@ namespace CopierAR
 
         public static void Uninitialize()
         {
-            //Debug.Log("Closing database connection");
+            Debug.Log("Closing database connection");
             if (DBCONN != null)
                 DBCONN.Close();
             DBCONN = null;
@@ -207,19 +207,39 @@ namespace CopierAR
 
         public static bool CreateUser(RegistrationData data)
         {
+            int n = 0;
             ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
             {
                 using (SqlCommand command = DBCONN.CreateCommand())
                 {
                     command.Transaction = transaction;
+                    command.CommandType = CommandType.Text;
                     command.CommandText = DBCommands.insert_register_params;
-                    command.Parameters.Add(new SqlParameter("CName", data.CName));
-                    command.Parameters.Add(new SqlParameter("Company", data.Company));
-                    command.Parameters.Add(new SqlParameter("CPwd", data.CPwd));
-                    command.Parameters.Add(new SqlParameter("Email", data.Email));
+                    command.Parameters.AddWithValue("CName", data.CName);
+                    command.Parameters.AddWithValue("Company", data.Company);
+                    command.Parameters.AddWithValue("CPwd", data.CPwd);
+                    command.Parameters.AddWithValue("Email", data.Email);
 
+                    try
+                    {
+                        n = Convert.ToInt32(command.ExecuteScalar());
+                    }
+                    catch (SqlException ex)
+                    {
+                        Debug.Log(ex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log(ex.Message);
+                    }
+
+                    Debug.Log(n == 0 ? "Registration failed: Unable to insert row" : "Registration success: " + n);
+
+                    // Commit transaction
+                    transaction.Commit();
+                    transaction = DBCONN.BeginTransaction(IsolationLevel.Serializable);                  
                 }
-                return false;
+                return (n != 0);
             };
 
             return ProcessDB(dbEvent);        
