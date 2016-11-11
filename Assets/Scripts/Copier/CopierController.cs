@@ -32,35 +32,39 @@ namespace CopierAR
         [SerializeField]
         string downTrigger = "down";
 
+        bool animated = false;
+
         public void ShowPrintSpeed(string url)
         {
 #if UNITY_ANDROID || UNITY_EDITOR
             Application.OpenURL(url);
 #elif UNITY_IOS
-        Handheld.PlayFullScreenMovie(url);
+            Handheld.PlayFullScreenMovie(url);
 #endif
         }
 
         public void AnimateScanner()
         {
-            string state = scannerState == CopierAnimation.ScannerDown
-                    ? upTrigger
-                    : downTrigger;
+            bool state = scannerState == CopierAnimation.ScannerDown
+                    ? true
+                    : false;
 
-            scannerAnimator.SetTrigger(state);
+            scannerAnimator.SetBool("animated", state);
 
             scannerState = scannerState == CopierAnimation.ScannerDown
                 ? CopierAnimation.ScannerUp
                 : CopierAnimation.ScannerDown;
+
+            Debug.Log("Animating scanner: " + scannerState.ToString());
         }
 
         public void AnimatePanel()
         {
-            string state = panelState == CopierAnimation.PanelDown
-                    ? upTrigger
-                    : downTrigger;
+            bool state = panelState == CopierAnimation.PanelDown
+                    ? true
+                    : false;
 
-            panelAnimator.SetTrigger(state);
+            panelAnimator.SetBool("animated", state);
 
             panelState = panelState == CopierAnimation.PanelDown
                 ? CopierAnimation.PanelUp
@@ -69,11 +73,11 @@ namespace CopierAR
 
         public void AnimateToner()
         {
-            string state = tonerState == CopierAnimation.TonerClose
-                    ? openTrigger
-                    : closeTrigger;
+            bool state = tonerState == CopierAnimation.TonerClose
+                    ? true
+                    : false;
 
-            tonerAnimator.SetTrigger(state);
+            tonerAnimator.SetBool("animated", state);
 
             tonerState = tonerState == CopierAnimation.TonerClose
                 ? CopierAnimation.TonerOpen
@@ -82,11 +86,11 @@ namespace CopierAR
 
         public void AnimatePaperTray()
         {
-            string state = paperTrayState == CopierAnimation.PaperTrayClose
-                    ? openTrigger
-                    : closeTrigger;
+            bool state = paperTrayState == CopierAnimation.PaperTrayClose
+                    ? true
+                    : false;
 
-            paperTrayAnimator.SetTrigger(state);
+            paperTrayAnimator.SetBool("animated", state);
 
             paperTrayState = paperTrayState == CopierAnimation.PaperTrayClose
                 ? CopierAnimation.PaperTrayOpen
@@ -94,11 +98,11 @@ namespace CopierAR
         }
         public void AnimateSideTray()
         {
-            string state = sideTrayState == CopierAnimation.SideTrayClose
-                    ? openTrigger
-                    : closeTrigger;
+            bool state = sideTrayState == CopierAnimation.SideTrayClose
+                    ? true
+                    : false;
 
-            sideTrayAnimator.SetTrigger(state);
+            sideTrayAnimator.SetBool("animated", state);
 
             sideTrayState = sideTrayState == CopierAnimation.SideTrayClose
                 ? CopierAnimation.SideTrayOpen
@@ -106,7 +110,7 @@ namespace CopierAR
         }
 
 
-        public void ResetCopier()
+        public IEnumerator ResetCopier()
         {
             scannerState = CopierAnimation.ScannerDown;
             panelState = CopierAnimation.PanelDown;
@@ -114,11 +118,22 @@ namespace CopierAR
             paperTrayState = CopierAnimation.PaperTrayClose;
             sideTrayState = CopierAnimation.SideTrayClose;
 
-            scannerAnimator.SetTrigger(downTrigger);
-            panelAnimator.SetTrigger(downTrigger);
-            tonerAnimator.SetTrigger(closeTrigger);
-            paperTrayAnimator.SetTrigger(closeTrigger);
-            sideTrayAnimator.SetTrigger(closeTrigger);
+            yield return new WaitForEndOfFrame();
+
+            scannerAnimator.SetBool("animated", false);
+            panelAnimator.SetBool("animated", false);
+            tonerAnimator.SetBool("animated", false);
+            paperTrayAnimator.SetBool("animated", false);
+            sideTrayAnimator.SetBool("animated", false);                        
+        }
+
+        public void ResetCopierToDefault()
+        {
+            scannerAnimator.SetBool("animated", false);
+            panelAnimator.SetBool("animated", false);
+            tonerAnimator.SetBool("animated", false);
+            paperTrayAnimator.SetBool("animated", false);
+            sideTrayAnimator.SetBool("animated", false);
         }
     }
 

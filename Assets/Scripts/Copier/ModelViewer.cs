@@ -26,6 +26,7 @@ namespace CopierAR
         public Dictionary<int, CopierController> ControllerList = new Dictionary<int, CopierController>();
 
         private int m_viewIndex = 0;
+        private int m_previousIndex = 0;
 
         // Use this for initialization
         void Start()
@@ -41,6 +42,7 @@ namespace CopierAR
             }
 
             m_viewIndex = 0;
+            m_previousIndex = 0;
 
             // Clear lists
             ModelGroup.transform.Clear();
@@ -74,24 +76,30 @@ namespace CopierAR
         {            
             ModelGroup.transform.parent = null;
             ShowcaseCamera.enabled = true;
+
+            ShowCurrentModel();
         }
 
         public void LifeScale()
         {
             ModelGroup.transform.parent = LifeScaleParent;
             ShowcaseCamera.enabled = false;
+
+            ShowCurrentModel();
         }
 
         public void NextModel()
         {
-            ++m_viewIndex;
+            m_previousIndex = m_viewIndex;
+            m_viewIndex++;
             m_viewIndex %= CopierDatabase.copiers.Length;
             SelectModel(m_viewIndex); 
         }
 
         public void PreviousModel()
         {
-            --m_viewIndex;
+            m_previousIndex = m_viewIndex;
+            m_viewIndex--;
             if (m_viewIndex < 0)
             {
                 m_viewIndex = CopierDatabase.copiers.Length - 1;
@@ -101,16 +109,22 @@ namespace CopierAR
 
         private void SelectModel(int index)
         {
+            // Reset previous model
+            StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
+            //ControllerList[m_previousIndex].ResetCopierToDefault();
+
             // Disable all models
             foreach (GameObject model in ModelList.Values)
             {
-                model.SetActive(false);
+                //model.SetActive(false);
+                model.transform.position = new Vector3(0, -5, 0);
             }
 
             // Enable model by index
             GameObject _model = null;
             if (ModelList.TryGetValue(index, out _model))
             {
+                ModelList[index].transform.position = Vector3.zero;
                 ModelList[index].SetActive(true);
             }
 

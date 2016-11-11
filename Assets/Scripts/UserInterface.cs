@@ -179,6 +179,12 @@ namespace CopierAR
             {
                 Background.SetActive(false);
             }
+
+            // Debug login
+            if (Input.GetKeyDown(KeyCode.Home))
+            {
+                LoadMenuItem(MenuItem.About);
+            }
         }
 
         private void SidePanel_OnLifeScaleButtonClicked(object arg1, string arg2)
@@ -245,6 +251,7 @@ namespace CopierAR
         private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
         {
             UserBar.UpdateName(args.loginData.CName);
+
             Debug.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
             DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
 
@@ -257,11 +264,7 @@ namespace CopierAR
             Debug.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
             DebugLog.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
 
-            SidePanel.Initialize();
-
             LoadMenuItem(MenuItem.About);
-
-            SetMainPanelHorizontal(AboutPanelHorizontalPosition);
         }
 
         private void SetMainPanelHorizontal(float x = 0)
@@ -353,14 +356,15 @@ namespace CopierAR
                     RightPanel.gameObject.SetActive(false);
                     ShowcasePanel.SetActive(false);
 
+                    SidePanel.Initialize();
+                    SetMainPanelHorizontal(AboutPanelHorizontalPosition);
+
                     Header.text = "About Us";
                     break;
                 case MenuItem.Showcase:
                     contentPanel.gameObject.SetActive(false);
 
-                    RightPanel.Initialize();
-                    RightPanel.ToggleInfoPanel(true);
-                    RightPanel.ToggleInteractionPanel(false);
+                    RightPanel.SetProductMode(ProductMode.Showcase);
 
                     ShowcasePanel.SetActive(true);
 
@@ -368,8 +372,7 @@ namespace CopierAR
                 case MenuItem.LifeScale:
                     contentPanel.gameObject.SetActive(false);
 
-                    RightPanel.ToggleInfoPanel(false);
-                    RightPanel.ToggleInteractionPanel(true);
+                    RightPanel.SetProductMode(ProductMode.LifeScale);
 
                     ShowcasePanel.SetActive(false);
                     break;
