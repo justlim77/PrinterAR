@@ -75,9 +75,6 @@ namespace CopierAR
             m_copierController = null;
             m_printSpeedURL = "";
 
-            ModelViewer.Showcase();
-            ModelViewer.ShowCurrentModel();
-
             return true;
         }
 
@@ -97,11 +94,28 @@ namespace CopierAR
             transform.SetAsLastSibling();
         }
 
+        public void SetProductMode(ProductMode mode)
+        {
+            switch(mode)
+            {
+                case ProductMode.Showcase:
+                    ModelViewer.Showcase();
+                    ToggleInfoPanel(true);
+                    ToggleInteractionPanel(false);
+                    break;
+                case ProductMode.LifeScale:
+                    ModelViewer.LifeScale();                    
+                    ToggleInfoPanel(false);
+                    ToggleInteractionPanel(true);
+                    break;
+            }
+        }
+
         private void ResetCopier()
         {
             m_copierController = ModelViewer.GetActiveController();
 
-            m_copierController.ResetCopier();
+            StartCoroutine(m_copierController.ResetCopier());
 
             // Remove onClick listeners
             PrintButton.onClick.RemoveAllListeners();
@@ -140,4 +154,9 @@ namespace CopierAR
         }
     }
 
+    public enum ProductMode
+    {
+        Showcase,
+        LifeScale
+    }
 }

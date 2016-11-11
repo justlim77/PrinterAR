@@ -18,6 +18,8 @@ namespace CopierAR
         public const string get_register_params_withCID = "SELECT * FROM dbo.tblRegister WHERE CID=@CID";
         public const string get_postalcode_params_withcode = "SELECT * FROM dbo.tblPostalcode WHERE code=@code";
 
+        public const string insert_register_params = "INSERT INTO dbo.tblRegister (CID, CName, Company, CPwd, Email) VALUES (@CID, @CName, @Company, @CPwd, @Email)";
+
         public static void InitCommands()
         {
             // TODO
