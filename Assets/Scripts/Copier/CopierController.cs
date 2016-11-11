@@ -23,17 +23,6 @@ namespace CopierAR
         public CopierAnimation paperTrayState = CopierAnimation.PaperTrayClose;
         public CopierAnimation sideTrayState = CopierAnimation.SideTrayClose;
 
-        [SerializeField]
-        string openTrigger = "open";
-        [SerializeField]
-        string closeTrigger = "close";
-        [SerializeField]
-        string upTrigger = "up";
-        [SerializeField]
-        string downTrigger = "down";
-
-        bool animated = false;
-
         public void ShowPrintSpeed(string url)
         {
 #if UNITY_ANDROID || UNITY_EDITOR

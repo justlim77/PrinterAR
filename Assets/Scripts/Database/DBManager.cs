@@ -205,6 +205,26 @@ namespace CopierAR
             return data;
         }
 
+        public static bool CreateUser(RegistrationData data)
+        {
+            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
+            {
+                using (SqlCommand command = DBCONN.CreateCommand())
+                {
+                    command.Transaction = transaction;
+                    command.CommandText = DBCommands.insert_register_params;
+                    command.Parameters.Add(new SqlParameter("CName", data.CName));
+                    command.Parameters.Add(new SqlParameter("Company", data.Company));
+                    command.Parameters.Add(new SqlParameter("CPwd", data.CPwd));
+                    command.Parameters.Add(new SqlParameter("Email", data.Email));
+
+                }
+                return false;
+            };
+
+            return ProcessDB(dbEvent);        
+        }
+
         static void ReadPostalCodeData(SqlDataReader reader, ref LocationData data)
         {
             for (int i = 0; i < reader.FieldCount; i++)

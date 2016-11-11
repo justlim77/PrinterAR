@@ -43,6 +43,9 @@ namespace CopierAR
                 yield break;
             }
 
+            // Send registration DB transaction
+
+
             Debug.Log("Username and Email valid for registration");
             response.error = false;
             response.message = "Username and Email valid for registration";
