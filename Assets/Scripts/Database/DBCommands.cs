@@ -20,11 +20,21 @@ namespace CopierAR
 
         //public const string insert_register_params = "INSERT INTO dbo.tblRegister (CID, CName, Company, CPwd, Email) VALUES ((SELECT ISNULL(MAX(CID)+1, 0) FROM dbo.tblRegister with (SERIALIZABLE, UPDLOCK)), @CName, @Company, @CPwd, @Email)";
         //public const string insert_register_params = "INSERT INTO dbo.tblRegister (CName, Company, CPwd, Email) VALUES (@CName, @Company, @CPwd, @Email); SELECT IDENT_CURRENT('dbo.tblRegister');";
-        public const string insert_register_params = "MERGE dbo.tblRegister WITH (HOLDLOCK) AS r "
-            + "USING(SELECT @CName AS CName, @Email as Email) AS new_r ON r.CName = new_r.CName AND r.Email = new_r.Email "
-            + "WHEN NOT MATCHED THEN INSERT (CName, Company, CPwd, Email) "
-            + "VALUES(new_r.CName, @Company, @CPwd, new_r.Email); "
+        public const string insert_register_params =
+            "MERGE dbo.tblRegister WITH (HOLDLOCK) AS t "
+            + "USING    (SELECT @CName AS CName, @Email as Email) AS s "
+            + "ON       s.CName = t.CName "
+            + "AND      s.Email = t.Email "
+            + "WHEN NOT MATCHED BY TARGET "
+            + "THEN INSERT (CName, Company, CPwd, Email) "
+            + "VALUES(s.CName, @Company, @CPwd, s.Email) "
+            + "WHEN MATCHED BY TARGET "
+            + ";"
             + "SELECT IDENT_CURRENT('dbo.tblRegister');";
+
+        public const string insert_salesinfo_params =
+            "INSERT INTO dbo.tblSalesInfo (SName, PostalCod, LoginTime, PhotoCopierModel, DemoDuration, Frequency)"
+            + "VALUES (@SName, @PostalCod, @LoginTime, @PhotoCopierModel, @DemoDuration, @Frequency)";
 
         public static void InitCommands()
         {

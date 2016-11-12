@@ -237,12 +237,88 @@ namespace CopierAR
 
                     // Commit transaction
                     transaction.Commit();
-                    transaction = DBCONN.BeginTransaction(IsolationLevel.Serializable);                  
+                    transaction = DBCONN.BeginTransaction(IsolationLevel.Serializable);
                 }
                 return (n != 0);
             };
 
-            return ProcessDB(dbEvent);        
+            return ProcessDB(dbEvent);
+        }
+
+        #endregion
+
+        #region Sales Info
+        public static bool InsertSalesInfo(SalesInfoData infoData)
+        {
+            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
+            {
+                using (SqlCommand command = DBCONN.CreateCommand())
+                {
+                    command.Transaction = transaction;
+                    command.CommandText = DBCommands.insert_salesinfo_params;
+                    command.Parameters.AddWithValue("SName", infoData.SName);                       // string
+                    command.Parameters.AddWithValue("PostalCod", infoData.PostalCod);               // decimal
+                    command.Parameters.AddWithValue("LoginTime", infoData.LoginTime);               // DateTime
+                    command.Parameters.AddWithValue("PhotoCopierModel", infoData.PhotoCopierModel); // csv string
+                    command.Parameters.AddWithValue("DemoDuration", infoData.DemoDuration);         // string
+                    command.Parameters.AddWithValue("Frequency", infoData.Frequency);               // csv string
+
+                    bool result = false;
+                    try
+                    {
+                        result = (command.ExecuteNonQuery() != 0);
+                    }
+                    catch (SqlException ex)
+                    {
+                        Debug.Log(ex.Message);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.Log(ex.Message);
+                    }
+
+                    return result;
+                }
+            };
+
+            return ProcessDB(dbEvent);
+        }
+        #endregion
+
+        #region Postal Code
+        public static bool CheckPostalExists(string code)
+        {
+            bool exists = false;
+
+            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
+            {
+                using (SqlCommand command = DBCONN.CreateCommand())
+                {
+                    command.Parameters.Clear();
+                    command.Transaction = transaction;
+                    command.CommandText = GenerateSelectExistsCommand("dbo.tblPostalcode", "code");
+                    command.Parameters.Add(new SqlParameter("code", code));
+
+                    exists = (int)command.ExecuteScalar() > 0;
+
+                    if (exists)
+                    {
+                        Debug.Log("Postal code exists.");
+                        DebugLog.Log("Postal code exists.");
+                    }
+                    else
+                    {
+                        Debug.Log("Postal code does not exist.");
+                        DebugLog.Log("Postal code does not exist.");
+                    }
+                }
+
+                return exists;
+            };
+
+            ProcessDB(dbEvent);
+
+            return exists;
         }
 
         static void ReadPostalCodeData(SqlDataReader reader, ref LocationData data)
@@ -263,7 +339,7 @@ namespace CopierAR
                         break;
                     case "Postal_Code":
                         data.Postal_Code = reader.GetString(i);
-                        break;                    
+                        break;
                     default:
                         Debug.Log("Invalid column name.");
                         break;
@@ -297,7 +373,9 @@ namespace CopierAR
             ProcessDB(dbEvent);
             return data.ToArray();
         }
+        #endregion
 
+        #region Login
         public static bool CheckUserExists(string username)
         {
             bool exists = false;
@@ -323,41 +401,6 @@ namespace CopierAR
                     {
                         Debug.Log("User does not exist.");
                         DebugLog.Log("User does not exist.");
-                    }
-                }
-
-                return exists;
-            };
-
-            ProcessDB(dbEvent);
-
-            return exists;         
-        }
-
-        public static bool CheckPostalExists(string code)
-        {
-            bool exists = false;
-
-            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
-            {
-                using (SqlCommand command = DBCONN.CreateCommand())
-                {
-                    command.Parameters.Clear();
-                    command.Transaction = transaction;
-                    command.CommandText = GenerateSelectExistsCommand("dbo.tblPostalcode", "code");
-                    command.Parameters.Add(new SqlParameter("code", code));
-
-                    exists = (int)command.ExecuteScalar() > 0;
-
-                    if (exists)
-                    {
-                        Debug.Log("Postal code exists.");
-                        DebugLog.Log("Postal code exists.");
-                    }
-                    else
-                    {
-                        Debug.Log("Postal code does not exist.");
-                        DebugLog.Log("Postal code does not exist.");
                     }
                 }
 

@@ -43,12 +43,12 @@ namespace CopierAR
             //    yield break;
             //}
             
-            yield return new WaitForEndOfFrame();
-
-            Debug.Log("Username and Email valid for registration\nCreating user...");
+            //Debug.Log("Username and Email valid for registration\nCreating user...");
 
             // Send registration DB transaction
             bool userCreated = DBManager.CreateUser(registerData);
+
+            yield return new WaitForEndOfFrame();
 
             if (userCreated)
             {
