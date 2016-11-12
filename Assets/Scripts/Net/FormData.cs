@@ -50,9 +50,9 @@
         public string SName = "";
         public decimal PostalCod = 0;
         public System.DateTime? LoginTime = null;
-        public string PhotoCopierModel = "";
+        public string PhotoCopierModel = "";    // Append models with comma (csv)
         public string DemoDuration = "";
-        public string Frequency = "";
+        public string Frequency = "";   // Append frequency with comma (csv)
 
         public void Clear()
         {
