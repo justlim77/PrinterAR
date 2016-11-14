@@ -24,6 +24,9 @@ namespace CopierAR
         public RectTransform contentPanel;
         public GameObject WelcomePanel;
 
+        [Header("User Session")]
+        public UserSession userSession;
+
         [Header("Login")]
         public LoginView loginView;
 
@@ -84,6 +87,14 @@ namespace CopierAR
             Debug.Log(string.Format("Registration status: Error {0}, {1}", response.error, response.message));
 
             // TODO: Register user on database
+            if (response.error == false)
+            {
+                registrationView.Register(true);
+            }
+            else
+            {
+                registrationView.ShowError(response);
+            }
         }
 
         /// <summary>
@@ -125,6 +136,7 @@ namespace CopierAR
         {
             LoginView.OnLoggedIn += LoginView_OnLoggedIn;
             LocationView.OnLocationSelected += LocationView_OnLocationSelected;
+            RegistrationView.OnRegistered += RegistrationView_OnRegistered;
             UserBar.OnSignedOut += UserBar_OnSignedOut;
             UserBar.OnSignInPressed += UserBar_OnSignInPressed;
             UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
@@ -156,6 +168,7 @@ namespace CopierAR
         {
             LoginView.OnLoggedIn -= LoginView_OnLoggedIn;
             LocationView.OnLocationSelected -= LocationView_OnLocationSelected;
+            RegistrationView.OnRegistered -= RegistrationView_OnRegistered;
             UserBar.OnSignedOut -= UserBar_OnSignedOut;
             UserBar.OnSignInPressed -= UserBar_OnSignInPressed;
             UserBar.OnRegisterPressed -= UserBar_OnRegisterPressed;
@@ -265,6 +278,13 @@ namespace CopierAR
             DebugLog.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
 
             LoadMenuItem(MenuItem.About);
+        }
+
+        private void RegistrationView_OnRegistered(object sender, RegistrationEventArgs args)
+        {
+            UserBar.UpdateName(args.RegistrationData.CName);
+
+            LoadMenuItem(MenuItem.Location);
         }
 
         private void SetMainPanelHorizontal(float x = 0)
@@ -383,7 +403,8 @@ namespace CopierAR
 
         void OnApplicationQuit()
         {
-            // TODO Send update to dbo.tblSalesInfo
+            // Log out user session (if logged in)
+            userSession.LogoutOnQuit();
 
             // Close database connection if not yet done so
             DBManager.Uninitialize();

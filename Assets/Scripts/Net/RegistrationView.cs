@@ -24,6 +24,7 @@ namespace CopierAR
         public Text passwordComment;
         public Text emailComment;
         public Text companyComment;
+        public Text errorComment;
         public Button registerButton;
 
         public RegistrationData registrationData { get; private set; }
@@ -32,7 +33,7 @@ namespace CopierAR
         {
             registrationData = new RegistrationData();
             Initialize();
-            registerButton.onClick.AddListener(Register);
+            registerButton.onClick.AddListener(delegate { Register(); });
             UserBar.OnRegisterPressed += UserBar_OnRegisterPressed;
         }
 
@@ -102,17 +103,19 @@ namespace CopierAR
             ClearEmailField();
             ClearCompanyField();
             registrationData.Clear();
+            HideError();
+            HideAllComments();
             return true;
         }
 
-        public void Register()
+        public void Register(bool success = false)
         {
-            //if (!ValidateName() || !ValidateUsername() || !ValidatePassword() || !ValidateEmail() || !ValidateCompany())
-            //    return;
-
             // Check for required fields
-            if (!isValid)
+            if (!isValid || !success)
                 return;
+
+            HideError();
+            HideAllComments();        
 
             if (OnRegistered != null)
             {
@@ -232,6 +235,29 @@ namespace CopierAR
         private void HideComment(ref Text commentLabel)
         {
             commentLabel.text = "";
+        }
+
+        public void ShowError(Response response)
+        {
+            switch (response.responseType)
+            {
+                case ResponseType.RegistrationFailed:
+                    errorComment.text = string.Format("*{0}", response.message);
+                    break;
+            }
+        }
+
+        public void HideAllComments()
+        {
+            usernameComment.text = "";
+            passwordComment.text = "";
+            companyComment.text = "";
+            emailComment.text = "";
+        }
+
+        public void HideError()
+        {
+            errorComment.text = "";
         }
     }
 }

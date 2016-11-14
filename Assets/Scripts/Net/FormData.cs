@@ -32,9 +32,9 @@
 
     public class LocationData
     {
-        public string code = "";
-        public string Postal_Name = "";
-        public string Postal_Code = "";
+        public string code = "";        // ex. 329685
+        public string Postal_Name = ""; // ex. BALESTIER ROAD
+        public string Postal_Code = ""; // same as [code]
 
         public void Clear()
         {
@@ -50,9 +50,9 @@
         public string SName = "";
         public decimal PostalCod = 0;
         public System.DateTime? LoginTime = null;
-        public string PhotoCopierModel = "";    // Append models with comma (csv)
+        public string PhotoCopierModel = "";        // Append models with comma (csv)
         public string DemoDuration = "";
-        public string Frequency = "";   // Append frequency with comma (csv)
+        public string Frequency = "";               // Append frequency with comma (csv)
 
         public void Clear()
         {
@@ -71,7 +71,8 @@
         InvalidUser,
         IncorrectPassword,
         UserAlreadyExists,
-        InvalidPostalCode
+        InvalidPostalCode,
+        RegistrationFailed
     }
 
     public class Response

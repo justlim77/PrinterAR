@@ -7,6 +7,13 @@ namespace CopierAR
     public class ModelSelectedEventArgs : System.EventArgs
     {
         public Copier Copier;
+        public ModelFrequency ModelFrequency;
+    }
+
+    public struct ModelFrequency
+    {
+        public string Models;
+        public string Frequency;
     }
 
     public class ModelViewer : MonoBehaviour
@@ -24,9 +31,12 @@ namespace CopierAR
         public Dictionary<int, Copier> CopierList = new Dictionary<int, Copier>();
         public Dictionary<int, GameObject> ModelList = new Dictionary<int, GameObject>();
         public Dictionary<int, CopierController> ControllerList = new Dictionary<int, CopierController>();
+        public Dictionary<Copier, int> ViewCountList = new Dictionary<Copier, int>();
 
         private int m_viewIndex = 0;
         private int m_previousIndex = 0;
+
+        private ModelFrequency m_modelFrequency = new ModelFrequency();
 
         // Use this for initialization
         void Start()
@@ -43,17 +53,19 @@ namespace CopierAR
 
             m_viewIndex = 0;
             m_previousIndex = 0;
+            m_modelFrequency = new ModelFrequency();
 
             // Clear lists
             ModelGroup.transform.Clear();
             CopierList.Clear();
             ModelList.Clear();
+            ViewCountList.Clear();
 
             // Initialize dictionaries
             for (int i = 0; i < CopierDatabase.copiers.Length; i++)
             {
                 // Add copier data to dictionary
-                CopierList.Add(i, CopierDatabase.copiers[i]);
+                CopierList.Add(i, CopierDatabase.copiers[i]);                
 
                 // Add copier model to dictionary
                 GameObject model = (GameObject)Instantiate(CopierDatabase.copiers[i].CopierPrefab, ModelGroup.transform);
@@ -62,6 +74,8 @@ namespace CopierAR
                 // Add copier controller to dictionary
                 CopierController controller = model.GetComponent<CopierController>();
                 ControllerList.Add(i, controller);
+
+                ViewCountList.Add(CopierDatabase.copiers[i], 0);
 
                 model.SetActive(false);
             }
@@ -128,11 +142,17 @@ namespace CopierAR
                 ModelList[index].SetActive(true);
             }
 
+            Copier copier = CopierList[index];
+
+            // Increment view count by 1
+            ViewCountList[copier] = ViewCountList[copier] + 1;
+
             if (OnModelSelected != null)
             {
                 OnModelSelected(this, new ModelSelectedEventArgs
                 {
-                    Copier = CopierList[index]
+                    Copier = CopierList[index],
+                    ModelFrequency = GetModelFrequency() 
                 });
             }
         }
@@ -145,6 +165,26 @@ namespace CopierAR
         public CopierController GetActiveController()
         {
             return ControllerList[m_viewIndex];
+        }
+
+        public ModelFrequency GetModelFrequency()
+        {
+            string models = "";
+            foreach (Copier copier in ViewCountList.Keys)
+            {
+                models += string.Format(",{0}", copier.CopierName);
+            }
+
+            string frequencies = "";
+            foreach (int viewCount in ViewCountList.Values)
+            {
+                frequencies += string.Format(",{0}", viewCount);
+            }
+
+            m_modelFrequency.Models = models;
+            m_modelFrequency.Frequency = frequencies;
+
+            return m_modelFrequency;
         }
     }
 }

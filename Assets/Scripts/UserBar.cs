@@ -58,6 +58,10 @@ namespace CopierAR
         public void UpdateName(string name)
         {
             UserLabel.text = string.Format("Hi {0},", name);
+            SignoutButton.SetActive(true);
+
+            SigninButton.SetActive(false);
+            RegisterButton.SetActive(false);
         }
 
         public void Signout()

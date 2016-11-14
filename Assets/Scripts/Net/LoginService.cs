@@ -1,21 +1,10 @@
-﻿/// 
-/// =====CRM Integration=====
-/// Replace temporary LOGIN_URL value with link to web service
-/// Replace temporary LOGIN_SUCCESS value with return value from successful login request
-/// Currently set up to query [dbo.tblRegister] for [CUserID] and [CPwd]
-/// =========================
-/// 
-
-using UnityEngine;
+﻿using UnityEngine;
 using System.Collections;
 
 namespace CopierAR
 {
     public class LoginService
     {
-        public static string LOGIN_URL = "http://unity-test-server.appspot.com/authentication/login";   // @WebServiceDeveloper Please set this to the web service URL
-        public static string LOGIN_SUCCESS = "login-success";   // @WebServiceDeveloper Please set return value from successful login request
-
         public IEnumerator SendLoginData(LoginData loginData, System.Action<Response> responseHandler)
         {
             Response response = new Response();

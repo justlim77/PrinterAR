@@ -23,13 +23,11 @@ namespace CopierAR
         public const string insert_register_params =
             "MERGE dbo.tblRegister WITH (HOLDLOCK) AS t "
             + "USING    (SELECT @CName AS CName, @Email as Email) AS s "
-            + "ON       s.CName = t.CName "
-            + "AND      s.Email = t.Email "
+            + "ON       t.CName = s.CName "
+            + "AND      t.Email = s.Email "
             + "WHEN NOT MATCHED BY TARGET "
             + "THEN INSERT (CName, Company, CPwd, Email) "
-            + "VALUES(s.CName, @Company, @CPwd, s.Email) "
-            + "WHEN MATCHED BY TARGET "
-            + ";"
+            + "VALUES(s.CName, @Company, @CPwd, s.Email); "
             + "SELECT IDENT_CURRENT('dbo.tblRegister');";
 
         public const string insert_salesinfo_params =
@@ -55,6 +53,7 @@ namespace CopierAR
     WHEN MATCHED THEN 
     UPDATE SET f.Email = 'update@email.com'
     WHEN NOT MATCHED THEN INSERT (CName, Company, CPwd, Email) VALUES (new_register.CName, @Company, @CPwd, new_register.Email);
+    
     Selection
     SELECT * from dbo.tblRegister
 

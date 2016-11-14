@@ -14,9 +14,6 @@ namespace CopierAR
                 if (_session == null)
                 {
                     _session = new Session();
-                    _session.RegistrationData = new RegistrationData();
-                    _session.LocationData = new LocationData();
-                    _session.SalesInfoData = new SalesInfoData();
                 }
 
                 return _session;
@@ -31,6 +28,9 @@ namespace CopierAR
             string message = result ? "successful" : "failed";
             Debug.Log(string.Format("Inserting sales info data {0}", message));
 
+            // Clear info
+            ClearSession();
+
             return result;
         }
 
@@ -38,9 +38,10 @@ namespace CopierAR
         {
             session.SalesInfoData.SName = SName;
         }
-        public static void UpdatePostalCod(decimal PostalCod)
+        public static void UpdatePostalCod(string PostalCod)
         {
-            session.SalesInfoData.PostalCod = PostalCod;
+            decimal postalCode = System.Convert.ToDecimal(PostalCod);
+            session.SalesInfoData.PostalCod = postalCode;
         }
         public static void UpdateLoginTime(System.DateTime LoginTime)
         {
@@ -58,13 +59,35 @@ namespace CopierAR
         {
             session.SalesInfoData.Frequency = Frequency;
         }
+
+        public static void ClearSession()
+        {
+            session.Clear();
+        }
     }
 
     public class Session
     {
+        public LoginData LoginData;
         public RegistrationData RegistrationData;
         public LocationData LocationData;
         public SalesInfoData SalesInfoData;
+
+        public Session()
+        {
+            LoginData = new LoginData();
+            RegistrationData = new RegistrationData();
+            LocationData = new LocationData();
+            SalesInfoData = new SalesInfoData();
+        }
+
+        public void Clear()
+        {
+            LoginData.Clear();
+            RegistrationData.Clear();
+            LocationData.Clear();
+            SalesInfoData.Clear();
+        }
     }
 }
 

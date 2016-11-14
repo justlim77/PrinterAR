@@ -53,12 +53,14 @@ namespace CopierAR
             if (userCreated)
             {
                 response.message = "Registration successful!";
+                response.responseType = ResponseType.Success;
             }
             else
             {
                 response.message = "Registration failed.";
+                response.responseType = ResponseType.RegistrationFailed;
             }
-            response.error = userCreated;
+            response.error = !userCreated;
             responseHandler(response);
             yield break;
 
