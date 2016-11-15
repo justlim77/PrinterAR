@@ -49,7 +49,10 @@ namespace CopierAR
 
         public float AboutPanelHorizontalPosition = 162.0f;
 
-        public static MenuItem menuItem = MenuItem.Welcome;
+        public static MenuItem menuItem
+        {
+            get; private set;
+        }
 
         private CanvasScaler m_CanvasScaler;
         private Vector2 m_InitialPanelPosition = new Vector2();
@@ -399,6 +402,11 @@ namespace CopierAR
             }
 
             UserInterface.menuItem = menuItem;
+        }
+
+        public static bool IsDemoing()
+        {
+            return (menuItem == MenuItem.LifeScale || menuItem == MenuItem.Showcase);
         }
 
         void OnApplicationQuit()

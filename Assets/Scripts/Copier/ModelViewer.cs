@@ -7,13 +7,29 @@ namespace CopierAR
     public class ModelSelectedEventArgs : System.EventArgs
     {
         public Copier Copier;
-        public ModelFrequency ModelFrequency;
+        public ModelsDuraFreq ModelFrequency;
     }
 
-    public struct ModelFrequency
+    public class ModelsDuraFreq
     {
-        public string Models;
-        public string Frequency;
+        public string Model;
+        public float DemoDuration;
+        public int Frequency;
+
+        public string ModelString;
+        public string DemoDurationString;
+        public string FrequencyString;
+
+        public ModelsDuraFreq()
+        {
+            Model = "";
+            DemoDuration = 0;
+            Frequency = 0;
+
+            ModelString = "";
+            DemoDurationString = "";
+            FrequencyString = "";
+        }
     }
 
     public class ModelViewer : MonoBehaviour
@@ -28,15 +44,14 @@ namespace CopierAR
         public GameObject ModelGroup;
         public Camera ShowcaseCamera;
 
-        public Dictionary<int, Copier> CopierList = new Dictionary<int, Copier>();
-        public Dictionary<int, GameObject> ModelList = new Dictionary<int, GameObject>();
-        public Dictionary<int, CopierController> ControllerList = new Dictionary<int, CopierController>();
-        public Dictionary<Copier, int> ViewCountList = new Dictionary<Copier, int>();
+        public List<Copier> CopierList = new List<Copier>();
+        public List<GameObject> ModelList = new List<GameObject>();
+        public List<CopierController> ControllerList = new List<CopierController>();
+        public List<ModelsDuraFreq> ModelDuraFreqList = new List<ModelsDuraFreq>();
+        public static Dictionary<Copier, ModelsDuraFreq> ModelDataList = new Dictionary<Copier, ModelsDuraFreq>();
 
         private int m_viewIndex = 0;
         private int m_previousIndex = 0;
-
-        private ModelFrequency m_modelFrequency = new ModelFrequency();
 
         // Use this for initialization
         void Start()
@@ -53,29 +68,32 @@ namespace CopierAR
 
             m_viewIndex = 0;
             m_previousIndex = 0;
-            m_modelFrequency = new ModelFrequency();
 
             // Clear lists
             ModelGroup.transform.Clear();
             CopierList.Clear();
             ModelList.Clear();
-            ViewCountList.Clear();
+            ModelDuraFreqList.Clear();
+            ModelDataList.Clear();
 
             // Initialize dictionaries
             for (int i = 0; i < CopierDatabase.copiers.Length; i++)
             {
                 // Add copier data to dictionary
-                CopierList.Add(i, CopierDatabase.copiers[i]);                
+                CopierList.Add(CopierDatabase.copiers[i]);                
 
                 // Add copier model to dictionary
                 GameObject model = (GameObject)Instantiate(CopierDatabase.copiers[i].CopierPrefab, ModelGroup.transform);
-                ModelList.Add(i, model);
+                ModelList.Add(model);
 
                 // Add copier controller to dictionary
                 CopierController controller = model.GetComponent<CopierController>();
-                ControllerList.Add(i, controller);
+                ControllerList.Add(controller);
 
-                ViewCountList.Add(CopierDatabase.copiers[i], 0);
+                ModelsDuraFreq mdf = new ModelsDuraFreq();
+                ModelDuraFreqList.Add(mdf);
+                mdf.Model = CopierDatabase.copiers[i].CopierName;
+                ModelDataList.Add(CopierDatabase.copiers[i], mdf); 
 
                 model.SetActive(false);
             }
@@ -125,27 +143,28 @@ namespace CopierAR
         {
             // Reset previous model
             StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
+
             //ControllerList[m_previousIndex].ResetCopierToDefault();
 
             // Disable all models
-            foreach (GameObject model in ModelList.Values)
+            foreach (GameObject model in ModelList)
             {
                 //model.SetActive(false);
+                if (model == ModelList[index])
+                    continue;
                 model.transform.position = new Vector3(0, -5, 0);
             }
 
             // Enable model by index
-            GameObject _model = null;
-            if (ModelList.TryGetValue(index, out _model))
-            {
-                ModelList[index].transform.position = Vector3.zero;
-                ModelList[index].SetActive(true);
-            }
+            ModelList[index].transform.position = Vector3.zero;
+            ModelList[index].SetActive(true);
 
             Copier copier = CopierList[index];
 
-            // Increment view count by 1
-            ViewCountList[copier] = ViewCountList[copier] + 1;
+            // Increase view count
+            ModelsDuraFreq mdf = ModelDataList[copier];
+            mdf.Frequency += 1;
+            ModelDataList[copier] = mdf;
 
             if (OnModelSelected != null)
             {
@@ -167,24 +186,39 @@ namespace CopierAR
             return ControllerList[m_viewIndex];
         }
 
-        public ModelFrequency GetModelFrequency()
+        public ModelsDuraFreq GetActiveModelsDuraFreq()
         {
+            return ModelDuraFreqList[m_viewIndex];
+        }
+
+        public static ModelsDuraFreq GetModelFrequency()
+        {
+            ModelsDuraFreq mdf = new ModelsDuraFreq();
+
             string models = "";
-            foreach (Copier copier in ViewCountList.Keys)
-            {
-                models += string.Format(",{0}", copier.CopierName);
-            }
-
+            string demoDurations = "";
             string frequencies = "";
-            foreach (int viewCount in ViewCountList.Values)
+
+            foreach (ModelsDuraFreq _mdf in ModelDataList.Values)
             {
-                frequencies += string.Format(",{0}", viewCount);
+                models += string.Format("{0} ", _mdf.ModelString);
+                demoDurations += string.Format("{0} ", Converter.ToMinutesAndSeconds((int)_mdf.DemoDuration));
+                frequencies += string.Format("{0} ", _mdf.Frequency);
             }
 
-            m_modelFrequency.Models = models;
-            m_modelFrequency.Frequency = frequencies;
+            mdf.ModelString = models;
+            mdf.DemoDurationString = demoDurations;
+            mdf.FrequencyString = frequencies;
 
-            return m_modelFrequency;
+            return mdf;
+        }
+
+        void Update()
+        {
+            if (UserInterface.IsDemoing())
+            {
+                ModelDuraFreqList[m_viewIndex].DemoDuration += Time.deltaTime;
+            }
         }
     }
 }

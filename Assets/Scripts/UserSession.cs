@@ -43,8 +43,8 @@ namespace CopierAR
 
         private void ModelViewer_OnModelSelected(object sender, ModelSelectedEventArgs args)
         {
-            SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.Models);
-            SessionManager.UpdateFrequency(args.ModelFrequency.Frequency);
+            SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.ModelString);
+            SessionManager.UpdateFrequency(args.ModelFrequency.FrequencyString);
         }
 
         void OnDestroy()
@@ -79,7 +79,7 @@ namespace CopierAR
         {
             int s = (int)Time.timeSinceLevelLoad - (int)m_loginTime;
             System.TimeSpan t = System.TimeSpan.FromSeconds(s);
-            string duration = string.Format("{0:D2}m:{1:D2}s",
+            string duration = string.Format("{0:D1}m:{1:D2}s ",
                 t.Minutes,
                 t.Seconds);
             Debug.Log(duration);
@@ -107,7 +107,8 @@ namespace CopierAR
 
         public void Logout()
         {
-            SessionManager.UpdateDemoDuration(GetDemoDuration());
+            //SessionManager.UpdateDemoDuration(GetDemoDuration());
+            SessionManager.UpdateDemoDuration(ModelViewer.GetModelFrequency().DemoDurationString);
             SessionManager.InsertSalesInfoData();
             m_isLoggedIn = false;
             m_cachedTimeStamp = 0;
