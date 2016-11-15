@@ -147,6 +147,7 @@ namespace CopierAR
             SidePanel.OnProductButtonClicked += SidePanel_OnProductButtonClicked;
             SidePanel.OnShowcaseButtonClicked += SidePanel_OnShowcaseButtonClicked;
             SidePanel.OnLifeScaleButtonClicked += SidePanel_OnLifeScaleButtonClicked;
+            UserSession.OnInactiveLogout += UserSession_OnInactiveLogout;
 
             loginView.loginButton.onClick.AddListener(() =>
             {
@@ -179,6 +180,7 @@ namespace CopierAR
             SidePanel.OnProductButtonClicked -= SidePanel_OnProductButtonClicked;
             SidePanel.OnShowcaseButtonClicked -= SidePanel_OnShowcaseButtonClicked;
             SidePanel.OnLifeScaleButtonClicked -= SidePanel_OnLifeScaleButtonClicked;
+            UserSession.OnInactiveLogout -= UserSession_OnInactiveLogout;
 
             loginView.loginButton.onClick.RemoveAllListeners();
             registrationView.registerButton.onClick.RemoveAllListeners();
@@ -201,6 +203,11 @@ namespace CopierAR
             {
                 LoadMenuItem(MenuItem.About);
             }
+        }
+        private void UserSession_OnInactiveLogout(object sender, System.EventArgs args)
+        {
+            UserBar_OnSignedOut(this, "Signed out");
+            UserBar.SignoutWithoutEvent();
         }
 
         private void SidePanel_OnLifeScaleButtonClicked(object arg1, string arg2)
@@ -264,8 +271,6 @@ namespace CopierAR
             DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
 
             LoadMenuItem(MenuItem.Location);
-
-            //SetMainPanelHorizontal(AboutPanelHorizontalPosition);
         }
         private void LocationView_OnLocationSelected(object sender, LocationSelectedEventArgs args)
         {

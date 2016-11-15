@@ -5,7 +5,10 @@ namespace CopierAR
 {
     public class UserSession : MonoBehaviour
     {
-        private static int m_DISCONNECT_TIMEOUT = 300; // 5 min * 60 sec
+        public delegate void InactiveLogoutEventHandler(object sender, System.EventArgs args);
+        public static event InactiveLogoutEventHandler OnInactiveLogout;
+
+        private static int m_DISCONNECT_TIMEOUT = 10; // 5 min * 60 sec
 
         private float m_cachedTimeStamp = 0.0f;
         private bool m_isLoggedIn = false;
@@ -89,7 +92,11 @@ namespace CopierAR
         {
             if (m_isLoggedIn)
             {
+#if UNITY_ANDROID || UNITY_IOS
                 if (Input.touchCount > 0)
+#elif UNITY_EDITOR
+                if (Input.GetMouseButtonDown(0))
+#endif
                 {
                     m_cachedTimeStamp = 0;
                 }
@@ -101,6 +108,12 @@ namespace CopierAR
                     // Auto-logout on inactivty
                     Debug.Log("Logging out due to inactivity");
                     Logout();
+
+                    // Fire OnInactiveLogout event
+                    if (OnInactiveLogout != null)
+                    {
+                        OnInactiveLogout(this, new System.EventArgs());
+                    }
                 }
             }
         }

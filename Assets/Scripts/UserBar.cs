@@ -75,6 +75,15 @@ namespace CopierAR
             if (OnSignedOut != null)
                 OnSignedOut(this, "Signed out");
         }
+
+        public void SignoutWithoutEvent()
+        {
+            UserLabel.text = "";
+            SignoutButton.SetActive(false);
+
+            SigninButton.SetActive(true);
+            RegisterButton.SetActive(true);
+        }
     }
 }
 
