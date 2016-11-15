@@ -88,10 +88,17 @@ namespace CopierAR
             InteractionButtonGroup.SetActive(value);
         }
 
-        public void SetAsMain()
+        public void Show()
         {
-            gameObject.SetActive(true);
+            canvasGroup.alpha = 1.0f;
+            canvasGroup.interactable = true;
             transform.SetAsLastSibling();
+        }
+
+        public void Hide()
+        {
+            canvasGroup.alpha = 0.0f;
+            canvasGroup.interactable = false;
         }
 
         public void SetProductMode(ProductMode mode)

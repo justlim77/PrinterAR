@@ -37,6 +37,8 @@ namespace CopierAR
         public delegate void ModelSelectedEventHandler(object sender, ModelSelectedEventArgs args);
         public static event ModelSelectedEventHandler OnModelSelected;
 
+        public static ModelViewer Instance { get; private set; }
+
         public string CopierDatabasePath = "Data/CopierDatabase";
         public CopierDatabase CopierDatabase = null;
 
@@ -52,6 +54,19 @@ namespace CopierAR
 
         private int m_viewIndex = 0;
         private int m_previousIndex = 0;
+        private int m_lastViewedModel = -1;
+
+        void Awake()
+        {
+            if (Instance == null)
+                Instance = this;
+        }
+
+        void OnDestroy()
+        {
+            if (Instance != null)
+                Instance = null;
+        }
 
         // Use this for initialization
         void Start()
@@ -67,7 +82,8 @@ namespace CopierAR
             }
 
             m_viewIndex = 0;
-            m_previousIndex = 0;
+            m_previousIndex = -1;
+            m_lastViewedModel = -1;
 
             // Clear lists
             ModelGroup.transform.Clear();
@@ -91,8 +107,8 @@ namespace CopierAR
                 ControllerList.Add(controller);
 
                 ModelsDuraFreq mdf = new ModelsDuraFreq();
-                ModelDuraFreqList.Add(mdf);
                 mdf.Model = CopierDatabase.copiers[i].CopierName;
+                ModelDuraFreqList.Add(mdf);
                 ModelDataList.Add(CopierDatabase.copiers[i], mdf); 
 
                 model.SetActive(false);
@@ -142,16 +158,18 @@ namespace CopierAR
         private void SelectModel(int index)
         {
             // Reset previous model
-            StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
+            if (m_previousIndex != -1)
+            {
+                StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
+            }
 
-            //ControllerList[m_previousIndex].ResetCopierToDefault();
-
-            // Disable all models
+            // Hide models
             foreach (GameObject model in ModelList)
             {
                 //model.SetActive(false);
                 if (model == ModelList[index])
                     continue;
+
                 model.transform.position = new Vector3(0, -5, 0);
             }
 
@@ -161,10 +179,17 @@ namespace CopierAR
 
             Copier copier = CopierList[index];
 
-            // Increase view count
-            ModelsDuraFreq mdf = ModelDataList[copier];
-            mdf.Frequency += 1;
-            ModelDataList[copier] = mdf;
+            // Increase view count if new index selected
+            Debug.Log(string.Format("prevIndex: {0}, viewIndex: {1}", m_previousIndex, m_viewIndex));
+
+            if (index != m_previousIndex)
+            {
+                ModelDataList[copier].Frequency += 1;
+                m_previousIndex = index;
+            }
+
+            // Debug information
+            Debug.Log(string.Format("Model: {0} Duration: {1} Frequency: {2}", ModelDataList[copier].Model, ModelDataList[copier].DemoDuration, ModelDataList[copier].Frequency));
 
             if (OnModelSelected != null)
             {
@@ -201,7 +226,7 @@ namespace CopierAR
 
             foreach (ModelsDuraFreq _mdf in ModelDataList.Values)
             {
-                models += string.Format("{0} ", _mdf.ModelString);
+                models += string.Format("{0} ", _mdf.Model);
                 demoDurations += string.Format("{0} ", Converter.ToMinutesAndSeconds((int)_mdf.DemoDuration));
                 frequencies += string.Format("{0} ", _mdf.Frequency);
             }

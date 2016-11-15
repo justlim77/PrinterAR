@@ -43,8 +43,7 @@ namespace CopierAR
 
         private void ModelViewer_OnModelSelected(object sender, ModelSelectedEventArgs args)
         {
-            SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.ModelString);
-            SessionManager.UpdateFrequency(args.ModelFrequency.FrequencyString);
+
         }
 
         void OnDestroy()
@@ -100,6 +99,7 @@ namespace CopierAR
                 if (m_cachedTimeStamp >= m_DISCONNECT_TIMEOUT)
                 {
                     // Auto-logout on inactivty
+                    Debug.Log("Logging out due to inactivity");
                     Logout();
                 }
             }
@@ -108,10 +108,16 @@ namespace CopierAR
         public void Logout()
         {
             //SessionManager.UpdateDemoDuration(GetDemoDuration());
-            SessionManager.UpdateDemoDuration(ModelViewer.GetModelFrequency().DemoDurationString);
+            ModelsDuraFreq mdf = ModelViewer.GetModelFrequency();
+            SessionManager.UpdatePhotoCopierModel(mdf.ModelString);
+            SessionManager.UpdateDemoDuration(mdf.DemoDurationString);
+            SessionManager.UpdateFrequency(mdf.FrequencyString);
+
             SessionManager.InsertSalesInfoData();
+
             m_isLoggedIn = false;
             m_cachedTimeStamp = 0;
+            ModelViewer.Instance.Initialize();
         }
 
         public void LogoutOnQuit()
