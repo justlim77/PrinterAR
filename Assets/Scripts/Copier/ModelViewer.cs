@@ -56,6 +56,21 @@ namespace CopierAR
         private int m_previousIndex = 0;
         private int m_lastViewedModel = -1;
 
+        [SerializeField]
+        private Camera cam;
+
+        [SerializeField]
+        private Quaternion defaultAvatarRotation;
+
+        [SerializeField]
+        private float slowSpeedRotation = 0.03f;
+        [SerializeField]
+        private float speedRotation = 0.03f;
+
+        private bool m_isRotating = false;
+
+        private RaycastHit m_hit;
+
         void Awake()
         {
             if (Instance == null)
@@ -240,11 +255,157 @@ namespace CopierAR
 
         void Update()
         {
+            // Update frequency view count
             if (UserInterface.IsDemoing())
             {
                 ModelDuraFreqList[m_viewIndex].DemoDuration += Time.deltaTime;
             }
+
+            // Rotation
+            MouseButtonDown();
+            MouseButtonUp();
+            if (Input.GetMouseButton(0) && m_isRotating)
+            {
+                RaycastHit dragingHit;
+
+#if UNITY_EDITOR
+            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+#elif UNITY_ANDROID || UNITY_IOS
+ 
+            Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
+#endif
+                if (Physics.Raycast(ray, out dragingHit) && dragingHit.collider.gameObject == m_hit.collider.gameObject)
+                {
+                    if (m_hit.collider.gameObject == ModelList[m_viewIndex])
+                    {
+
+#if UNITY_EDITOR
+                    float x = -Input.GetAxis("Mouse X");
+#elif UNITY_ANDROID || UNITY_IOS
+ 
+                    float x = -Input.touches[0].deltaPosition.x;
+#endif
+                        transform.rotation *= Quaternion.AngleAxis(x * speedRotation, Vector3.up);
+                    }
+                }
+            }
+            else
+            {
+                if (transform.rotation.y != defaultAvatarRotation.y)
+                {
+                    SlowRotation();
+                }
+            }
         }
+
+        #region Model rotation
+        private void MouseButtonDown()
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+
+#if UNITY_EDITOR
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+#elif UNITY_ANDROID
+        Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
+#endif
+                if (Physics.Raycast(ray, out m_hit))
+                {
+                    if (m_hit.collider.gameObject == ModelList[m_viewIndex])
+                    {
+                        m_isRotating = true;
+                    }
+                }
+            }
+        }
+
+        private void MouseButtonUp()
+        {
+            if (Input.GetMouseButtonUp(0))
+            {
+                m_isRotating = false;
+                m_hit = new RaycastHit();
+            }
+        }
+
+        private void SlowRotation()
+        {
+            transform.rotation = Quaternion.Slerp(transform.rotation,
+                                                  defaultAvatarRotation,
+                                                  slowSpeedRotation * Time.deltaTime);
+        }
+        #endregion
     }
 }
 
+#region Backup code
+//public Transform cube;
+
+//    void Update()
+//    {
+//        if (Input.touchCount == 1)
+//        {
+//            // GET TOUCH 0
+//            Touch touch0 = Input.GetTouch(0);
+
+//            // APPLY ROTATION
+//            if (touch0.phase == TouchPhase.Moved)
+//            {
+//                cube.transform.Rotate(0f, touch0.deltaPosition.x, 0f);
+//            }
+
+//        }
+
+//using UnityEngine;
+//using System.Collections;
+
+//[RequireComponent(typeof(MeshRenderer))]
+
+//public class rotateController : MonoBehaviour
+//{
+
+//    #region ROTATE
+//    private float _sensitivity = 0.4f;
+//    private Vector3 _mouseReference;
+//    private Vector3 _mouseOffset;
+//    private Vector3 _rotation = Vector3.zero;
+//    private bool _isRotating;
+
+
+//    #endregion
+
+//    void Update()
+//    {
+//        if (_isRotating)
+//        {
+//            // offset
+//            _mouseOffset = (Input.mousePosition - _mouseReference);
+
+//            // apply rotation
+//            _rotation.z = -(_mouseOffset.x + _mouseOffset.y) * _sensitivity;
+
+//            // rotate
+//            gameObject.transform.Rotate(_rotation);
+
+//            // store new mouse position
+//            _mouseReference = Input.mousePosition;
+//        }
+//    }
+
+//    void OnMouseDown()
+//    {
+//        // rotating flag
+//        _isRotating = true;
+
+//        // store mouse position
+//        _mouseReference = Input.mousePosition;
+//    }
+
+//    void OnMouseUp()
+//    {
+//        // rotating flag
+//        _isRotating = false;
+//    }
+
+//}
+#endregion
