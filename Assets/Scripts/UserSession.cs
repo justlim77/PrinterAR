@@ -8,7 +8,7 @@ namespace CopierAR
         public delegate void InactiveLogoutEventHandler(object sender, System.EventArgs args);
         public static event InactiveLogoutEventHandler OnInactiveLogout;
 
-        private static int m_DISCONNECT_TIMEOUT = 10; // 5 min * 60 sec
+        private static int m_DISCONNECT_TIMEOUT = 300; // 5 min * 60 sec
 
         private float m_cachedTimeStamp = 0.0f;
         private bool m_isLoggedIn = false;

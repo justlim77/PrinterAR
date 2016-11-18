@@ -56,6 +56,7 @@ namespace CopierAR
         private int m_previousIndex = 0;
         private int m_lastViewedModel = -1;
 
+        [Header("Model Rotator")]
         [SerializeField]
         private Camera cam;
 
@@ -70,6 +71,8 @@ namespace CopierAR
         private bool m_isRotating = false;
 
         private RaycastHit m_hit;
+
+        private const string MODEL_TAG = "Model";
 
         void Awake()
         {
@@ -185,11 +188,13 @@ namespace CopierAR
                 if (model == ModelList[index])
                     continue;
 
-                model.transform.position = new Vector3(0, -5, 0);
+                model.transform.position = new Vector3(0, 50, 0);
+                model.transform.rotation = Quaternion.identity;
             }
 
             // Enable model by index
             ModelList[index].transform.position = Vector3.zero;
+            ModelList[index].transform.rotation = Quaternion.identity;
             ModelList[index].SetActive(true);
 
             Copier copier = CopierList[index];
@@ -264,65 +269,88 @@ namespace CopierAR
             // Rotation
             MouseButtonDown();
             MouseButtonUp();
+
+#if UNITY_EDITOR
             if (Input.GetMouseButton(0) && m_isRotating)
             {
+#elif UNITY_ANDROID || UNITY_IOS
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved && m_isRotating)
+            {
+                Touch touch = Input.GetTouch(0);
+#endif
                 RaycastHit dragingHit;
 
 #if UNITY_EDITOR
-            Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 #elif UNITY_ANDROID || UNITY_IOS
  
-            Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
+                //Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
+                Ray ray = cam.ScreenPointToRay(touch.position);
 #endif
-                if (Physics.Raycast(ray, out dragingHit) && dragingHit.collider.gameObject == m_hit.collider.gameObject)
+                if (Physics.Raycast(ray, out dragingHit) && dragingHit.collider.tag == m_hit.collider.tag)
                 {
-                    if (m_hit.collider.gameObject == ModelList[m_viewIndex])
+                    if (m_hit.collider.tag == MODEL_TAG)
                     {
-
 #if UNITY_EDITOR
-                    float x = -Input.GetAxis("Mouse X");
+                        float x = -Input.GetAxis("Mouse X");
 #elif UNITY_ANDROID || UNITY_IOS
  
-                    float x = -Input.touches[0].deltaPosition.x;
+                        float x = -touch.deltaPosition.x;
+                        DebugLog.Log(string.Format("{0} Touch delta x: {1}", Time.time, x));
 #endif
-                        transform.rotation *= Quaternion.AngleAxis(x * speedRotation, Vector3.up);
+                        ModelList[m_viewIndex].transform.rotation *= Quaternion.AngleAxis(x * speedRotation, Vector3.up);
+                        }
                     }
                 }
-            }
-            else
-            {
-                if (transform.rotation.y != defaultAvatarRotation.y)
+                else
                 {
-                    SlowRotation();
+                    if (ModelList[m_viewIndex].transform.rotation.y != defaultAvatarRotation.y)
+                    {
+                        //SlowRotation();
+                    }
                 }
-            }
         }
 
-        #region Model rotation
+#region Model rotation
         private void MouseButtonDown()
         {
+#if UNITY_EDITOR
             if (Input.GetMouseButtonDown(0))
             {
+#elif UNITY_ANDROID || UNITY_IOS
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
+            {
+                DebugLog.Log(string.Format("{0} Touch {1}: {2}", Time.time, Input.touchCount, Input.GetTouch(0).phase.ToString()));
+#endif
 
 #if UNITY_EDITOR
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-#elif UNITY_ANDROID
-        Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
+                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+#elif UNITY_ANDROID || UNITY_IOS
+                Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
 #endif
                 if (Physics.Raycast(ray, out m_hit))
                 {
-                    if (m_hit.collider.gameObject == ModelList[m_viewIndex])
+                    if (m_hit.collider.tag == MODEL_TAG)
                     {
+                        Debug.Log(string.Format("{0} Down > {1}", Time.time, m_hit.collider.name));
+                        DebugLog.Log(string.Format("{0} Down > {1}", Time.time, m_hit.collider.name));
+
                         m_isRotating = true;
                     }
                 }
             }
         }
 
+
         private void MouseButtonUp()
         {
+#if UNITY_EDITOR
             if (Input.GetMouseButtonUp(0))
             {
+#elif UNITY_ANDROID || UNITY_IOS
+            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Ended)
+            {
+#endif
                 m_isRotating = false;
                 m_hit = new RaycastHit();
             }
@@ -330,11 +358,11 @@ namespace CopierAR
 
         private void SlowRotation()
         {
-            transform.rotation = Quaternion.Slerp(transform.rotation,
+            ModelList[m_viewIndex].transform.rotation = Quaternion.Slerp(ModelList[m_viewIndex].transform.rotation,
                                                   defaultAvatarRotation,
                                                   slowSpeedRotation * Time.deltaTime);
         }
-        #endregion
+#endregion
     }
 }
 
