@@ -4,6 +4,12 @@ using System.Collections.Generic;
 
 namespace CopierAR
 {
+    public enum ViewMode
+    {
+        Showcase,
+        LifeScale
+    }
+
     public class ModelSelectedEventArgs : System.EventArgs
     {
         public Copier Copier;
@@ -46,6 +52,8 @@ namespace CopierAR
         public GameObject ModelGroup;
         public Camera ShowcaseCamera;
 
+        public ViewMode ViewMode;
+
         public List<Copier> CopierList = new List<Copier>();
         public List<GameObject> ModelList = new List<GameObject>();
         public List<CopierController> ControllerList = new List<CopierController>();
@@ -72,7 +80,12 @@ namespace CopierAR
 
         private RaycastHit m_hit;
 
+        private bool m_canRotate = true;
+
         private const string MODEL_TAG = "Model";
+
+        [SerializeField]
+        private Lean.Touch.LeanSelect3DTransform m_leanSelect3DTransform;
 
         void Awake()
         {
@@ -87,7 +100,7 @@ namespace CopierAR
         }
 
         // Use this for initialization
-        void Start()
+        private void Start()
         {
             Initialize();
         }
@@ -129,27 +142,33 @@ namespace CopierAR
                 ModelDuraFreqList.Add(mdf);
                 ModelDataList.Add(CopierDatabase.copiers[i], mdf); 
 
-                model.SetActive(false);
+                //model.SetActive(false);
             }
 
             // De-activate showcase camera
             ShowcaseCamera.enabled = false;
 
+            ViewMode = ViewMode.Showcase;
+
             return true;
         }        
 
         public void Showcase()
-        {            
+        {
+            ViewMode = ViewMode.Showcase;
             ModelGroup.transform.parent = null;
             ShowcaseCamera.enabled = true;
+            m_canRotate = true;
 
             ShowCurrentModel();
         }
 
         public void LifeScale()
         {
+            ViewMode = ViewMode.LifeScale;
             ModelGroup.transform.parent = LifeScaleParent;
             ShowcaseCamera.enabled = false;
+            m_canRotate = false;
 
             ShowCurrentModel();
         }
@@ -185,8 +204,8 @@ namespace CopierAR
             foreach (GameObject model in ModelList)
             {
                 //model.SetActive(false);
-                if (model == ModelList[index])
-                    continue;
+                //if (model == ModelList[index])
+                //    continue;
 
                 model.transform.position = new Vector3(0, 50, 0);
                 model.transform.rotation = Quaternion.identity;
@@ -196,6 +215,10 @@ namespace CopierAR
             ModelList[index].transform.position = Vector3.zero;
             ModelList[index].transform.rotation = Quaternion.identity;
             ModelList[index].SetActive(true);
+
+            string active = ModelList[index].activeSelf ? "active" : "inactive";
+            DebugLog.Log(string.Format("{0} is {1} at pos {2}", ModelList[index].name, active, ModelList[index].transform.position));
+            //m_leanSelect3DTransform.SelectedGameObject = ModelList[index];
 
             Copier copier = CopierList[index];
 
@@ -219,6 +242,18 @@ namespace CopierAR
                     ModelFrequency = GetModelFrequency() 
                 });
             }
+
+            // Check view mode
+            if (ViewMode == ViewMode.Showcase)
+            {
+                ModelGroup.transform.parent = null;
+                ShowcaseCamera.enabled = true;
+            }
+            else                           
+            {
+                ModelGroup.transform.parent = LifeScaleParent;
+                ShowcaseCamera.enabled = false;
+            }            
         }
 
         public void ShowCurrentModel()
@@ -266,49 +301,73 @@ namespace CopierAR
                 ModelDuraFreqList[m_viewIndex].DemoDuration += Time.deltaTime;
             }
 
-            // Rotation
-            MouseButtonDown();
-            MouseButtonUp();
-
-#if UNITY_EDITOR
-            if (Input.GetMouseButton(0) && m_isRotating)
+            if (m_canRotate)
             {
-#elif UNITY_ANDROID || UNITY_IOS
-            if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved && m_isRotating)
-            {
-                Touch touch = Input.GetTouch(0);
-#endif
-                RaycastHit dragingHit;
-
 #if UNITY_EDITOR
-                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-#elif UNITY_ANDROID || UNITY_IOS
- 
-                //Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
-                Ray ray = cam.ScreenPointToRay(touch.position);
-#endif
-                if (Physics.Raycast(ray, out dragingHit) && dragingHit.collider.tag == m_hit.collider.tag)
+                if (Input.GetMouseButton(0))
                 {
-                    if (m_hit.collider.tag == MODEL_TAG)
-                    {
-#if UNITY_EDITOR
-                        float x = -Input.GetAxis("Mouse X");
+                    float x = -Input.GetAxis("Mouse X");
 #elif UNITY_ANDROID || UNITY_IOS
- 
-                        float x = -touch.deltaPosition.x;
-                        DebugLog.Log(string.Format("{0} Touch delta x: {1}", Time.time, x));
+                if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved)  
+                {
+                    float x = -Input.GetTouch(0).deltaPosition.x;
 #endif
+                        //Quaternion newRot = Quaternion.AngleAxis(x * speedRotation, Vector3.up);
+                        //ModelList[m_viewIndex].transform.rotation = Quaternion.Slerp(ModelList[m_viewIndex].transform.rotation, newRot, Time.deltaTime * speedRotation);
+                        //ModelList[m_viewIndex].transform.rotation = Quaternion.Lerp(ModelList[m_viewIndex].transform.rotation, newRot, Time.deltaTime * speedRotation);
+
                         ModelList[m_viewIndex].transform.rotation *= Quaternion.AngleAxis(x * speedRotation, Vector3.up);
+                }
+                /*
+                // Rotation
+                MouseButtonDown();
+                MouseButtonUp();
+    #if UNITY_EDITOR
+                if (Input.GetMouseButton(0) && m_isRotating)
+                {
+    #elif UNITY_ANDROID || UNITY_IOS
+                if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Moved && m_isRotating)
+                {
+                    Touch touch = Input.GetTouch(0);
+    #endif
+                    RaycastHit dragingHit;
+
+    #if UNITY_EDITOR
+                    //Ray ray = cam.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -cam.transform.position.z));                
+                    Vector3 pos = cam.ScreenToViewportPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
+                    Ray ray = cam.ViewportPointToRay(pos);
+    #elif UNITY_ANDROID || UNITY_IOS
+
+                    //Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
+                    Vector3 pos = new Vector3(touch.position.x, touch.position.y, -cam.transform.position.z);
+                    Ray ray = cam.ScreenPointToRay(pos);
+    #endif
+                    Debug.DrawRay(ray.origin, ray.direction * 5, Color.red);
+                    if (Physics.Raycast(ray, out dragingHit) && dragingHit.collider.tag == m_hit.collider.tag)
+                    {
+                        if (m_hit.collider.tag == MODEL_TAG)
+                        {
+    #if UNITY_EDITOR
+                            float x = -Input.GetAxis("Mouse X");
+    #elif UNITY_ANDROID || UNITY_IOS
+
+                            float x = -touch.deltaPosition.x;
+                            DebugLog.Log(string.Format("{0} Touch delta x: {1}", Time.time, x));
+    #endif
+                            ModelList[m_viewIndex].transform.rotation *= Quaternion.AngleAxis(x * speedRotation, Vector3.up);
+                            }
                         }
                     }
-                }
-                else
-                {
-                    if (ModelList[m_viewIndex].transform.rotation.y != defaultAvatarRotation.y)
+                    else
                     {
-                        //SlowRotation();
+                        if (ModelList[m_viewIndex].transform.rotation.y != defaultAvatarRotation.y)
+                        {
+                            //SlowRotation();
+                        }
                     }
-                }
+                    */
+
+            }
         }
 
 #region Model rotation
@@ -324,10 +383,17 @@ namespace CopierAR
 #endif
 
 #if UNITY_EDITOR
-                Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                //Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+                //Ray ray = cam.ScreenPointToRay(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -cam.transform.position.z));
+                Vector3 pos = cam.ScreenToViewportPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
+                Ray ray = cam.ViewportPointToRay(pos);
+
+                DebugLog.Log(string.Format("{0} Ray position: {1}", Time.time, Input.mousePosition));
 #elif UNITY_ANDROID || UNITY_IOS
-                Ray ray = cam.ScreenPointToRay(Input.touches[0].position);
+                Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
+                DebugLog.Log(string.Format("{0} Ray position: {1}", Time.time, Input.GetTouch(0).position));
 #endif
+                Debug.DrawRay(ray.origin, ray.direction, Color.red);
                 if (Physics.Raycast(ray, out m_hit))
                 {
                     if (m_hit.collider.tag == MODEL_TAG)

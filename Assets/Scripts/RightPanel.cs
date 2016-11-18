@@ -65,6 +65,7 @@ namespace CopierAR
             Copier copier = (Copier)args.Copier;
             CopierLabel.sprite = copier.CopierLabel;
             CopierInfo.sprite = copier.CopierInfo;
+            m_printSpeedURL = copier.PrintSpeedLink;
 
             // Re-mapping animation buttons to current copier controller          
             ResetCopier();
