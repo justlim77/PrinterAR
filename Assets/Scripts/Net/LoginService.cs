@@ -10,6 +10,7 @@ namespace CopierAR
             Response response = new Response();
 
             // Check if user exists
+            Debug.Log("Check for user " + loginData.CName);
             bool userExists = DBManager.CheckUserExists(loginData.CName);
 
             // If user exists, check password
@@ -27,7 +28,7 @@ namespace CopierAR
             
             // If user exists, check password
             RegistrationData _data = DBManager.GetRegistrationData(loginData.CName);
-            
+            Debug.Log(string.Format("DB {0}'s {1} vs user {2} PWD", _data.CName, _data.CPwd, loginData.CPwd));
             if (_data.CPwd == loginData.CPwd)
             {
                 response.error = false;

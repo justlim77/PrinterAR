@@ -11,7 +11,10 @@ namespace CopierAR
         public const string get_all_salesinfo_params = "SELECT * FROM dbo.tblSalesInfo";
         public const string get_all_postalcode_params = "SELECT * FROM dbo.tblPostalcode";
 
-        public const string get_register_params_withCName = "SELECT * FROM dbo.tblRegister WHERE CName=CName";// AND CONSTAINT_TYPE = 'PRIMARY KEY'";
+        //public const string get_register_params_withCName = "SELECT * FROM dbo.tblRegister WHERE CName=CName";// AND CONSTAINT_TYPE = 'PRIMARY KEY'";
+        //public const string get_register_params_withCName = @"SELECT TOP(2) * FROM dbo.tblRegister WHERE CName=CName";
+        public const string get_register_params_withCName = "SELECT TOP 1 * FROM dbo.tblRegister WHERE CName=@CName ORDER BY CID";
+
         //public const string get_register_params_withPrimaryKey = "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE a WHERE EXISTS(SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS b WHERE CONSTRAINT_TYPE = 'PRIMARY KEY' AND a.CONSTRAINT_NAME = b.CONSTRAINT_NAME) AND TABLE_NAME = @dbo.tblRegister";
         public const string get_register_params_withPrimaryKey = "SELECT * FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS TC WHERE TC.TABLE_NAME = 'tblRegister' AND TC.CONSTRAINT_TYPE = 'PRIMARY KEY'";
 

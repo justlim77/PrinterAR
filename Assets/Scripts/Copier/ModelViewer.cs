@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using Vuforia;
+using System;
 
 namespace CopierAR
 {
@@ -38,7 +40,7 @@ namespace CopierAR
         }
     }
 
-    public class ModelViewer : MonoBehaviour
+    public class ModelViewer : MonoBehaviour, Vuforia.ITrackableEventHandler
     {
         public delegate void ModelSelectedEventHandler(object sender, ModelSelectedEventArgs args);
         public static event ModelSelectedEventHandler OnModelSelected;
@@ -84,9 +86,8 @@ namespace CopierAR
 
         private const string MODEL_TAG = "Model";
 
-        [SerializeField]
-        private Lean.Touch.LeanSelect3DTransform m_leanSelect3DTransform;
-
+        private TrackableBehaviour m_trackableBehaviour;
+        
         void Awake()
         {
             if (Instance == null)
@@ -102,6 +103,12 @@ namespace CopierAR
         // Use this for initialization
         private void Start()
         {
+            //m_trackableBehaviour = GetComponent<Vuforia.TrackableBehaviour>();
+            //if (m_trackableBehaviour)
+            //{
+            //    m_trackableBehaviour.RegisterTrackableEventHandler(this);
+            //}
+
             Initialize();
         }
 
@@ -127,7 +134,7 @@ namespace CopierAR
             for (int i = 0; i < CopierDatabase.copiers.Length; i++)
             {
                 // Add copier data to dictionary
-                CopierList.Add(CopierDatabase.copiers[i]);                
+                CopierList.Add(CopierDatabase.copiers[i]);
 
                 // Add copier model to dictionary
                 GameObject model = (GameObject)Instantiate(CopierDatabase.copiers[i].CopierPrefab, ModelGroup.transform);
@@ -140,7 +147,7 @@ namespace CopierAR
                 ModelsDuraFreq mdf = new ModelsDuraFreq();
                 mdf.Model = CopierDatabase.copiers[i].CopierName;
                 ModelDuraFreqList.Add(mdf);
-                ModelDataList.Add(CopierDatabase.copiers[i], mdf); 
+                ModelDataList.Add(CopierDatabase.copiers[i], mdf);
 
                 //model.SetActive(false);
             }
@@ -151,7 +158,7 @@ namespace CopierAR
             ViewMode = ViewMode.Showcase;
 
             return true;
-        }        
+        }
 
         public void Showcase()
         {
@@ -178,7 +185,7 @@ namespace CopierAR
             m_previousIndex = m_viewIndex;
             m_viewIndex++;
             m_viewIndex %= CopierDatabase.copiers.Length;
-            SelectModel(m_viewIndex); 
+            SelectModel(m_viewIndex);
         }
 
         public void PreviousModel()
@@ -203,22 +210,16 @@ namespace CopierAR
             // Hide models
             foreach (GameObject model in ModelList)
             {
-                //model.SetActive(false);
-                //if (model == ModelList[index])
-                //    continue;
+                if (model == ModelList[index])
+                    continue;
 
-                model.transform.position = new Vector3(0, 50, 0);
+                DisplayRenderers(model.GetComponentsInChildren<Renderer>(), false);
                 model.transform.rotation = Quaternion.identity;
             }
 
             // Enable model by index
-            ModelList[index].transform.position = Vector3.zero;
+            DisplayRenderers(ModelList[index].GetComponentsInChildren<Renderer>(), true);
             ModelList[index].transform.rotation = Quaternion.identity;
-            ModelList[index].SetActive(true);
-
-            string active = ModelList[index].activeSelf ? "active" : "inactive";
-            DebugLog.Log(string.Format("{0} is {1} at pos {2}", ModelList[index].name, active, ModelList[index].transform.position));
-            //m_leanSelect3DTransform.SelectedGameObject = ModelList[index];
 
             Copier copier = CopierList[index];
 
@@ -239,21 +240,21 @@ namespace CopierAR
                 OnModelSelected(this, new ModelSelectedEventArgs
                 {
                     Copier = CopierList[index],
-                    ModelFrequency = GetModelFrequency() 
+                    ModelFrequency = GetModelFrequency()
                 });
             }
 
             // Check view mode
-            if (ViewMode == ViewMode.Showcase)
-            {
-                ModelGroup.transform.parent = null;
-                ShowcaseCamera.enabled = true;
-            }
-            else                           
-            {
-                ModelGroup.transform.parent = LifeScaleParent;
-                ShowcaseCamera.enabled = false;
-            }            
+            //if (ViewMode == ViewMode.Showcase)
+            //{
+            //    ModelGroup.transform.parent = null;
+            //    ShowcaseCamera.enabled = true;
+            //}
+            //else
+            //{
+            //    ModelGroup.transform.parent = LifeScaleParent;
+            //    ShowcaseCamera.enabled = false;
+            //}
         }
 
         public void ShowCurrentModel()
@@ -291,6 +292,14 @@ namespace CopierAR
             mdf.FrequencyString = frequencies;
 
             return mdf;
+        }
+
+        private void DisplayRenderers(Renderer[] renderers, bool value)
+        {
+            foreach (var rend in renderers)
+            {
+                rend.enabled = value;
+            }
         }
 
         void Update()
@@ -428,7 +437,42 @@ namespace CopierAR
                                                   defaultAvatarRotation,
                                                   slowSpeedRotation * Time.deltaTime);
         }
-#endregion
+
+        public void OnTrackableStateChanged(
+            TrackableBehaviour.Status previousStatus,
+            TrackableBehaviour.Status newStatus
+            )
+        {
+            if (newStatus == TrackableBehaviour.Status.DETECTED ||
+                newStatus == TrackableBehaviour.Status.TRACKED ||
+                newStatus == TrackableBehaviour.Status.EXTENDED_TRACKED)
+            {
+                OnTrackingFound();
+            }
+            else
+            {
+                OnTrackingLost();
+            }
+        }
+
+        public void OnTrackingFound()
+        {
+            DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(true), true);
+        }
+
+        public void OnTrackingLost()
+        {
+            // Check if in Life scale mode
+            DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(true),
+                ViewMode == ViewMode.LifeScale ? false : true);
+
+            //foreach (var model in ModelList)
+            //{
+            //    DisplayRenderers(model.GetComponentsInChildren<Renderer>(), false);
+            //    //Debug.Log(string.Format("Disabling {0} children renderer", model.name));
+            //}
+        }
+        #endregion
     }
 }
 

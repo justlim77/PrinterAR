@@ -165,12 +165,29 @@ namespace CopierAR
                     command.Parameters.Add(new SqlParameter("CName", name));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
-                        {
-                            data = new RegistrationData();
-                            ReadRegistrationData(reader, ref data);
-                            break;
-                        }
+                        //while (reader.Read())
+                        //{
+                        //    data = new RegistrationData();
+                        //    ReadRegistrationData(reader, ref data);
+                        //    Debug.Log(string.Format("ReadData > {0} {1}", data.CName, data.CPwd));
+                        //    break;
+                        //}
+
+                        int ordName = reader.GetOrdinal("CName");
+                        int ordPwd = reader.GetOrdinal("CPwd");
+                        Debug.Log(string.Format("ordName: {0}, ordPwd: {1}", ordName, ordPwd));
+
+                        if (!reader.Read())
+                            throw new InvalidOperationException("No records were returend");
+
+                        //ReadRegistrationData(reader, ref data);
+                        data.CName = reader.GetString(ordName);
+                        data.CPwd = reader.GetString(ordPwd);
+
+                        Debug.Log(string.Format("ReadData > {0} {1}", data.CName, data.CPwd));
+
+                        if (reader.Read())
+                            throw new InvalidOperationException("Multiple records were returned");
                     }
                 }
                 return false;
@@ -191,12 +208,18 @@ namespace CopierAR
                     command.Parameters.Add(new SqlParameter("CID", id));
                     using (SqlDataReader reader = command.ExecuteReader())
                     {
-                        while (reader.Read())
-                        {
-                            data = new RegistrationData();
-                            ReadRegistrationData(reader, ref data);
-                            break;
-                        }
+                        //while (reader.Read())
+                        //{
+                        //    data = new RegistrationData();
+                        //    ReadRegistrationData(reader, ref data);
+                        //    break;
+                        //}
+
+                        // New implementation
+                        if (!reader.Read())
+                            throw new InvalidOperationException("No records were returend");
+
+                        
                     }
                 }
                 return false;
