@@ -6,9 +6,15 @@ Confidential and Proprietary - Protected under copyright and other laws.
 
 using UnityEngine;
 using CopierAR;
+using System;
 
 namespace Vuforia
 {
+    public class TrackingStateChangedEventArgs : EventArgs
+    {
+        public TrackableBehaviour.Status Status;
+    }
+
     /// <summary>
     /// A custom handler that implements the ITrackableEventHandler interface.
     /// </summary>
@@ -27,6 +33,8 @@ namespace Vuforia
 
         #endregion // PUBLIC_STATIC_VARIABLES
 
+        public delegate void TrackingStateChangedEventHandler(object sender, TrackingStateChangedEventArgs args);
+        public static event TrackingStateChangedEventHandler OnTrackingStateChanged;
 
         #region UNITY_MONOBEHAVIOUR_METHODS
 
@@ -57,11 +65,11 @@ namespace Vuforia
                 newStatus == TrackableBehaviour.Status.TRACKED ||
                 newStatus == TrackableBehaviour.Status.EXTENDED_TRACKED)
             {
-                ModelViewer.Instance.OnTrackingFound();
+                OnTrackingFound();
             }
             else
             {
-                ModelViewer.Instance.OnTrackingLost();
+                OnTrackingLost();
             }
         }
 
@@ -79,22 +87,28 @@ namespace Vuforia
 
         private void OnTrackingFound()
         {
-            Renderer[] rendererComponents = GetComponentsInChildren<Renderer>(true);
-            Collider[] colliderComponents = GetComponentsInChildren<Collider>(true);
+            //Renderer[] rendererComponents = GetComponentsInChildren<Renderer>(true);
+            //Collider[] colliderComponents = GetComponentsInChildren<Collider>(true);
 
-            // Enable rendering:
-            foreach (Renderer component in rendererComponents)
-            {
-                component.enabled = true;
-            }
+            //// Enable rendering:
+            //foreach (Renderer component in rendererComponents)
+            //{
+            //    component.enabled = true;
+            //}
 
-            // Enable colliders:
-            foreach (Collider component in colliderComponents)
-            {
-                component.enabled = true;
-            }
+            //// Enable colliders:
+            //foreach (Collider component in colliderComponents)
+            //{
+            //    component.enabled = true;
+            //}
 
             IsTracked = true;
+
+            if (OnTrackingStateChanged != null)
+            {
+                OnTrackingStateChanged(this, new TrackingStateChangedEventArgs() { Status = TrackableBehaviour.Status.TRACKED });
+            }
+            //ModelViewer.OnTrackingFound();
 
             Debug.Log(Time.time.ToString() +  " Trackable " + mTrackableBehaviour.TrackableName + " found");
         }
@@ -102,22 +116,29 @@ namespace Vuforia
 
         private void OnTrackingLost()
         {
-            Renderer[] rendererComponents = GetComponentsInChildren<Renderer>(true);
-            Collider[] colliderComponents = GetComponentsInChildren<Collider>(true);
+            //Renderer[] rendererComponents = GetComponentsInChildren<Renderer>(true);
+            //Collider[] colliderComponents = GetComponentsInChildren<Collider>(true);
 
-            // Disable rendering:
-            foreach (Renderer component in rendererComponents)
-            {
-                component.enabled = false;
-            }
+            //// Disable rendering:
+            //foreach (Renderer component in rendererComponents)
+            //{
+            //    component.enabled = false;
+            //}
 
-            // Disable colliders:
-            foreach (Collider component in colliderComponents)
-            {
-                component.enabled = false;
-            }
+            //// Disable colliders:
+            //foreach (Collider component in colliderComponents)
+            //{
+            //    component.enabled = false;
+            //}
 
             IsTracked = false;
+
+            if (OnTrackingStateChanged != null)
+            {
+                OnTrackingStateChanged(this, new TrackingStateChangedEventArgs() { Status = TrackableBehaviour.Status.NOT_FOUND });
+            }
+
+            //ModelViewer.OnTrackingLost();
 
             Debug.Log(Time.time.ToString() + " Trackable " + mTrackableBehaviour.TrackableName + " lost");
         }

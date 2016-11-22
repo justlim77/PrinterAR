@@ -91,6 +91,10 @@ namespace CopierAR
 
         void OnDestroy()
         {
+            // Remove listener
+            CopierTrackableEventHandler.OnTrackingStateChanged -= CopierTrackableEventHandler_OnTrackingStateChanged;
+
+            // Handle memory
             if (Instance != null)
                 Instance = null;
         }
@@ -98,6 +102,9 @@ namespace CopierAR
         // Use this for initialization
         private void Start()
         {
+            // Listen to tracking state changed event
+            CopierTrackableEventHandler.OnTrackingStateChanged += CopierTrackableEventHandler_OnTrackingStateChanged;
+
             Initialize();
         }
 
@@ -142,11 +149,29 @@ namespace CopierAR
             }
 
             // De-activate showcase camera
-            ShowcaseCamera.enabled = false;
+            if(ShowcaseCamera != null)
+                ShowcaseCamera.enabled = false;
 
             ViewMode = ViewMode.Showcase;
 
             return true;
+        }
+
+        private void CopierTrackableEventHandler_OnTrackingStateChanged(object sender, TrackingStateChangedEventArgs args)
+        {
+            switch (args.Status)
+            {
+                //case TrackableBehaviour.Status.DETECTED:
+                case TrackableBehaviour.Status.EXTENDED_TRACKED:
+                case TrackableBehaviour.Status.TRACKED:
+                    OnTrackingFound();
+                    break;
+                case TrackableBehaviour.Status.NOT_FOUND:
+                case TrackableBehaviour.Status.UNDEFINED:
+                case TrackableBehaviour.Status.UNKNOWN:
+                    OnTrackingLost();
+                    break;
+            }
         }
 
         public void Showcase()
@@ -304,11 +329,15 @@ namespace CopierAR
 
             // Check tracking status
             if (CopierTrackableEventHandler.GetCurrentStatus() == TrackableBehaviour.Status.TRACKED ||
-                CopierTrackableEventHandler.GetCurrentStatus() == TrackableBehaviour.Status.EXTENDED_TRACKED)
+                CopierTrackableEventHandler.GetCurrentStatus() == TrackableBehaviour.Status.EXTENDED_TRACKED ||
+                ViewMode == ViewMode.Showcase)
             {
                 DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(), true);
             }
-
+            else
+            {
+                DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(), false);
+            }
             // ROTATION
 #if UNITY_EDITOR
             if (Input.GetMouseButton(0))
@@ -405,8 +434,6 @@ namespace CopierAR
                     {
                         Debug.Log(string.Format("{0} Down > {1}", Time.time, m_hit.collider.name));
                         DebugLog.Log(string.Format("{0} Down > {1}", Time.time, m_hit.collider.name));
-
-                        //
                     }
                 }
             }
@@ -434,29 +461,12 @@ namespace CopierAR
                                                   slowSpeedRotation * Time.deltaTime);
         }
 
-        public void OnTrackableStateChanged(
-            TrackableBehaviour.Status previousStatus,
-            TrackableBehaviour.Status newStatus
-            )
-        {
-            if (newStatus == TrackableBehaviour.Status.DETECTED ||
-                newStatus == TrackableBehaviour.Status.TRACKED ||
-                newStatus == TrackableBehaviour.Status.EXTENDED_TRACKED)
-            {
-                OnTrackingFound();
-            }
-            else
-            {
-                OnTrackingLost();
-            }
-        }
-
-        public void OnTrackingFound()
+        private void OnTrackingFound()
         {
             DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(true), true);
         }
 
-        public void OnTrackingLost()
+        private void OnTrackingLost()
         {
             // Check if in Life scale mode
             DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(true),
