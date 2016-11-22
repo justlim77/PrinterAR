@@ -12,19 +12,24 @@ namespace Vuforia
     /// <summary>
     /// A custom handler that implements the ITrackableEventHandler interface.
     /// </summary>
-    public class CopierTrackableEventHandler1 : MonoBehaviour,
+    public class CopierTrackableEventHandler : MonoBehaviour,
                                                 ITrackableEventHandler
     {
         #region PRIVATE_MEMBER_VARIABLES
- 
+
         private TrackableBehaviour mTrackableBehaviour;
-    
+
         #endregion // PRIVATE_MEMBER_VARIABLES
 
+        #region PUBLIC_STATIC_VARIABLES
+
+        public static bool IsTracked = false;
+
+        #endregion // PUBLIC_STATIC_VARIABLES
 
 
-        #region UNTIY_MONOBEHAVIOUR_METHODS
-    
+        #region UNITY_MONOBEHAVIOUR_METHODS
+
         void Start()
         {
             mTrackableBehaviour = GetComponent<TrackableBehaviour>();
@@ -60,6 +65,11 @@ namespace Vuforia
             }
         }
 
+        public TrackableBehaviour.Status GetCurrentStatus()
+        {
+            return mTrackableBehaviour.CurrentStatus;
+        }
+
         #endregion // PUBLIC_METHODS
 
 
@@ -84,7 +94,9 @@ namespace Vuforia
                 component.enabled = true;
             }
 
-            Debug.Log("Trackable " + mTrackableBehaviour.TrackableName + " found");
+            IsTracked = true;
+
+            Debug.Log(Time.time.ToString() +  " Trackable " + mTrackableBehaviour.TrackableName + " found");
         }
 
 
@@ -105,7 +117,14 @@ namespace Vuforia
                 component.enabled = false;
             }
 
-            Debug.Log("Trackable " + mTrackableBehaviour.TrackableName + " lost");
+            IsTracked = false;
+
+            Debug.Log(Time.time.ToString() + " Trackable " + mTrackableBehaviour.TrackableName + " lost");
+        }
+
+        private void Update()
+        {
+            Debug.Log(mTrackableBehaviour.CurrentStatus);
         }
 
         #endregion // PRIVATE_METHODS

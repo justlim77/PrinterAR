@@ -17,12 +17,14 @@ public class ContactPanel : MonoBehaviour
 
     public void OnOpenMapAddress()
     {
+#if UNITY_ANDROID
         if (AndroidGoodiesExampleUtils.IfNotAndroid())
         {
             return;
         }
 
         AndroidMaps.OpenMapLocation(MapLocation);
+#endif
     }
 
     public void OnOpenWebsiteAddress()
@@ -32,11 +34,13 @@ public class ContactPanel : MonoBehaviour
 
     public void OnSendEmailClick()
     {
+#if UNITY_ANDROID
         if (AndroidGoodiesExampleUtils.IfNotAndroid())
         {
             return;
         }
 
         AndroidShare.SendEmail(new[] { EmailAddress }, "", "");
+#endif
     }
 }

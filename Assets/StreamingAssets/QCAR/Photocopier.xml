@@ -2,6 +2,5 @@
 <QCARConfig xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="qcar_config.xsd">
   <Tracking>
     <ImageTarget name="marker_2048px_24bit" size="1.000000 1.000000" />
-    <ImageTarget name="marker_500px_8bit" size="1.000000 1.000000" />
   </Tracking>
 </QCARConfig>
