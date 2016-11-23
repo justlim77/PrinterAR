@@ -207,15 +207,6 @@ namespace CopierAR
             // Clear error messages
             HideError();
 
-            // FOR ANDROID: App loses focus when keyboard is pulled up, causing camera lag, force app focus on login
-#if UNITY_EDITOR
-            // 
-#elif UNITY_ANDROID
-            OnApplicationFocus(true);
-            OnApplicationPause(true);
-            OnApplicationPause(false);
-#endif
-
             if (OnLoggedIn != null)
             {
                 OnLoggedIn(this, new LoginEventArgs
@@ -224,20 +215,6 @@ namespace CopierAR
                     time = DateTime.Now
                 });
             }
-        }
-
-        private bool m_isFocused = true;
-        private void OnApplicationFocus(bool focus)
-        {
-            // Focus
-            m_isFocused = focus;
-        }
-
-        private bool m_isPaused = false;
-        private void OnApplicationPause(bool pause)
-        {
-            // Unpause
-            m_isPaused = pause;
         }
     }
 }

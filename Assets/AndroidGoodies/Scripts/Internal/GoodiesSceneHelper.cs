@@ -67,10 +67,10 @@ namespace DeadMosquito.AndroidGoodies
 
         void OnApplicationFocus(bool focusStatus)
         {
-            if (focusStatus && IsInImmersiveMode)
-            {
-                AndroidGoodiesMisc.EnableImmersiveMode();
-            }
+            //if (focusStatus && IsInImmersiveMode)
+            //{
+            //    AndroidGoodiesMisc.EnableImmersiveMode();
+            //}
         }
 
         void Update()

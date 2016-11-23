@@ -21,7 +21,7 @@ public class DebugLog : MonoBehaviour
 
     public static void Log(string message)
     {
-        //DebugLog.m_instance.AddMessage(message);
+        DebugLog.m_instance.AddMessage(message);
     }
 
     public static void Clear()

@@ -38,22 +38,22 @@ namespace CopierAR
                     DBCONN.Open();
                     DBCommands.InitCommands();
                     Debug.Log("Database connection open");
-                    DebugLog.Log("Database connection open");
+                    //DebugLog.Log("Database connection open");
                 }
                 catch (SqlException e)
                 {
                     Debug.Log(e.Message);
-                    DebugLog.Log(e.Message);
+                    //DebugLog.Log(e.Message);
                 }
                 catch (UnityException e)
                 {
                     Debug.Log(e.Message);
-                    DebugLog.Log(e.Message);
+                    //DebugLog.Log(e.Message);
                 }
                 catch (Exception e)
                 {
                     Debug.Log(e.Message);
-                    DebugLog.Log(e.Message);
+                    //DebugLog.Log(e.Message);
                 }
             }
         }
@@ -327,12 +327,12 @@ namespace CopierAR
                     if (exists)
                     {
                         Debug.Log("Postal code exists.");
-                        DebugLog.Log("Postal code exists.");
+                        //DebugLog.Log("Postal code exists.");
                     }
                     else
                     {
                         Debug.Log("Postal code does not exist.");
-                        DebugLog.Log("Postal code does not exist.");
+                        //DebugLog.Log("Postal code does not exist.");
                     }
                 }
 
@@ -418,12 +418,12 @@ namespace CopierAR
                     if (exists)
                     {
                         Debug.Log("User already exists.");
-                        DebugLog.Log("User already exists.");
+                        //DebugLog.Log("User already exists.");
                     }
                     else
                     {
                         Debug.Log("User does not exist.");
-                        DebugLog.Log("User does not exist.");
+                        //DebugLog.Log("User does not exist.");
                     }
                 }
 

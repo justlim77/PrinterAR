@@ -268,14 +268,14 @@ namespace CopierAR
             UserBar.UpdateName(args.loginData.CName);
 
             Debug.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
-            DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
+            //DebugLog.Log(string.Format("{0} signed in at {1}:{2}", args.loginData.CName, args.time.Hour, args.time.Minute));
 
             LoadMenuItem(MenuItem.Location);
         }
         private void LocationView_OnLocationSelected(object sender, LocationSelectedEventArgs args)
         {
             Debug.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
-            DebugLog.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
+            //DebugLog.Log(string.Format("Valid postal code {0} ({1}) entered", args.locationData.code, args.locationData.Postal_Name));
 
             LoadMenuItem(MenuItem.About);
         }

@@ -90,6 +90,14 @@ namespace CopierAR
 
             SessionManager.UpdateSName(m_loginData.CName);
             SessionManager.UpdateLoginTime(m_loginDateTime);
+
+            // FOR ANDROID: App loses focus when keyboard is pulled up, causing camera lag, force app focus on login
+#if UNITY_EDITOR
+            // 
+#elif UNITY_ANDROID
+            OnApplicationFocus(true);
+            OnApplicationPause(false);
+#endif
         }
 
         private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
@@ -164,6 +172,20 @@ namespace CopierAR
                 Debug.Log("User logged in / Inserting sales info entry");
                 Logout();
             }
+        }
+
+        private bool m_isFocused = true;
+        private void OnApplicationFocus(bool focus)
+        {
+            // Focus
+            m_isFocused = focus;
+        }
+
+        private bool m_isPaused = false;
+        private void OnApplicationPause(bool pause)
+        {
+            // Unpause
+            m_isPaused = pause;
         }
     }
 }

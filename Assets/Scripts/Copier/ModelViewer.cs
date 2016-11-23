@@ -413,7 +413,7 @@ namespace CopierAR
 #elif UNITY_ANDROID || UNITY_IOS
             if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began)
             {
-                DebugLog.Log(string.Format("{0} Touch {1}: {2}", Time.time, Input.touchCount, Input.GetTouch(0).phase.ToString()));
+                //DebugLog.Log(string.Format("{0} Touch {1}: {2}", Time.time, Input.touchCount, Input.GetTouch(0).phase.ToString()));
 #endif
 
 #if UNITY_EDITOR
@@ -422,7 +422,7 @@ namespace CopierAR
                 Vector3 pos = cam.ScreenToViewportPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 0));
                 Ray ray = cam.ViewportPointToRay(pos);
 
-                DebugLog.Log(string.Format("{0} Ray position: {1}", Time.time, Input.mousePosition));
+                //DebugLog.Log(string.Format("{0} Ray position: {1}", Time.time, Input.mousePosition));
 #elif UNITY_ANDROID || UNITY_IOS
                 Ray ray = cam.ScreenPointToRay(Input.GetTouch(0).position);
                 DebugLog.Log(string.Format("{0} Ray position: {1}", Time.time, Input.GetTouch(0).position));
@@ -433,7 +433,7 @@ namespace CopierAR
                     if (m_hit.collider.tag == MODEL_TAG)
                     {
                         Debug.Log(string.Format("{0} Down > {1}", Time.time, m_hit.collider.name));
-                        DebugLog.Log(string.Format("{0} Down > {1}", Time.time, m_hit.collider.name));
+                        //DebugLog.Log(string.Format("{0} Down > {1}", Time.time, m_hit.collider.name));
                     }
                 }
             }
