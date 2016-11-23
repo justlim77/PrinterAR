@@ -9,10 +9,15 @@ namespace CopierAR
         public static event InactiveLogoutEventHandler OnInactiveLogout;
 
         private static int m_DISCONNECT_TIMEOUT = 300; // 5 min * 60 sec
+        private static bool m_isLoggedIn = false;
 
         private float m_cachedTimeStamp = 0.0f;
-        private bool m_isLoggedIn = false;
         private float m_loginTime = 0.0f;
+
+        // Cached login data and DateTime
+        private LoginData m_loginData;
+        private RegistrationData m_registrationData;
+        private System.DateTime m_loginDateTime;
 
         // Use this for initialization
         void Start()
@@ -25,18 +30,30 @@ namespace CopierAR
             UserBar.OnSignedOut += UserBar_OnSignedOut;
         }
 
+        public static bool IsLoggedIn()
+        {
+            return m_isLoggedIn;
+        }
+
         private void RegistrationView_OnRegistered(object sender, RegistrationEventArgs args)
         {
-            m_isLoggedIn = true;
+            //m_isLoggedIn = true;
 
-            // Cache time stamp
-            m_cachedTimeStamp = 0;
+            //// Cache time stamp
+            //m_cachedTimeStamp = 0;
 
-            // Cache login time
-            m_loginTime = Time.timeSinceLevelLoad;
+            //// Cache login time
+            //m_loginTime = Time.timeSinceLevelLoad;
 
-            SessionManager.UpdateSName(args.RegistrationData.CName);
-            SessionManager.UpdateLoginTime(args.Time);
+            //SessionManager.UpdateSName(args.RegistrationData.CName);
+            //SessionManager.UpdateLoginTime(args.Time);
+
+            m_registrationData = args.RegistrationData;
+
+            m_loginData = new LoginData();
+            m_loginData.CName = m_registrationData.CName;
+
+            m_loginDateTime = args.Time;
         }
 
         private void UserBar_OnSignedOut(object arg1, string arg2)
@@ -61,10 +78,8 @@ namespace CopierAR
         private void LocationView_OnLocationSelected(object sender, LocationSelectedEventArgs args)
         {
             SessionManager.UpdatePostalCod(args.locationData.code);
-        }
 
-        private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
-        {
+            // Migrated from OnLoggedIn
             m_isLoggedIn = true;
 
             // Cache time stamp
@@ -73,8 +88,17 @@ namespace CopierAR
             // Cache login time
             m_loginTime = Time.timeSinceLevelLoad;
 
-            SessionManager.UpdateSName(args.loginData.CName);
-            SessionManager.UpdateLoginTime(args.time);
+            SessionManager.UpdateSName(m_loginData.CName);
+            SessionManager.UpdateLoginTime(m_loginDateTime);
+        }
+
+        private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
+        {
+            m_loginData = args.loginData;
+            m_loginDateTime = args.time;
+
+            //SessionManager.UpdateSName(args.loginData.CName);
+            //SessionManager.UpdateLoginTime(args.time);
         }
 
         private string GetDemoDuration()

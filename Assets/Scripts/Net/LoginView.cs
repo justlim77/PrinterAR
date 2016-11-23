@@ -24,11 +24,20 @@ namespace CopierAR
         public Text loginComment;
         public Button loginButton;
 
-        public LoginData loginData { get; private set; }
+        private LoginData loginData = new LoginData();
+        public LoginData LoginData
+        {
+            get
+            {
+                if (loginData == null)
+                    loginData = new LoginData();
+                return loginData;
+            }
+            set { loginData = value; }
+        }
 
         void Start()
         {
-            loginData = new LoginData();
             Initialize();
             loginButton.onClick.AddListener(delegate { Login(); });
             UserBar.OnSignInPressed += UserBar_OnSignInPressed;
@@ -43,12 +52,37 @@ namespace CopierAR
         void OnEnable()
         {
             UserInputField.onEndEdit.AddListener((x) => loginData.CName = x);
+            UserInputField.onEndEdit.AddListener(x => PlayerPrefs.SetString(Constants.SAVED_NAME_PREF_KEY, x));
             UserInputField.onEndEdit.AddListener(delegate { ValidateUsername(); });
             UserInputField.onValueChanged.AddListener(delegate { usernameComment.text = ""; });
 
             PassInputField.onEndEdit.AddListener((x) => loginData.CPwd = x);
             PassInputField.onEndEdit.AddListener(delegate { ValidatePassword(); });
             PassInputField.onValueChanged.AddListener(delegate { passwordComment.text = ""; });
+
+            RememberMeToggle.onValueChanged.AddListener((x) => ToggleRemember(x));
+        }
+
+        private void ToggleRemember(bool value)
+        {
+            PlayerPrefs.SetString(Constants.SAVED_NAME_PREF_KEY, value ? loginData.CName : "");
+        }
+
+        private bool CheckForSavedName()
+        {
+            string savedName = PlayerPrefs.GetString(Constants.SAVED_NAME_PREF_KEY);
+
+            bool hasName = !string.IsNullOrEmpty(savedName);
+
+            UserInputField.text = savedName;    // Set username to saved name if available
+            loginData.CName = savedName;        // Set login data username
+            usernameComment.text = "";          // Clear error text
+
+            RememberMeToggle.isOn = hasName;
+
+            Debug.Log(loginData.CName);
+
+            return hasName;
         }
 
         private void UserBar_OnSignInPressed(object arg1, string arg2)
@@ -63,6 +97,8 @@ namespace CopierAR
 
             PassInputField.onEndEdit.RemoveAllListeners();
             PassInputField.onValueChanged.RemoveAllListeners();
+
+            RememberMeToggle.onValueChanged.RemoveAllListeners();
         }
 
         public void ClearUserInputField()
@@ -79,9 +115,15 @@ namespace CopierAR
 
         public bool Initialize()
         {
-            ClearUserInputField();
+            //ClearUserInputField();
             ClearPassInputField();
-            loginData.Clear();
+
+            if (CheckForSavedName() == true)
+                loginData.CName = "";
+            else
+                loginData.Clear();
+            CheckForSavedName();
+
             HideError();
             return true;
         }
@@ -165,6 +207,15 @@ namespace CopierAR
             // Clear error messages
             HideError();
 
+            // FOR ANDROID: App loses focus when keyboard is pulled up, causing camera lag, force app focus on login
+#if UNITY_EDITOR
+            // 
+#elif UNITY_ANDROID
+            OnApplicationFocus(true);
+            OnApplicationPause(true);
+            OnApplicationPause(false);
+#endif
+
             if (OnLoggedIn != null)
             {
                 OnLoggedIn(this, new LoginEventArgs
@@ -173,6 +224,20 @@ namespace CopierAR
                     time = DateTime.Now
                 });
             }
+        }
+
+        private bool m_isFocused = true;
+        private void OnApplicationFocus(bool focus)
+        {
+            // Focus
+            m_isFocused = focus;
+        }
+
+        private bool m_isPaused = false;
+        private void OnApplicationPause(bool pause)
+        {
+            // Unpause
+            m_isPaused = pause;
         }
     }
 }

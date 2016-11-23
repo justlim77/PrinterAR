@@ -145,7 +145,7 @@ namespace Vuforia
 
         private void Update()
         {
-            Debug.Log(mTrackableBehaviour.CurrentStatus);
+            //Debug.Log(mTrackableBehaviour.CurrentStatus);
         }
 
         #endregion // PRIVATE_METHODS

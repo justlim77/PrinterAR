@@ -22,7 +22,12 @@ namespace CopierAR
 
         public static bool InsertSalesInfoData()
         {
-            // TODO
+            if (!UserSession.IsLoggedIn())
+            {
+                ClearSession();
+                return false;
+            }
+
             bool result = DBManager.InsertSalesInfo(session.SalesInfoData);
 
             string message = result ? "successful" : "failed";

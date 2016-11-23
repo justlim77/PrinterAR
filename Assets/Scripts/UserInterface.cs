@@ -152,7 +152,7 @@ namespace CopierAR
             loginView.loginButton.onClick.AddListener(() =>
             {
                 if(loginView.isValid)
-                    StartCoroutine(m_loginService.SendLoginData(loginView.loginData, LoginResponseHandler));
+                    StartCoroutine(m_loginService.SendLoginData(loginView.LoginData, LoginResponseHandler));
             });
 
             registrationView.registerButton.onClick.AddListener(() =>
