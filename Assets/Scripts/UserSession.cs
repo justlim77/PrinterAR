@@ -1,10 +1,19 @@
 ﻿using UnityEngine;
 using System.Collections;
+using CielaSpike;
+using System;
+using System.Threading;
 
 namespace CopierAR
 {
     public class UserSession : MonoBehaviour
     {
+        public delegate void LogoutStartedEventHandler(object sender, System.EventArgs args);
+        public static event LogoutStartedEventHandler OnLogoutStarted;
+
+        public delegate void LogoutEndedEventHandler(object sender, System.EventArgs args);
+        public static event LogoutEndedEventHandler OnLogoutEnded;
+
         public delegate void InactiveLogoutEventHandler(object sender, System.EventArgs args);
         public static event InactiveLogoutEventHandler OnInactiveLogout;
 
@@ -71,6 +80,7 @@ namespace CopierAR
             // Un-subscribe to relevant events
             LoginView.OnLoggedIn -= LoginView_OnLoggedIn;
             LocationView.OnLocationSelected -= LocationView_OnLocationSelected;
+            RegistrationView.OnRegistered -= RegistrationView_OnRegistered;
             ModelViewer.OnModelSelected -= ModelViewer_OnModelSelected;
             UserBar.OnSignedOut -= UserBar_OnSignedOut;
         }
@@ -95,8 +105,8 @@ namespace CopierAR
 #if UNITY_EDITOR
             // 
 #elif UNITY_ANDROID
-            OnApplicationFocus(true);
             OnApplicationPause(false);
+            OnApplicationFocus(true);
 #endif
         }
 
@@ -152,17 +162,39 @@ namespace CopierAR
 
         public void Logout()
         {
+            StartCoroutine(UserLogout());
+        }
+
+        IEnumerator UserLogout()
+        {
+            if (OnLogoutStarted != null)
+                OnLogoutStarted(this, new System.EventArgs() { });
+
             //SessionManager.UpdateDemoDuration(GetDemoDuration());
             ModelsDuraFreq mdf = ModelViewer.GetModelFrequency();
             SessionManager.UpdatePhotoCopierModel(mdf.ModelString);
             SessionManager.UpdateDemoDuration(mdf.DemoDurationString);
             SessionManager.UpdateFrequency(mdf.FrequencyString);
 
-            SessionManager.InsertSalesInfoData();
+            Task task;
+            this.StartCoroutineAsync(ThreadedInsertInfo(), out task);
+            yield return StartCoroutine(task.Wait());
+            Debug.Log("[User Session Logout State] " + task.State);
 
             m_isLoggedIn = false;
             m_cachedTimeStamp = 0;
+
+            yield return Ninja.JumpToUnity;
             ModelViewer.Instance.Initialize();
+            yield return Ninja.JumpBack;
+
+            if (OnLogoutEnded != null)
+                OnLogoutEnded(this, new System.EventArgs() { });
+        }
+
+        IEnumerator ThreadedInsertInfo()
+        {
+            yield return SessionManager.InsertSalesInfoData();
         }
 
         public void LogoutOnQuit()

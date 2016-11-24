@@ -16,22 +16,36 @@ namespace CopierAR
         public GameObject SignoutButton;
 
         // Use this for initialization
-        void Start()
+        private void Start()
+        {
+            Initialize();
+        }
+
+        private bool Initialize()
         {
             UserLabel.text = "";
             RegisterButton.SetActive(true);
             SigninButton.SetActive(true);
             SignoutButton.SetActive(false);
+
+            return true;
         }
 
-        void OnEnable()
+        private void OnEnable()
         {
             LoginView.OnLoggedIn += SigninPanel_OnSignedIn;
+            UserSession.OnLogoutEnded += UserSession_OnLogoutEnded;
         }
 
-        void OnDisable()
+        private void UserSession_OnLogoutEnded(object sender, System.EventArgs args)
+        {
+            Initialize();
+        }
+
+        private void OnDisable()
         {
             LoginView.OnLoggedIn -= SigninPanel_OnSignedIn;
+            UserSession.OnLogoutEnded -= UserSession_OnLogoutEnded;
         }
 
         private void SigninPanel_OnSignedIn(object sender, LoginEventArgs args)
@@ -55,23 +69,8 @@ namespace CopierAR
                 OnRegisterPressed(this, "Register button pressed");
         }
 
-        public void UpdateName(string name)
-        {
-            UserLabel.text = string.Format("Hi {0},", name);
-            SignoutButton.SetActive(true);
-
-            SigninButton.SetActive(false);
-            RegisterButton.SetActive(false);
-        }
-
         public void Signout()
         {
-            UserLabel.text = "";
-            SignoutButton.SetActive(false);
-
-            SigninButton.SetActive(true);
-            RegisterButton.SetActive(true);
-
             if (OnSignedOut != null)
                 OnSignedOut(this, "Signed out");
         }
@@ -83,6 +82,15 @@ namespace CopierAR
 
             SigninButton.SetActive(true);
             RegisterButton.SetActive(true);
+        }
+
+        public void UpdateName(string name)
+        {
+            UserLabel.text = string.Format("Hi {0},", name);
+            SignoutButton.SetActive(true);
+
+            SigninButton.SetActive(false);
+            RegisterButton.SetActive(false);
         }
     }
 }

@@ -4,52 +4,7 @@ using System.Collections;
 namespace CopierAR
 {
     public class LoginService
-    {
-        public IEnumerator SendLoginDataAsync(LoginData loginData, System.Action<Response> responseHandler)
-        {
-            Response response = new Response();
-
-            // Check if user exists
-            Debug.Log("Check for user " + loginData.CName);
-            bool userExists = DBManager.CheckUserExists(loginData.CName);
-
-            // If user exists, check password
-            if (!userExists)
-            {
-                response.error = true;
-                response.message = "User does not exist";
-                response.responseType = ResponseType.InvalidUser;
-
-                // Calling response handler
-                responseHandler(response);
-
-                yield break;
-            }
-
-            // If user exists, check password
-            RegistrationData _data = DBManager.GetRegistrationData(loginData.CName);
-            Debug.Log(string.Format("DB {0}'s {1} vs user {2} PWD", _data.CName, _data.CPwd, loginData.CPwd));
-            if (_data.CPwd == loginData.CPwd)
-            {
-                response.error = false;
-                response.message = "Login success";
-                response.responseType = ResponseType.Success;
-            }
-            else
-            {
-                // Wrong password
-                response.error = true;
-                response.message = "Incorrect password";
-                response.responseType = ResponseType.IncorrectPassword;
-            }
-
-            // Calling response handler
-            responseHandler(response);
-
-            yield break;
-
-        }
-
+    {     
         public IEnumerator SendLoginData(LoginData loginData, System.Action<Response> responseHandler)
         {
             Response response = new Response();

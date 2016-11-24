@@ -27,6 +27,10 @@ namespace CopierAR
         public RectTransform contentPanel;
         public GameObject WelcomePanel;
 
+        [Header("Loading GIF")]
+        public CanvasGroup loadingCanvasRenderer;
+        public Animator loadingWheelAnimator;
+
         [Header("User Session")]
         public UserSession userSession;
 
@@ -64,7 +68,9 @@ namespace CopierAR
         private RegistrationService m_registrationService = new RegistrationService();
         private LocationService m_locationService = new LocationService();
 
-        private Response m_loginResponse = new Response();
+        private Response m_loginResponse;
+        private Response m_registrationResponse;
+        private Response m_locationResponse;
         /// <summary>
         /// Processes login response from database
         /// </summary>
@@ -94,15 +100,16 @@ namespace CopierAR
             // TODO: Implement notification system
             Debug.Log(string.Format("Registration status: Error {0}, {1}", response.error, response.message));
 
+            m_registrationResponse = response;
             // TODO: Register user on database
-            if (response.error == false)
-            {
-                registrationView.Register(true);
-            }
-            else
-            {
-                registrationView.ShowError(response);
-            }
+            //if (response.error == false)
+            //{
+            //    registrationView.Register(true);
+            //}
+            //else
+            //{
+            //    registrationView.ShowError(response);
+            //}
         }
 
         /// <summary>
@@ -114,15 +121,16 @@ namespace CopierAR
             // TODO: Implement notification system
             Debug.Log(string.Format("Location status: Error {0}, {1}", response.error, response.message));
 
+            m_locationResponse = response;
             // TODO: Query location validation
-            if (response.error == false)
-            {
-                locationView.SelectLocation(true);
-            }
-            else
-            {
-                locationView.ShowError(response);
-            }
+            //if (response.error == false)
+            //{
+            //    locationView.SelectLocation(true);
+            //}
+            //else
+            //{
+            //    locationView.ShowError(response);
+            //}
         }
 
         // Use this for initialization
@@ -137,20 +145,40 @@ namespace CopierAR
 
             m_InitialPanelPosition = contentPanel.anchoredPosition;
 
+            HideLoadingView();
+
             LoadMenuItem(MenuItem.Welcome);
+        }
+
+        void ShowLoadingView()
+        {
+            loadingCanvasRenderer.transform.SetAsLastSibling();
+
+            loadingCanvasRenderer.alpha = 1;
+            loadingCanvasRenderer.blocksRaycasts = true;
+        }
+
+        void HideLoadingView()
+        {
+            loadingCanvasRenderer.alpha = 0;
+            loadingCanvasRenderer.blocksRaycasts = false;
         }
 
         IEnumerator ThreadedLogin()
         {
-            // Threading approach:
-            Task loginTask;
-            this.StartCoroutineAsync(m_loginService.SendLoginDataAsync(loginView.LoginData,
-                LoginResponseHandler), out loginTask);
-            yield return StartCoroutine(loginTask.Wait());
+            ShowLoadingView();
 
-            Debug.Log("[State]" + loginTask.State);
+            // Threading approach:
+            Task task;
+            this.StartCoroutineAsync(m_loginService.SendLoginData(loginView.LoginData,
+                LoginResponseHandler), out task);
+            yield return StartCoroutine(task.Wait());
+
+            Debug.Log("[Threaded Login State] " + task.State);
 
             yield return Ninja.JumpToUnity;
+
+            HideLoadingView();
 
             if (m_loginResponse.error == false)
             {
@@ -159,6 +187,90 @@ namespace CopierAR
             else
             {
                 loginView.ShowError(m_loginResponse);
+            }
+
+            yield return Ninja.JumpBack;
+        }
+
+        IEnumerator ThreadedRegistration()
+        {
+            ShowLoadingView();
+
+            // Threading approach:
+            Task task;
+            this.StartCoroutineAsync(m_registrationService.SendRegistrationData(registrationView.registrationData,
+                RegistrationResponseHandler), out task);
+            yield return StartCoroutine(task.Wait());
+
+            Debug.Log("[Threaded Registration State] " + task.State);
+
+            yield return Ninja.JumpToUnity;
+
+            HideLoadingView();
+
+            if (m_registrationResponse.error == false)
+            {
+                registrationView.Register(true);
+            }
+            else
+            {
+                registrationView.ShowError(m_registrationResponse);
+            }
+
+            yield return Ninja.JumpBack;
+        }
+
+        IEnumerator ThreadedLocation()
+        {
+            ShowLoadingView();
+
+            // Threading approach:
+            Task task;
+            this.StartCoroutineAsync(m_locationService.SendLocationData(locationView.locationData,
+                LocationResponseHandler), out task);
+            yield return StartCoroutine(task.Wait());
+
+            Debug.Log("[Threaded Location State] " + task.State);
+
+            yield return Ninja.JumpToUnity;
+
+            HideLoadingView();
+
+            if (m_locationResponse.error == false)
+            {
+                locationView.SelectLocation(true);
+            }
+            else
+            {
+                locationView.ShowError(m_locationResponse);
+            }
+
+            yield return Ninja.JumpBack;
+        }
+
+        IEnumerator ThreadedInsert()
+        {
+            ShowLoadingView();
+
+            // Threading approach:
+            Task task;
+            this.StartCoroutineAsync(m_locationService.SendLocationData(locationView.locationData,
+                LocationResponseHandler), out task);
+            yield return StartCoroutine(task.Wait());
+
+            Debug.Log("[State]" + task.State);
+
+            yield return Ninja.JumpToUnity;
+
+            HideLoadingView();
+
+            if (m_locationResponse.error == false)
+            {
+                locationView.SelectLocation(true);
+            }
+            else
+            {
+                locationView.ShowError(m_locationResponse);
             }
 
             yield return Ninja.JumpBack;
@@ -177,6 +289,8 @@ namespace CopierAR
             SidePanel.OnShowcaseButtonClicked += SidePanel_OnShowcaseButtonClicked;
             SidePanel.OnLifeScaleButtonClicked += SidePanel_OnLifeScaleButtonClicked;
             UserSession.OnInactiveLogout += UserSession_OnInactiveLogout;
+            UserSession.OnLogoutStarted += UserSession_OnLogoutStarted;
+            UserSession.OnLogoutEnded += UserSession_OnLogoutEnded;
 
             loginView.loginButton.onClick.AddListener(() =>
             {
@@ -191,15 +305,41 @@ namespace CopierAR
 
             registrationView.registerButton.onClick.AddListener(() =>
             {
-                if(registrationView.isValid)
-                    StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData, RegistrationResponseHandler));
+                if (registrationView.isValid)
+                {
+                    //StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData, RegistrationResponseHandler));
+
+                    // Threading approach:
+                    StartCoroutine(ThreadedRegistration());
+                }
             });
 
             locationView.selectButton.onClick.AddListener(() =>
             {
                 if (locationView.isValid)
-                    StartCoroutine(m_locationService.SendLocationData(locationView.locationData, LocationResponseHandler));
+                {
+                    //StartCoroutine(m_locationService.SendLocationData(locationView.locationData, LocationResponseHandler));
+
+                    // Threaded location approach:
+                    StartCoroutine(ThreadedLocation());
+                }
             });
+        }
+
+        private void UserSession_OnLogoutStarted(object sender, EventArgs args)
+        {
+            ShowLoadingView();
+        }
+
+        private void UserSession_OnLogoutEnded(object sender, EventArgs args)
+        {
+            HideLoadingView();
+
+            loginView.Initialize();
+
+            LoadMenuItem(MenuItem.Sigin);
+
+            SetMainPanelHorizontal();
         }
 
         void OnDisable()
@@ -215,6 +355,8 @@ namespace CopierAR
             SidePanel.OnShowcaseButtonClicked -= SidePanel_OnShowcaseButtonClicked;
             SidePanel.OnLifeScaleButtonClicked -= SidePanel_OnLifeScaleButtonClicked;
             UserSession.OnInactiveLogout -= UserSession_OnInactiveLogout;
+            UserSession.OnLogoutStarted -= UserSession_OnLogoutStarted;
+            UserSession.OnLogoutEnded -= UserSession_OnLogoutEnded;
 
             loginView.loginButton.onClick.RemoveAllListeners();
             registrationView.registerButton.onClick.RemoveAllListeners();
@@ -290,11 +432,14 @@ namespace CopierAR
 
         private void UserBar_OnSignedOut(object sender, string arg)
         {
-            loginView.Initialize();
+            //if (!UserSession.IsLoggedIn())
+            //{
+            //    loginView.Initialize();
 
-            LoadMenuItem(MenuItem.Sigin);
+            //    LoadMenuItem(MenuItem.Sigin);
 
-            SetMainPanelHorizontal();
+            //    SetMainPanelHorizontal();
+            //}
         }
 
         private void LoginView_OnLoggedIn(object sender, LoginEventArgs args)
