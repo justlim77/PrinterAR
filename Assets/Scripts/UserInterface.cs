@@ -1,6 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using CielaSpike;
+using System.Threading;
+using System;
 
 namespace CopierAR
 {
@@ -61,6 +64,7 @@ namespace CopierAR
         private RegistrationService m_registrationService = new RegistrationService();
         private LocationService m_locationService = new LocationService();
 
+        private Response m_loginResponse = new Response();
         /// <summary>
         /// Processes login response from database
         /// </summary>
@@ -70,14 +74,15 @@ namespace CopierAR
             // TODO: Implement notification system
             Debug.Log(string.Format("Login status: Error {0}, {1}", response.error, response.message));
 
-            if (response.error == false)
-            {
-                loginView.Login(true);
-            }
-            else
-            {
-                loginView.ShowError(response);
-            }
+            m_loginResponse = response;
+            //if (response.error == false)
+            //{
+            //    loginView.Login(true);
+            //}
+            //else
+            //{
+            //    loginView.ShowError(response);
+            //}
         }
 
         /// <summary>
@@ -135,6 +140,30 @@ namespace CopierAR
             LoadMenuItem(MenuItem.Welcome);
         }
 
+        IEnumerator ThreadedLogin()
+        {
+            // Threading approach:
+            Task loginTask;
+            this.StartCoroutineAsync(m_loginService.SendLoginDataAsync(loginView.LoginData,
+                LoginResponseHandler), out loginTask);
+            yield return StartCoroutine(loginTask.Wait());
+
+            Debug.Log("[State]" + loginTask.State);
+
+            yield return Ninja.JumpToUnity;
+
+            if (m_loginResponse.error == false)
+            {
+                loginView.Login(true);
+            }
+            else
+            {
+                loginView.ShowError(m_loginResponse);
+            }
+
+            yield return Ninja.JumpBack;
+        }
+
         void OnEnable()
         {
             LoginView.OnLoggedIn += LoginView_OnLoggedIn;
@@ -151,8 +180,13 @@ namespace CopierAR
 
             loginView.loginButton.onClick.AddListener(() =>
             {
-                if(loginView.isValid)
-                    StartCoroutine(m_loginService.SendLoginData(loginView.LoginData, LoginResponseHandler));
+                if (loginView.isValid)
+                {
+                    //StartCoroutine(m_loginService.SendLoginData(loginView.LoginData, LoginResponseHandler));
+
+                    // Threading approach:
+                    StartCoroutine(ThreadedLogin());
+                }
             });
 
             registrationView.registerButton.onClick.AddListener(() =>
