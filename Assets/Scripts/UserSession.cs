@@ -17,8 +17,9 @@ namespace CopierAR
         public delegate void InactiveLogoutEventHandler(object sender, System.EventArgs args);
         public static event InactiveLogoutEventHandler OnInactiveLogout;
 
-        private static int m_DISCONNECT_TIMEOUT = 300; // 5 min * 60 sec
+        private static int m_DISCONNECT_TIMEOUT = 10; // 5 min * 60 sec
         private static bool m_isLoggedIn = false;
+        private static bool m_isLoggingOut = false;
 
         private float m_cachedTimeStamp = 0.0f;
         private float m_loginTime = 0.0f;
@@ -42,6 +43,11 @@ namespace CopierAR
         public static bool IsLoggedIn()
         {
             return m_isLoggedIn;
+        }
+
+        public static bool IsLoggingOut()
+        {
+            return m_isLoggingOut;
         }
 
         private void RegistrationView_OnRegistered(object sender, RegistrationEventArgs args)
@@ -132,6 +138,10 @@ namespace CopierAR
 
         void Update()
         {
+            // Wait for logout process
+            if (m_isLoggingOut)
+                return;
+
             if (m_isLoggedIn)
             {
 #if UNITY_ANDROID || UNITY_IOS
@@ -145,6 +155,7 @@ namespace CopierAR
 
                 m_cachedTimeStamp += Time.deltaTime;
 
+                // TODO: Control rate
                 if (m_cachedTimeStamp >= m_DISCONNECT_TIMEOUT)
                 {
                     // Auto-logout on inactivty
@@ -167,6 +178,8 @@ namespace CopierAR
 
         IEnumerator UserLogout()
         {
+            m_isLoggingOut = true;
+
             if (OnLogoutStarted != null)
                 OnLogoutStarted(this, new System.EventArgs() { });
 
@@ -190,6 +203,8 @@ namespace CopierAR
 
             if (OnLogoutEnded != null)
                 OnLogoutEnded(this, new System.EventArgs() { });
+
+            m_isLoggingOut = false;
         }
 
         IEnumerator ThreadedInsertInfo()

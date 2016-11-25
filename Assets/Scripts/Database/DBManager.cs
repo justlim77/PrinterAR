@@ -343,6 +343,44 @@ namespace CopierAR
 
             return exists;
         }
+        public static bool UpsertPostalCodeData(string code)
+        {
+            bool exists = false;
+
+            ProcessDBEvent dbEvent = delegate (ref SqlTransaction transaction)
+            {
+                using (SqlCommand command = DBCONN.CreateCommand())
+                {
+                    command.Parameters.Clear();
+                    command.Transaction = transaction;
+                    //command.CommandText = GenerateSelectExistsCommand("dbo.tblPostalcode", "code");
+                    command.CommandText = DBCommands.upsert_postalcode_params;
+                    command.Parameters.Add(new SqlParameter("code", code));
+
+                    //exists = (int)command.ExecuteScalar() > 0;
+                    command.ExecuteNonQuery();
+
+                    exists = true;
+
+                    if (exists)
+                    {
+                        Debug.Log("Postal code exists.");
+                        //DebugLog.Log("Postal code exists.");
+                    }
+                    else
+                    {
+                        Debug.Log("Postal code does not exist.");
+                        //DebugLog.Log("Postal code does not exist.");
+                    }
+                }
+
+                return exists;
+            };
+
+            ProcessDB(dbEvent);
+
+            return exists;
+        }
 
         static void ReadPostalCodeData(SqlDataReader reader, ref LocationData data)
         {

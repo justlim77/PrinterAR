@@ -37,6 +37,15 @@ namespace CopierAR
             "INSERT INTO dbo.tblSalesInfo (SName, PostalCod, LoginTime, PhotoCopierModel, DemoDuration, Frequency)"
             + "VALUES (@SName, @PostalCod, @LoginTime, @PhotoCopierModel, @DemoDuration, @Frequency)";
 
+        public const string upsert_postalcode_params =
+            "MERGE dbo.tblPostalcode WITH (HOLDLOCK) AS t "
+            + "USING    (SELECT @code AS code) AS s "
+            + "ON       t.code = s.code "
+            + "WHEN NOT MATCHED BY TARGET "
+            + "THEN INSERT (code, Postal_Name, Postal_Code) "
+            + "VALUES(s.Code, 'NA', s.Code); "
+            + "SELECT * FROM dbo.tblPostalcode WHERE code=@code";
+
         public static void InitCommands()
         {
             // TODO

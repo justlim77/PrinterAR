@@ -10,7 +10,8 @@ namespace CopierAR
             Response response = new Response();
 
             // Check if postal code entry
-            bool postalCodeExists = DBManager.CheckPostalExists(locationData.code);
+            //bool postalCodeExists = DBManager.CheckPostalExists(locationData.code);
+            bool postalCodeExists = DBManager.UpsertPostalCodeData(locationData.code);
 
             if (!postalCodeExists)
             {
