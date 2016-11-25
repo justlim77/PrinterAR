@@ -54,13 +54,15 @@ namespace CopierAR
         public GameObject ModelGroup;
         public Camera ShowcaseCamera;
 
-        public ViewMode ViewMode;
+        public ViewMode ViewMode { get; private set; }
 
         public List<Copier> CopierList = new List<Copier>();
         public List<GameObject> ModelList = new List<GameObject>();
         public List<CopierController> ControllerList = new List<CopierController>();
         public List<ModelsDuraFreq> ModelDuraFreqList = new List<ModelsDuraFreq>();
         public static Dictionary<Copier, ModelsDuraFreq> ModelDataList = new Dictionary<Copier, ModelsDuraFreq>();
+        public static Dictionary<CopierSeries, ShowcaseController> ShowcaseGroupList = new Dictionary<CopierSeries, ShowcaseController>();
+        public static Dictionary<CopierSeries, GameObject> ShowcaseObjectList = new Dictionary<CopierSeries, GameObject>();
 
         private int m_viewIndex = 0;
         private int m_previousIndex = 0;
@@ -82,7 +84,7 @@ namespace CopierAR
         private RaycastHit m_hit;
 
         private const string MODEL_TAG = "Model";
-        
+
         void Awake()
         {
             if (Instance == null)
@@ -125,6 +127,8 @@ namespace CopierAR
             ModelList.Clear();
             ModelDuraFreqList.Clear();
             ModelDataList.Clear();
+            ShowcaseGroupList.Clear();
+            ShowcaseObjectList.Clear();
 
             // Initialize dictionaries
             for (int i = 0; i < CopierDatabase.copiers.Length; i++)
@@ -148,8 +152,33 @@ namespace CopierAR
                 //model.SetActive(false);
             }
 
+            // Initialize Showcase button group list
+            for (int i = 0; i < Enum.GetValues(typeof(CopierSeries)).Length; i++)
+            {
+                GameObject prefab = null;
+                ShowcaseController controller = null;
+                CopierSeries value = (CopierSeries)i;
+                Debug.Log(value);
+                switch (value.ToString())
+                {
+                    case "X4000":
+                        prefab = Resources.Load("Prefabs/UI/4000Series") as GameObject;
+                        break;
+                    case "X7000":
+                        prefab = Resources.Load("Prefabs/UI/7000Series") as GameObject;
+                        break;
+                }
+
+                controller = prefab.GetComponent<ShowcaseController>();
+                GameObject o = (GameObject)Instantiate(prefab, this.transform);
+                o.SetActive(false);
+
+                ShowcaseObjectList.Add(value, o);
+                ShowcaseGroupList.Add(value, controller);
+            }
+
             // De-activate showcase camera
-            if(ShowcaseCamera != null)
+            if (ShowcaseCamera != null)
                 ShowcaseCamera.enabled = false;
 
             ViewMode = ViewMode.Showcase;
@@ -261,6 +290,30 @@ namespace CopierAR
                 });
             }
 
+            // Hide all showcase panels
+            HideShowcasePanel();
+
+            // Attach showcase controller to model if in showcase mode
+            if (ViewMode == ViewMode.Showcase)
+            {
+                CopierSeries series = CopierList[m_viewIndex].CopierSeries;
+
+                ShowcaseGroupList[series].scannerButton.onClick.RemoveAllListeners();
+                ShowcaseGroupList[series].panelButton.onClick.RemoveAllListeners();
+                ShowcaseGroupList[series].tonerButton.onClick.RemoveAllListeners();
+                ShowcaseGroupList[series].paperTrayButton.onClick.RemoveAllListeners();
+                ShowcaseGroupList[series].sideTrayButton.onClick.RemoveAllListeners();
+
+                ShowcaseGroupList[series].scannerButton.onClick.AddListener(ControllerList[m_viewIndex].AnimateScanner);
+                ShowcaseGroupList[series].panelButton.onClick.AddListener(ControllerList[m_viewIndex].AnimatePanel);
+                ShowcaseGroupList[series].tonerButton.onClick.AddListener(ControllerList[m_viewIndex].AnimateToner);
+                ShowcaseGroupList[series].paperTrayButton.onClick.AddListener(ControllerList[m_viewIndex].AnimatePaperTray);
+                ShowcaseGroupList[series].sideTrayButton.onClick.AddListener(ControllerList[m_viewIndex].AnimateSideTray);
+
+                ShowcaseObjectList[series].SetActive(true);
+                ShowcaseObjectList[series].transform.SetParent(GetActiveController().gameObject.transform);
+            }
+
             // Check view mode
             //if (ViewMode == ViewMode.Showcase)
             //{
@@ -272,6 +325,16 @@ namespace CopierAR
             //    ModelGroup.transform.parent = LifeScaleParent;
             //    ShowcaseCamera.enabled = false;
             //}
+        }
+
+        void HideShowcasePanel()
+        {
+            foreach (var panel in ShowcaseObjectList.Values)
+            {
+                panel.transform.rotation = Quaternion.identity;
+                panel.transform.SetParent(this.transform);
+                panel.SetActive(false);
+            }
         }
 
         public void ShowCurrentModel()

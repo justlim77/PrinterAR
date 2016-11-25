@@ -143,7 +143,7 @@ namespace CopierAR
 
             // Add onClick listeners
             PrintButton.onClick.AddListener(delegate { m_copierController.ShowPrintSpeed(m_printSpeedURL); });
-            PrintButton.onClick.AddListener(PrintButton.ToggleState);
+            //PrintButton.onClick.AddListener(PrintButton.ToggleState);
 
             ScannerButton.onClick.AddListener(m_copierController.AnimateScanner);
             ScannerButton.onClick.AddListener(ScannerButton.ToggleState);
