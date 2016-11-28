@@ -113,6 +113,17 @@ namespace Vuforia.EditorClasses
                                                                  iOSSymbols + ";" + VUFORIA_IOS_SETTINGS);
             }
 
+
+#if UNITY_5_4_OR_NEWER
+#if ! (UNITY_5_4_0 || UNITY_5_4_1)
+            if (PlayerSettings.iOS.cameraUsageDescription.Length == 0)
+            {
+                Debug.Log("Setting default camera usage description for iOS.");
+                PlayerSettings.iOS.cameraUsageDescription = "Camera access required for target detection and tracking";
+            }
+#endif
+#endif
+
             string wsaSymbols = PlayerSettings.GetScriptingDefineSymbolsForGroup(wsaBuildTarget);
             wsaSymbols = wsaSymbols ?? "";
             if (!wsaSymbols.Contains(VUFORIA_WSA_SETTINGS))

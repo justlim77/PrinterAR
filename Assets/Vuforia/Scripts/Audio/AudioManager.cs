@@ -7,9 +7,20 @@ using System;
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Main {
-        get {
-            return Camera.main.GetComponent<AudioManager>();
-        }
+        get;
+        private set;
+    }
+
+    void Awake()
+    {
+        if (Main == null)
+            Main = this;
+    }
+
+    void OnDestroy()
+    {
+        if (Main != null)
+            Main = null;
     }
 
     public HashSet<Sound> sounds =

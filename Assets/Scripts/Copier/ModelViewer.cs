@@ -8,6 +8,7 @@ namespace CopierAR
 {
     public enum ViewMode
     {
+        None,
         Showcase,
         LifeScale
     }
@@ -16,6 +17,11 @@ namespace CopierAR
     {
         public Copier Copier;
         public ModelsDuraFreq ModelFrequency;
+    }
+
+    public class ViewModeChangedEventArgs : System.EventArgs
+    {
+        public ViewMode ViewMode;
     }
 
     public class ModelsDuraFreq
@@ -45,6 +51,9 @@ namespace CopierAR
         public delegate void ModelSelectedEventHandler(object sender, ModelSelectedEventArgs args);
         public static event ModelSelectedEventHandler OnModelSelected;
 
+        public delegate void ViewModeChangedEventHandler(object sender, ViewModeChangedEventArgs args);
+        public static event ViewModeChangedEventHandler OnViewModeChanged;
+
         public static ModelViewer Instance { get; private set; }
 
         public string CopierDatabasePath = "Data/CopierDatabase";
@@ -54,7 +63,22 @@ namespace CopierAR
         public GameObject ModelGroup;
         public Camera ShowcaseCamera;
 
-        public ViewMode ViewMode { get; private set; }
+        private ViewMode viewMode = ViewMode.None;
+        public ViewMode ViewMode
+        {
+            get
+            {
+                return viewMode;
+            }
+            set
+            {
+                viewMode = value;
+                if (OnViewModeChanged != null)
+                {
+                    OnViewModeChanged(this, new ViewModeChangedEventArgs { ViewMode = value });
+                }
+            }
+        }
 
         public List<Copier> CopierList = new List<Copier>();
         public List<GameObject> ModelList = new List<GameObject>();
@@ -390,16 +414,19 @@ namespace CopierAR
                 ModelDuraFreqList[m_viewIndex].DemoDuration += Time.deltaTime;
             }
 
-            // Check tracking status
-            if (CopierTrackableEventHandler.GetCurrentStatus() == TrackableBehaviour.Status.TRACKED ||
-                CopierTrackableEventHandler.GetCurrentStatus() == TrackableBehaviour.Status.EXTENDED_TRACKED ||
-                ViewMode == ViewMode.Showcase)
+            if (CopierTrackableEventHandler.isActiveAndEnabled)
             {
-                DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(), true);
-            }
-            else
-            {
-                DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(), false);
+                // Check tracking status
+                if (CopierTrackableEventHandler.GetCurrentStatus() == TrackableBehaviour.Status.TRACKED ||
+                    CopierTrackableEventHandler.GetCurrentStatus() == TrackableBehaviour.Status.EXTENDED_TRACKED ||
+                    ViewMode == ViewMode.Showcase)
+                {
+                    DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(), true);
+                }
+                else
+                {
+                    DisplayRenderers(ModelList[m_viewIndex].GetComponentsInChildren<Renderer>(), false);
+                }
             }
             // ROTATION
 #if UNITY_EDITOR

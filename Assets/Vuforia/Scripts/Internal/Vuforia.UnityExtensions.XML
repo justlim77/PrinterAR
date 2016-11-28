@@ -123,6 +123,43 @@
             This value is only used when eyewear type is set to video see-through.
             </summary>
         </member>
+        <member name="M:Vuforia.DigitalEyewearAbstractBehaviour.GetSeeThroughConfiguration">
+            <summary>
+            Returns which configuration is used for rendering on see-through eyewear.
+            This value is only used when eyewear type is set to optical see-through.
+            </summary>
+        </member>
+        <member name="M:Vuforia.DigitalEyewearAbstractBehaviour.SetSeeThroughConfiguration(Vuforia.DigitalEyewearAbstractBehaviour.SeeThroughConfiguration)">
+            <summary>
+            Define which configuration is used for rendering on see-through eyewear.
+            This value is only used when eyewear type is set to optical see-through.
+            </summary>
+        </member>
+        <member name="M:Vuforia.DigitalEyewearAbstractBehaviour.EnableAutomaticFocusPointSelection(System.Boolean)">
+            <summary>
+            May be removed in future Vuforia versions!
+            This method can be used to toggle automatic setting of the focus plane on HoloLens.
+            It should only be called after Vuforia has started (e.g. VuforiaStartedCallback)
+            By default, this is set to true, and Vuforia will automatically set the focus plane to the last
+            detected target.
+            However, if an the focus plane should be set to a hologram significantly offset from a target,
+            this method should be used to disable automatic focus plane setting and it should be done from 
+            application code instead
+            </summary>
+        </member>
+        <member name="M:Vuforia.DigitalEyewearAbstractBehaviour.EnableWorldAnchorUsage(System.Boolean)">
+            <summary>
+            May be removed in future Vuforia versions!
+            This method can be used to toggle automatic setting of world anchors for trackables on HoloLens.
+            It should only be called after Vuforia has started (e.g. VuforiaStartedCallback)
+            By default, this is set to true, and Vuforia will automatically manage world anchors for targets.
+            This reduces drift in approx. a 3m range around targets.
+            
+            However, if your application only uses targets for initial recognition, and your holograms are 
+            significantly offset from them, it might make sense to disable world anchor usage by Vuforia and
+            manually create world anchors for the holograms you want to stabilize
+            </summary>
+        </member>
         <member name="M:Vuforia.DigitalEyewearAbstractBehaviour.EnableDistortionRendering">
             <summary>
             Enable distortion rendering if possible for the current configuration.
@@ -213,6 +250,21 @@
         <member name="F:Vuforia.DigitalEyewearAbstractBehaviour.StereoFramework.GearVR">
             <summary>
             Oculus SDK is used for stereo rendering
+            </summary>
+        </member>
+        <member name="T:Vuforia.DigitalEyewearAbstractBehaviour.SeeThroughConfiguration">
+            <summary>
+            Define which configuration is used for see-through eyewear
+            </summary>
+        </member>
+        <member name="F:Vuforia.DigitalEyewearAbstractBehaviour.SeeThroughConfiguration.Vuforia">
+            <summary>
+            Vuforia SDK functionality is used to drive rendering on see-through devices
+            </summary>
+        </member>
+        <member name="F:Vuforia.DigitalEyewearAbstractBehaviour.SeeThroughConfiguration.HoloLens">
+            <summary>
+            HoloLens SDK is used for rendering
             </summary>
         </member>
         <member name="T:Vuforia.DigitalEyewearAbstractBehaviour.SerializableViewerParameters">
@@ -408,6 +460,31 @@
         </member>
         <member name="F:Vuforia.EyewearDevice.EyewearCalibrationReading.unused">
             <summary>Padding bytes for 64bit compatibility</summary>
+        </member>
+        <member name="M:Vuforia.IHoloLensApiAbstraction.SetFocusPoint(UnityEngine.Vector3,UnityEngine.Vector3)">
+            <summary>
+            Sets the focus point, stablizing holograms in that area
+            </summary>
+        </member>
+        <member name="M:Vuforia.IHoloLensApiAbstraction.SetWorldAnchor(Vuforia.TrackableBehaviour,Vuforia.VuforiaManager.TrackableIdPair)">
+            <summary>
+            Sets a world anchor on the game object of the given behaviour
+            </summary>
+        </member>
+        <member name="M:Vuforia.IHoloLensApiAbstraction.DeleteWorldAnchor(Vuforia.VuforiaManager.TrackableIdPair)">
+            <summary>
+            Deletes a previously set world anchor.
+            </summary>
+        </member>
+        <member name="M:Vuforia.IHoloLensApiAbstraction.DeleteWorldAnchor(Vuforia.TrackableBehaviour)">
+            <summary>
+            Deletes a previously set world anchor.
+            </summary>
+        </member>
+        <member name="M:Vuforia.IHoloLensApiAbstraction.SetSpatialAnchorTrackingCallback(System.Action{Vuforia.VuforiaManager.TrackableIdPair,System.Boolean})">
+            <summary>
+            Sets the callback method to be called when the tracking state of world anchors changes
+            </summary>
         </member>
         <member name="T:Vuforia.ICustomViewerParameters">
             <summary>
@@ -1001,6 +1078,40 @@
             For stereo, we need to update both camera matrices.
             </summary>
         </member>
+        <member name="M:Vuforia.HoloLensExtendedTrackingManager.CheckHandoverToHoloLens(Vuforia.HoloLensExtendedTrackingManager.PoseAgeEntry,Vuforia.TrackableBehaviour,Vuforia.VuforiaManager.TrackableIdPair,System.Single,System.Boolean,System.Boolean@)">
+            <summary>
+            This method checks if tracking should be handed over to HoloLens this frame
+            </summary>
+        </member>
+        <member name="M:Vuforia.HoloLensExtendedTrackingManager.CheckForHoloLensPoseUpdates(Vuforia.HoloLensExtendedTrackingManager.PoseAgeEntry,Vuforia.TrackableBehaviour,Vuforia.VuforiaManager.TrackableIdPair,System.Int32,System.Single,System.Single,UnityEngine.Transform,System.Boolean@)">
+            <summary>
+            This method checks if a target that is tracked by HoloLens should be updated or
+            handed back to Vuforia tracking
+            </summary>
+        </member>
+        <member name="M:Vuforia.HoloLensExtendedTrackingManager.IsTargetWellInView(Vuforia.TrackableBehaviour,UnityEngine.Transform)">
+            <summary>
+            Estimates if the target is well in view to identify situations where a pose too close to the border
+            of the camera view would lead to jitter
+            Returns true if 
+            (a) the target is completely in view (using a very conservative bounding sphere)
+            (b) the target center is close enough to the camera view axis
+            </summary>
+        </member>
+        <member name="M:Vuforia.HoloLensExtendedTrackingManager.CalculateTargetSizeInCameraViewCoeff(Vuforia.TrackableBehaviour,UnityEngine.Vector3)">
+            <summary>
+            Calculates a coefficient for the approximate size of the target in the camera view
+            based on the size of the target, the distance to the camera and the fov of the camera.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Vuforia.HoloLensExtendedTrackingManager.OnSpatialAnchorTrackingCallback(Vuforia.VuforiaManager.TrackableIdPair,System.Boolean)">
+            <summary>
+            HoloLens will report the tracking state of spatial anchors.
+            In case a spatial anchor associated with a Vuforia target cannot be tracked, we will report that via 
+            our usual tracking callback API.
+            </summary>
+        </member>
         <member name="T:Vuforia.VuMarkManagerImpl">
             <summary>
             This manager is responsible for handling incoming unmarshaled VuMark 
@@ -1302,12 +1413,17 @@
             Stop extended tracking. Target will only be tracked when it is visible.
             </summary>
         </member>
-        <member name="M:Vuforia.ObjectTarget.GetSize">
+        <member name="M:Vuforia.ExtendedTrackable.GetSize">
             <summary>
             Returns the size  of the target (in 3D scene units).
             </summary>
         </member>
-        <member name="M:Vuforia.ObjectTarget.SetSize(UnityEngine.Vector3)">
+        <member name="M:Vuforia.ExtendedTrackable.GetLargestSizeComponent">
+            <summary>
+            Returns the largets component of the target size.
+            </summary>
+        </member>
+        <member name="M:Vuforia.ExtendedTrackable.SetSize(UnityEngine.Vector3)">
             <summary>
             Sets the size of the target (in 3D scene units).
             This is only allowed when the dataset is not active!
@@ -1328,6 +1444,11 @@
             Returns the generated image of the detected VuMark.
             </summary>
         </member>
+        <member name="M:Vuforia.VuMarkTargetImpl.GetLargestSizeComponent">
+            <summary>
+            Returns the largets component of the target size.
+            </summary>
+        </member>
         <member name="T:Vuforia.ObjectTargetImpl">
             <summary>
             A trackable that represents an ObjectTarget object
@@ -1336,6 +1457,11 @@
         <member name="M:Vuforia.ObjectTargetImpl.GetSize">
             <summary>
             Returns the size  of the target (in 3D scene units).
+            </summary>
+        </member>
+        <member name="M:Vuforia.ObjectTargetImpl.GetLargestSizeComponent">
+            <summary>
+            Returns the largets component of the target size.
             </summary>
         </member>
         <member name="M:Vuforia.ObjectTargetImpl.SetSize(UnityEngine.Vector3)">
@@ -2162,6 +2288,12 @@
         <!-- Badly formed XML comment ignored for member "F:Vuforia.TrackableBehaviour.Status.DETECTED" -->
         <!-- Badly formed XML comment ignored for member "F:Vuforia.TrackableBehaviour.Status.TRACKED" -->
         <!-- Badly formed XML comment ignored for member "F:Vuforia.TrackableBehaviour.Status.EXTENDED_TRACKED" -->
+        <member name="T:Vuforia.TrackableBehaviour.CoordinateSystem">
+            <summary>
+            The coordinate system of poses for the TrackableBehaviour.
+            </summary>
+        </member>
+        <!-- Badly formed XML comment ignored for member "F:Vuforia.TrackableBehaviour.CoordinateSystem.WORLD" -->
         <member name="T:Vuforia.WorldCenterTrackableBehaviour">
             <summary>
             This interface represents a TrackableBehaviour that can be set as the world center trackable
@@ -3593,6 +3725,11 @@
             Returns the size (width and height) of the target (in 3D scene units).
             </summary>
         </member>
+        <member name="M:Vuforia.CloudRecoImageTargetImpl.GetLargestSizeComponent">
+            <summary>
+            Returns the largets component of the target size.
+            </summary>
+        </member>
         <member name="M:Vuforia.CloudRecoImageTargetImpl.SetSize(UnityEngine.Vector3)">
             <summary>
             Sets the size (width and height) of the target (in 3D scene units).
@@ -3656,23 +3793,19 @@
             
             Build an Image Target Trackable Source from the next available camera frame.
             This is an asynchronous process, the result of which will be available from
-             getTrackableSource()
+            getTrackableSource()
             
             This method will return true if the build was successfully started, and false
-            if an invalid name or sceenSizeWidth is provided.
+            if an invalid name or screenSizeWidth is provided.
             </summary>
         </member>
         <member name="M:Vuforia.ImageTargetBuilder.StartScan">
             <summary>
             Start the scanning mode, allowing calls to getFrameQuality()
-            
-            Starts the internal frame scanning process, allowing calls to getFrameQuality()
             </summary>
         </member>
         <member name="M:Vuforia.ImageTargetBuilder.StopScan">
             <summary>
-            Stop the scanning mode
-            
             Stop the scanning mode, getFrameQuality will return FRAME_QUALITY_NONE until
             startScan is called again.  Stopping scan mode will reduce the overall system
             utilization when not building ImageTargets.
@@ -3949,7 +4082,7 @@
         </member>
         <member name="P:Vuforia.ObjectTracker.TargetFinder">
             <summary>
-            exposes the ImageTargetBuilder member to other classes
+            exposes the TargetFinder member to other classes
             </summary>
         </member>
         <member name="M:Vuforia.ObjectTrackerImpl.PersistExtendedTracking(System.Boolean)">
@@ -4028,6 +4161,11 @@
         <member name="M:Vuforia.MultiTargetImpl.GetSize">
             <summary>
             Returns the size  of the target (in 3D scene units).
+            </summary>
+        </member>
+        <member name="M:Vuforia.MultiTargetImpl.GetLargestSizeComponent">
+            <summary>
+            Returns the largets component of the target size.
             </summary>
         </member>
         <member name="M:Vuforia.MultiTargetImpl.SetSize(UnityEngine.Vector3)">
@@ -4153,6 +4291,13 @@
             The frame index of the current Vuforia state
             </summary>
         </member>
+        <member name="T:Vuforia.VuforiaManager.TrackableIdPair">
+            <summary>
+            We have to use two different types of ids in the queue for the world center.
+            We use this struct to distinguish between result-ids for VuMarks
+            and trackable-ids for all other trackables
+            </summary>
+        </member>
         <member name="M:Vuforia.VuforiaManagerImpl.Update(UnityEngine.ScreenOrientation,System.Boolean)">
             <summary>
             Process the camera image and tracking data for this frame.
@@ -4191,13 +4336,13 @@
             Update mTrakcableFoundQueue based on current list of trackable results
             </summary>
         </member>
-        <member name="M:Vuforia.VuforiaManagerImpl.UpdateTrackableFoundQueue(Vuforia.TrackableBehaviour.Status,Vuforia.VuforiaManagerImpl.IdPair)">
+        <member name="M:Vuforia.VuforiaManagerImpl.UpdateTrackableFoundQueue(Vuforia.TrackableBehaviour.Status,Vuforia.VuforiaManager.TrackableIdPair)">
             <summary>
             Update mTrackableFoundQueue with a new trackable. Depending on it's state the id
             is added or removed from the queue.
             </summary>
         </member>
-        <member name="M:Vuforia.VuforiaManagerImpl.GetTrackableResultData(Vuforia.VuforiaManagerImpl.IdPair,System.Boolean)">
+        <member name="M:Vuforia.VuforiaManagerImpl.GetTrackableResultData(Vuforia.VuforiaManager.TrackableIdPair,System.Boolean)">
             <summary>
             Get a trackable result by its id.
             VuMarks are optionally included, Words are not included
@@ -4208,6 +4353,15 @@
             Get first VuMark-behaviour from trackable queue for given vumark template id.
             </summary>
             <returns>first behaviour or null if no result exists</returns>
+        </member>
+        <member name="M:Vuforia.VuforiaManagerImpl.UpdateExtendedTrackedVuMarks">
+            <summary>
+            Update lists of currently tracked VuMark-results and new VuMark-targets
+            based on extended tracking manager. This is necessary if extended tracking
+            is done externally, e.g. by HoloLens
+            </summary>
+            Results, which are still extended tracked, are added to the results-array
+            and removed from the list of new VuMark-targets
         </member>
         <member name="P:Vuforia.VuforiaManagerImpl.Initialized">
             <summary>
@@ -4222,13 +4376,6 @@
         <member name="T:Vuforia.VuforiaManagerImpl.VuMarkTargetData">
             <summary>
             The basic data struct for an ImageTarget
-            </summary>
-        </member>
-        <member name="T:Vuforia.VuforiaManagerImpl.IdPair">
-            <summary>
-            We have to use two different types of ids in the queue for the world center.
-            We use this struct to distinguish between result-ids for VuMarks
-            and trackable-ids for all other trackables
             </summary>
         </member>
         <member name="T:Vuforia.VuforiaRenderer">
@@ -5635,7 +5782,7 @@
             Sets the enabled flag for TrackableBehaviours for a given Trackable
             </summary>
         </member>
-        <member name="M:Vuforia.StateManagerImpl.UpdateTrackablePoses(UnityEngine.Transform,Vuforia.VuforiaManagerImpl.TrackableResultData[],Vuforia.VuforiaManagerImpl.VuMarkTargetResultData[],Vuforia.VuforiaManagerImpl.IdPair,System.Int32)">
+        <member name="M:Vuforia.StateManagerImpl.UpdateTrackablePoses(UnityEngine.Transform,Vuforia.VuforiaManagerImpl.TrackableResultData[],Vuforia.VuforiaManagerImpl.VuMarkTargetResultData[],Vuforia.VuforiaManager.TrackableIdPair,System.Int32)">
             <summary>
             Method used to update poses of all active targets in the scene
             except words
@@ -6352,7 +6499,7 @@
         </member>
         <member name="M:Vuforia.VuforiaAbstractBehaviour.RegisterTrackablesUpdatedCallback(System.Action)">
             <summary>
-            Register for a callback that is invoked if Vuforia initialization fails.
+            Register for a callback that is invoked after the state of all trackables has been updated during a frame.
             More than one callback can be registered.
             </summary>
         </member>
