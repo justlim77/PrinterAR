@@ -80,7 +80,7 @@ namespace CopierAR
 
             RememberMeToggle.isOn = hasName;
 
-            Debug.Log(loginData.CName);
+            //Debug.Log(loginData.CName);
 
             return hasName;
         }

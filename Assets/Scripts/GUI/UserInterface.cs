@@ -591,7 +591,7 @@ namespace CopierAR
             userSession.LogoutOnQuit();
 
             // Close database connection if not yet done so
-            DBManager.Uninitialize();
+            //DBManager.Uninitialize();
         }
     }    
 }
