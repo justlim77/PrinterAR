@@ -27,6 +27,9 @@ namespace CopierAR
         public RectTransform contentPanel;
         public GameObject WelcomePanel;
 
+        [Header("Menu item to load on start")]
+        public MenuItem StartMenuItem = MenuItem.Welcome;
+
         [Header("Loading GIF")]
         public CanvasGroup loadingCanvasRenderer;
         public Animator loadingWheelAnimator;
@@ -44,7 +47,7 @@ namespace CopierAR
         public LocationView locationView;
 
         public GameObject AboutUsPanel;
-        public GameObject ContactUsPanel;
+        //public GameObject ContactUsPanel;
 
         [Header("Showcase")]
         public GameObject ShowcasePanel;
@@ -147,7 +150,7 @@ namespace CopierAR
 
             HideLoadingView();
 
-            LoadMenuItem(MenuItem.Welcome);
+            LoadMenuItem(StartMenuItem);
         }
 
         void ShowLoadingView()
@@ -396,13 +399,13 @@ namespace CopierAR
             LoadMenuItem(MenuItem.Showcase);
         }
 
-        private void SidePanel_OnContactButtonClicked(object arg1, string arg2)
-        {
-            ContactUsPanel.SetActive(true);
-            ContactUsPanel.transform.SetAsLastSibling();
-            UserBar.transform.SetAsLastSibling();
-            SidePanel.transform.SetAsLastSibling();
-        }
+        //private void SidePanel_OnContactButtonClicked(object arg1, string arg2)
+        //{
+        //    ContactUsPanel.SetActive(true);
+        //    ContactUsPanel.transform.SetAsLastSibling();
+        //    UserBar.transform.SetAsLastSibling();
+        //    SidePanel.transform.SetAsLastSibling();
+        //}
 
         private void SidePanel_OnAboutButtonClicked(object arg1, string arg2)
         {

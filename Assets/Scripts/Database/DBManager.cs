@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Data;
 using System.Data.SqlClient;
-using Mono.Data.Sqlite;
+//using Mono.Data.Sqlite;
 using I18N;
 using I18N.CJK;
 using I18N.Common;
@@ -35,6 +35,7 @@ namespace CopierAR
                 DBCONN = (SqlConnection)new SqlConnection(CONN_STRING);
                 try
                 {
+                    Debug.Log("Opening database...");
                     DBCONN.Open();
                     DBCommands.InitCommands();
                     Debug.Log("Database connection open");
@@ -99,11 +100,13 @@ namespace CopierAR
                 SqlTransaction transaction = DBCONN.BeginTransaction(IsolationLevel.Serializable);
                 if (dbEvent(ref transaction))
                 {
+                    Debug.Log("Committing db transaction...");
                     transaction.Commit();
                     result = true;
                 }
                 else
                 {
+                    Debug.Log("Db transaction failed: Rolling back...");
                     transaction.Rollback();
                 }
             }
@@ -175,7 +178,7 @@ namespace CopierAR
 
                         int ordName = reader.GetOrdinal("CName");
                         int ordPwd = reader.GetOrdinal("CPwd");
-                        Debug.Log(string.Format("ordName: {0}, ordPwd: {1}", ordName, ordPwd));
+                        //Debug.Log(string.Format("ordName: {0}, ordPwd: {1}", ordName, ordPwd));
 
                         if (!reader.Read())
                             throw new InvalidOperationException("No records were returend");

@@ -25,9 +25,9 @@ namespace CopierAR
         private float m_loginTime = 0.0f;
 
         // Cached login data and DateTime
-        private LoginData m_loginData;
-        private RegistrationData m_registrationData;
-        private System.DateTime m_loginDateTime;
+        private LoginData m_loginData = new LoginData();
+        private RegistrationData m_registrationData = new RegistrationData();
+        private System.DateTime m_loginDateTime = new DateTime();
 
         // Use this for initialization
         void Start()

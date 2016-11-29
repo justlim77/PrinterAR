@@ -49,6 +49,7 @@ namespace CopierAR
         public static void InitCommands()
         {
             // TODO
+            Debug.Log("Initializing database commands...");
         }     
     }
 }
