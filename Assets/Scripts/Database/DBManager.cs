@@ -28,8 +28,10 @@ namespace CopierAR
 
         static SqlConnection DBCONN = null;
 
-        public static void Initialize()
+        public static bool Initialize()
         {
+            bool result = false;
+
             if (DBCONN == null)
             {
                 DBCONN = (SqlConnection)new SqlConnection(CONN_STRING);
@@ -37,26 +39,29 @@ namespace CopierAR
                 {
                     Debug.Log("Opening database...");
                     DBCONN.Open();
-                    DBCommands.InitCommands();
+                    result = true;
+                    //DBCommands.InitCommands();
                     Debug.Log("Database connection open");
                     //DebugLog.Log("Database connection open");
                 }
                 catch (SqlException e)
                 {
-                    Debug.Log(e.Message);
+                    Debug.Log(string.Format("{0} | {1}", e.Message, e.StackTrace));
                     //DebugLog.Log(e.Message);
                 }
                 catch (UnityException e)
                 {
-                    Debug.Log(e.Message);
+                    Debug.Log(string.Format("{0} | {1}", e.Message, e.StackTrace));
                     //DebugLog.Log(e.Message);
                 }
                 catch (Exception e)
                 {
-                    Debug.Log(e.Message);
+                    Debug.Log(string.Format("{0} | {1}", e.Message, e.StackTrace));
                     //DebugLog.Log(e.Message);
                 }
             }
+
+            return result;
         }
 
         public static void Uninitialize()
