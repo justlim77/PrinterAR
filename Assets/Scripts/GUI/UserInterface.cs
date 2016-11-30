@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿#define WEBSERVICE
+
+using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 using CielaSpike;
@@ -170,17 +172,19 @@ namespace CopierAR
 
         IEnumerator ThreadedLogin()
         {
+#if DIRECT
             ShowLoadingView();
 
             // Threading approach:
             Task task;
             this.StartCoroutineAsync(m_loginService.SendLoginData(loginView.LoginData,
                 LoginResponseHandler), out task);
+
             yield return StartCoroutine(task.Wait());
 
             Debug.Log("[Threaded Login State] " + task.State);
 
-            yield return Ninja.JumpToUnity;
+            //yield return Ninja.JumpToUnity;
 
             HideLoadingView();
 
@@ -194,6 +198,24 @@ namespace CopierAR
             }
 
             yield return Ninja.JumpBack;
+#elif WEBSERVICE
+            ShowLoadingView();
+
+            // HTTP approach:
+            yield return StartCoroutine(m_loginService.SendLoginData(loginView.LoginData,
+                LoginResponseHandler));
+
+            HideLoadingView();
+
+            if (m_loginResponse.error == false)
+            {
+                loginView.Login(true);
+            }
+            else
+            {
+                loginView.ShowError(m_loginResponse);
+            }
+#endif
         }
 
         IEnumerator ThreadedRegistration()

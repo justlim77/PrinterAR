@@ -1,14 +1,20 @@
-﻿using UnityEngine;
+﻿#define WEBSERVICE
+
+using UnityEngine;
 using System.Collections;
 
 namespace CopierAR
 {
     public class LoginService
-    {     
+    {
+        const string WEBSERVICE_URL = "http://magesgp-001-site1.gtempurl.com/";
+        const string LOGIN_URL = "Login";
+
         public IEnumerator SendLoginData(LoginData loginData, System.Action<Response> responseHandler)
         {
             Response response = new Response();
 
+#if DIRECT
             // Check if user exists
             Debug.Log("Check for user " + loginData.CName);
             bool userExists = DBManager.CheckUserExists(loginData.CName);
@@ -47,17 +53,16 @@ namespace CopierAR
             responseHandler(response);
 
             yield break;
-
-            /*
-            Debug.Log(string.Format("Sending login request to {0}", LOGIN_URL));
+#elif WEBSERVICE            
+            Debug.Log(string.Format("Sending login request to {0}", WEBSERVICE_URL + LOGIN_URL));
 
             // Create form with username and password fields:
             WWWForm loginForm = new WWWForm();
-            loginForm.AddField("CUserID", loginData.username);
-            loginForm.AddField("CPwd", loginData.password);
+            loginForm.AddField("CName", loginData.CName);
+            loginForm.AddField("CPwd", loginData.CPwd);
 
             // Sending request:
-            WWW httpResponse = new WWW(LOGIN_URL, loginForm);
+            WWW httpResponse = new WWW(WEBSERVICE_URL + LOGIN_URL, loginForm);
 
             // Waiting for response:
             yield return httpResponse;
@@ -74,17 +79,25 @@ namespace CopierAR
                 // Successful response from server:
                 Debug.Log("Response received: " + httpResponse.text);
 
-                if (httpResponse.text == LOGIN_SUCCESS)
+                if (httpResponse.text == "True")
                 {
                     Debug.Log("Login successful");
                     response.error = false;
-                    response.message = "";
+                    response.responseType = ResponseType.Success;
+                    response.message = "Login successful";
+                }
+                else
+                {
+                    Debug.Log("User does not exist");
+                    response.error = true;
+                    response.responseType = ResponseType.InvalidUser;
+                    response.message = "User does not exist";
                 }
             }           
 
             // Calling response handler
             responseHandler(response);
-            */
+#endif
         }
     }
 }
