@@ -58,7 +58,7 @@ namespace CopierAR
         public UserBar UserBar;
 
         public float DefaultHorizontalPosition = -32.0f;
-        public float AboutPanelHorizontalPosition = -248.0f;
+        public float CenterHorizontalPosition = -248.0f;
 
         public static MenuItem menuItem
         {
@@ -343,7 +343,7 @@ namespace CopierAR
 
             LoadMenuItem(MenuItem.Sigin);
 
-            SetMainPanelHorizontal();
+            SetMainPanelHorizontal(CenterHorizontalPosition);
         }
 
         void OnDisable()
@@ -400,19 +400,11 @@ namespace CopierAR
             LoadMenuItem(MenuItem.Showcase);
         }
 
-        //private void SidePanel_OnContactButtonClicked(object arg1, string arg2)
-        //{
-        //    ContactUsPanel.SetActive(true);
-        //    ContactUsPanel.transform.SetAsLastSibling();
-        //    UserBar.transform.SetAsLastSibling();
-        //    SidePanel.transform.SetAsLastSibling();
-        //}
-
         private void SidePanel_OnAboutButtonClicked(object arg1, string arg2)
         {
             LoadMenuItem(MenuItem.About);
 
-            contentPanel.anchoredPosition = new Vector2(AboutPanelHorizontalPosition, m_InitialPanelPosition.y);
+            SetMainPanelHorizontal(DefaultHorizontalPosition);
         }
 
         private void SidePanel_OnProductButtonClicked(object arg1, string arg2)
@@ -425,13 +417,13 @@ namespace CopierAR
         private void UserBar_OnRegisterPressed(object arg1, string arg2)
         {
             LoadMenuItem(MenuItem.Register);
-            SetMainPanelHorizontal();
+            SetMainPanelHorizontal(CenterHorizontalPosition);
         }
 
         private void UserBar_OnSignInPressed(object arg1, string arg2)
         {
             LoadMenuItem(MenuItem.Sigin);
-            SetMainPanelHorizontal();
+            SetMainPanelHorizontal(CenterHorizontalPosition);
         }
 
         private void UserBar_OnSignedOut(object sender, string arg)
@@ -560,7 +552,7 @@ namespace CopierAR
                     ShowcasePanel.SetActive(false);
 
                     SidePanel.Initialize();
-                    SetMainPanelHorizontal(AboutPanelHorizontalPosition);
+                    SetMainPanelHorizontal(DefaultHorizontalPosition);
 
                     Header.text = "About Us";
                     break;
