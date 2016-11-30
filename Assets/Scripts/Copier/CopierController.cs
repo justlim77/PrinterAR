@@ -25,11 +25,7 @@ namespace CopierAR
 
         public void ShowPrintSpeed(string url)
         {
-#if UNITY_ANDROID || UNITY_EDITOR
             Application.OpenURL(url);
-#elif UNITY_IOS
-            Handheld.PlayFullScreenMovie(url);
-#endif
         }
 
         public void AnimateScanner()
