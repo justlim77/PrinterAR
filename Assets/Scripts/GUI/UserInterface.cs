@@ -57,7 +57,8 @@ namespace CopierAR
 
         public UserBar UserBar;
 
-        public float AboutPanelHorizontalPosition = 162.0f;
+        public float DefaultHorizontalPosition = -32.0f;
+        public float AboutPanelHorizontalPosition = -248.0f;
 
         public static MenuItem menuItem
         {

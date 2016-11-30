@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Data;
 using System.Data.SqlClient;
-//using Mono.Data.Sqlite;
 using I18N;
 using I18N.CJK;
 using I18N.Common;
