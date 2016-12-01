@@ -6,11 +6,28 @@
         <namespace fullname="Vuforia" preserve="all"/>
     </assembly>
     <assembly fullname="System">
-        <namespace fullname="System.Runtime.InteropServices" preserve="all"/>
+		<namespace fullname="System.Runtime.InteropServices" preserve="all"/>
         <namespace fullname="System.Collections.Generic;" preserve="all"/>
         <namespace fullname="System.Linq;" preserve="all"/>
         <namespace fullname="System.Text.RegularExpressions;" preserve="all"/>
         <namespace fullname="System.IO;" preserve="all"/>
         <namespace fullname="System;" preserve="all"/>
     </assembly>
+<!--        <type fullname="System.Net.Configuration.WebRequestModuleHandler" preserve="all"/>
+       	<type fullname="System.Net.HttpRequestCreator" preserve="all"/>
+       	<type fullname="System.Net.FileWebRequestCreator" preserve="all"/>-->
+<!--    </assembly>
+    <assembly fullname="System.Web.Services">
+       	<type fullname="System.Web.Services.Protocols.SoapTypeStubInfo" preserve="all"/>
+       	<type fullname="System.Web.Services.Configuration.WebServicesConfigurationSectionHandler" preserve="all"/>
+   	</assembly>-->
+<!--   	<assembly fullname="mscorlib">
+	   	<type fullname="System.AppDomain" preserve="fields"/>
+	   	<type fullname="System.InvalidOperationException" preserve="fields">
+       		<method signature="System.Void .ctor()"/>
+	   	</type>
+	   	<type fullname="System.Object" preserve="nothing">
+          	<method name="Finalize"/>
+   		</type>
+	</assembly>-->
 </linker>
