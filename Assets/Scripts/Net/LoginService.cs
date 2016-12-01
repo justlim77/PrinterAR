@@ -7,7 +7,6 @@ namespace CopierAR
 {
     public class LoginService
     {
-        const string WEBSERVICE_URL = "http://magesgp-001-site1.gtempurl.com/";
         const string LOGIN_URL = "Login";
 
         public IEnumerator SendLoginData(LoginData loginData, System.Action<Response> responseHandler)
@@ -54,7 +53,7 @@ namespace CopierAR
 
             yield break;
 #elif WEBSERVICE            
-            Debug.Log(string.Format("Sending login request to {0}", WEBSERVICE_URL + LOGIN_URL));
+            Debug.Log(string.Format("Sending login request to {0}", Constants.WEBSERVICE_URL + LOGIN_URL));
 
             // Create form with username and password fields:
             WWWForm loginForm = new WWWForm();
@@ -62,7 +61,7 @@ namespace CopierAR
             loginForm.AddField("CPwd", loginData.CPwd);
 
             // Sending request:
-            WWW httpResponse = new WWW(WEBSERVICE_URL + LOGIN_URL, loginForm);
+            WWW httpResponse = new WWW(Constants.WEBSERVICE_URL + LOGIN_URL, loginForm);
 
             // Waiting for response:
             yield return httpResponse;
@@ -73,30 +72,37 @@ namespace CopierAR
                 Debug.Log("Error: " + httpResponse.error);
                 response.error = true;
                 response.message = httpResponse.error;
+                response.responseType = ResponseType.FailedToConnect;
+
+                responseHandler(response);
+                yield break;    // End
             }
             else
             {
                 // Successful response from server:
                 Debug.Log("Response received: " + httpResponse.text);
 
-                if (httpResponse.text == "True")
-                {
-                    Debug.Log("Login successful");
-                    response.error = false;
-                    response.responseType = ResponseType.Success;
-                    response.message = "Login successful";
-                }
-                else
+                if (httpResponse.text == "False")
                 {
                     Debug.Log("User does not exist");
                     response.error = true;
                     response.responseType = ResponseType.InvalidUser;
                     response.message = "User does not exist";
-                }
-            }           
 
-            // Calling response handler
-            responseHandler(response);
+                    responseHandler(response);
+                    yield break;    // End
+                }
+                // Continue if user exists
+                else
+                {
+                    Debug.Log("User exists");
+                    response.error = false;
+                    response.responseType = ResponseType.Success;
+                    response.message = "User exists";
+
+
+                }
+            }
 #endif
         }
     }

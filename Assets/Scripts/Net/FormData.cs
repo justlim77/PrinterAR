@@ -72,7 +72,8 @@
         IncorrectPassword,
         UserAlreadyExists,
         InvalidPostalCode,
-        RegistrationFailed
+        RegistrationFailed,
+        FailedToConnect
     }
 
     public class Response
