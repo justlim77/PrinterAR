@@ -8,6 +8,7 @@ namespace CopierAR
     public class LoginService
     {
         const string LOGIN_URL = "Login";
+        const string VALIDATE_CREDS_URL = "ValidateCreds";
 
         public IEnumerator SendLoginData(LoginData loginData, System.Action<Response> responseHandler)
         {
@@ -100,7 +101,48 @@ namespace CopierAR
                     response.responseType = ResponseType.Success;
                     response.message = "User exists";
 
+                    loginForm = new WWWForm();
+                    loginForm.AddField("CName", loginData.CName);
 
+                    Debug.Log("Sending validateCreds HTTP POST to " + Constants.WEBSERVICE_URL + VALIDATE_CREDS_URL);
+                    httpResponse = new WWW(Constants.WEBSERVICE_URL + VALIDATE_CREDS_URL, loginForm);
+                    yield return httpResponse;
+
+                    if (httpResponse.error != null)
+                    {
+                        // Encountering error response from server:
+                        Debug.Log("Error: " + httpResponse.error);
+                        response.error = true;
+                        response.message = httpResponse.error;
+                        response.responseType = ResponseType.FailedToConnect;
+
+                        responseHandler(response);
+                        yield break;    // End
+                    }
+                    else
+                    {
+                        // Response received
+                        Debug.Log("Response received: " + httpResponse.text);
+
+                        RegistrationData rd = JsonUtility.FromJson<RegistrationData>(httpResponse.text);
+                        Debug.Log(string.Format("DB {0}'s {1} vs user {2} PWD", rd.CName, rd.CPwd, loginData.CPwd));
+                        if (rd.CPwd == loginData.CPwd)
+                        {
+                            response.error = false;
+                            response.message = "Login success";
+                            response.responseType = ResponseType.Success;
+                        }
+                        else
+                        {
+                            // Wrong password
+                            response.error = true;
+                            response.message = "Incorrect password";
+                            response.responseType = ResponseType.IncorrectPassword;
+                        }
+
+                        // Calling response handler
+                        responseHandler(response);
+                    }
                 }
             }
 #endif
