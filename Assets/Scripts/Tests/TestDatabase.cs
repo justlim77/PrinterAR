@@ -15,13 +15,13 @@ public class TestDatabase : MonoBehaviour
 
         queryButton.onClick.AddListener(() =>
         {
-            bool result = CopierAR.DBManager.Initialize();
+            bool result = false;// CopierAR.DBManager.Initialize();
             Debug.Log("Database connection: " + result);
         });
 
         closeButton.onClick.AddListener(() =>
         {
-            CopierAR.DBManager.Uninitialize();
+            //CopierAR.DBManager.Uninitialize();
             Debug.Log("Database connection: Closed");
         });
     }

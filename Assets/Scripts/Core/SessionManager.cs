@@ -5,9 +5,8 @@ namespace CopierAR
 {
     public static class SessionManager
     {
-        static Session _session = null;
-
-        private static Session session
+        private static Session _session = null;
+        public static Session Session
         {
             get
             {
@@ -20,6 +19,7 @@ namespace CopierAR
             }
         }
 
+        #region Deprecated methods
         public static bool InsertSalesInfoData()
         {
             if (!UserSession.IsLoggedIn())
@@ -28,7 +28,7 @@ namespace CopierAR
                 return false;
             }
 
-            bool result = DBManager.InsertSalesInfo(session.SalesInfoData);
+            bool result = false;// DBManager.InsertSalesInfo(Session.SalesInfoData);
 
             string message = result ? "successful" : "failed";
             Debug.Log(string.Format("Inserting sales info data {0}", message));
@@ -38,36 +38,37 @@ namespace CopierAR
 
             return result;
         }
+        #endregion
 
         public static void UpdateSName(string SName)
         {
-            session.SalesInfoData.SName = SName;
+            Session.SalesInfoData.SName = SName;
         }
         public static void UpdatePostalCod(string PostalCod)
         {
             decimal postalCode = System.Convert.ToDecimal(PostalCod);
-            session.SalesInfoData.PostalCod = postalCode;
+            Session.SalesInfoData.PostalCod = postalCode;
         }
         public static void UpdateLoginTime(System.DateTime LoginTime)
         {
-            session.SalesInfoData.LoginTime = LoginTime;
+            Session.SalesInfoData.LoginTime = LoginTime;
         }
         public static void UpdatePhotoCopierModel(string PhotoCopierModel)
         {
-            session.SalesInfoData.PhotoCopierModel = PhotoCopierModel;
+            Session.SalesInfoData.PhotoCopierModel = PhotoCopierModel;
         }
         public static void UpdateDemoDuration(string DemoDuration)
         {
-            session.SalesInfoData.DemoDuration = DemoDuration;
+            Session.SalesInfoData.DemoDuration = DemoDuration;
         }
         public static void UpdateFrequency(string Frequency)
         {
-            session.SalesInfoData.Frequency = Frequency;
+            Session.SalesInfoData.Frequency = Frequency;
         }
 
         public static void ClearSession()
         {
-            session.Clear();
+            Session.Clear();
         }
     }
 

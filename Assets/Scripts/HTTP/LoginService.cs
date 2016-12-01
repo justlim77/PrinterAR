@@ -7,9 +7,6 @@ namespace CopierAR
 {
     public class LoginService
     {
-        const string LOGIN_URL = "Login";
-        const string VALIDATE_CREDS_URL = "ValidateCreds";
-
         public IEnumerator SendLoginData(LoginData loginData, System.Action<Response> responseHandler)
         {
             Response response = new Response();
@@ -54,7 +51,7 @@ namespace CopierAR
 
             yield break;
 #elif WEBSERVICE            
-            Debug.Log(string.Format("Sending login request to {0}", Constants.WEBSERVICE_URL + LOGIN_URL));
+            Debug.Log(string.Format("Sending login request to {0}", Constants.LOGIN_URL));
 
             // Create form with username and password fields:
             WWWForm loginForm = new WWWForm();
@@ -62,7 +59,7 @@ namespace CopierAR
             loginForm.AddField("CPwd", loginData.CPwd);
 
             // Sending request:
-            WWW httpResponse = new WWW(Constants.WEBSERVICE_URL + LOGIN_URL, loginForm);
+            WWW httpResponse = new WWW(Constants.LOGIN_URL, loginForm);
 
             // Waiting for response:
             yield return httpResponse;
@@ -104,8 +101,8 @@ namespace CopierAR
                     loginForm = new WWWForm();
                     loginForm.AddField("CName", loginData.CName);
 
-                    Debug.Log("Sending validateCreds HTTP POST to " + Constants.WEBSERVICE_URL + VALIDATE_CREDS_URL);
-                    httpResponse = new WWW(Constants.WEBSERVICE_URL + VALIDATE_CREDS_URL, loginForm);
+                    Debug.Log("Sending validateCreds HTTP POST to " + Constants.VALIDATE_CREDS_URL);
+                    httpResponse = new WWW(Constants.VALIDATE_CREDS_URL, loginForm);
                     yield return httpResponse;
 
                     if (httpResponse.error != null)

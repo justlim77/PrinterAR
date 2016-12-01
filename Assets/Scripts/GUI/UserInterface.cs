@@ -3,9 +3,12 @@
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using System;
+
+#if DIRECT
 using CielaSpike;
 using System.Threading;
-using System;
+#endif
 
 namespace CopierAR
 {
@@ -220,6 +223,7 @@ namespace CopierAR
 
         IEnumerator ThreadedRegistration()
         {
+#if DIRECT
             ShowLoadingView();
 
             // Threading approach:
@@ -244,10 +248,28 @@ namespace CopierAR
             }
 
             yield return Ninja.JumpBack;
+#elif WEBSERVICE
+            ShowLoadingView();
+
+            yield return StartCoroutine(m_registrationService.SendRegistrationData(registrationView.registrationData,
+                RegistrationResponseHandler));
+
+            HideLoadingView();
+
+            if (m_registrationResponse.error == false)
+            {
+                registrationView.Register(true);
+            }
+            else
+            {
+                registrationView.ShowError(m_registrationResponse);
+            }
+#endif
         }
 
         IEnumerator ThreadedLocation()
         {
+#if DIRECT
             ShowLoadingView();
 
             // Threading approach:
@@ -272,10 +294,29 @@ namespace CopierAR
             }
 
             yield return Ninja.JumpBack;
+#elif WEBSERVICE
+            ShowLoadingView();
+
+            // Location HTTP POST approach:
+            yield return StartCoroutine(m_locationService.SendLocationData(locationView.locationData,
+                LocationResponseHandler));
+
+            HideLoadingView();
+
+            if (m_locationResponse.error == false)
+            {
+                locationView.SelectLocation(true);
+            }
+            else
+            {
+                locationView.ShowError(m_locationResponse);
+            }
+#endif
         }
 
         IEnumerator ThreadedInsert()
         {
+#if DIRECT
             ShowLoadingView();
 
             // Threading approach:
@@ -300,6 +341,9 @@ namespace CopierAR
             }
 
             yield return Ninja.JumpBack;
+#elif WEBSERVICE
+            yield return null;
+#endif
         }
 
         void OnEnable()

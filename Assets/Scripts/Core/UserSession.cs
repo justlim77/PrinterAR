@@ -1,8 +1,13 @@
-﻿using UnityEngine;
+﻿#define WEBSERVICE
+
+using UnityEngine;
 using System.Collections;
-using CielaSpike;
 using System;
+
+#if DIRECT
+using CielaSpike;
 using System.Threading;
+#endif
 
 namespace CopierAR
 {
@@ -28,6 +33,9 @@ namespace CopierAR
         private LoginData m_loginData = new LoginData();
         private RegistrationData m_registrationData = new RegistrationData();
         private System.DateTime m_loginDateTime = new DateTime();
+
+        private SalesInfoService m_salesInfoService = new SalesInfoService();
+        private Response m_salesInfoResponse;
 
         // Use this for initialization
         void Start()
@@ -189,22 +197,46 @@ namespace CopierAR
             SessionManager.UpdateDemoDuration(mdf.DemoDurationString);
             SessionManager.UpdateFrequency(mdf.FrequencyString);
 
+            if (!IsLoggedIn())
+            {
+                SessionManager.ClearSession();
+                yield break;
+            }
+#if DIRECT
             Task task;
             this.StartCoroutineAsync(ThreadedInsertInfo(), out task);
             yield return StartCoroutine(task.Wait());
             Debug.Log("[User Session Logout State] " + task.State);
+#elif WEBSERVICE
+            // Insert sales info row with HTTP POST approach:
+            yield return StartCoroutine(m_salesInfoService.SendSalesInfo(SessionManager.Session.SalesInfoData,
+                SalesInfoResponseHandler));
+#endif
+            Debug.Log(string.Format("{0}: {1}", m_salesInfoResponse.responseType.ToString(), m_salesInfoResponse.message));
 
             m_isLoggedIn = false;
             m_cachedTimeStamp = 0;
 
+            SessionManager.ClearSession();
+
+#if DIRECT
             yield return Ninja.JumpToUnity;
             ModelViewer.Instance.Initialize();
             yield return Ninja.JumpBack;
-
+#elif WEBSERVICE
+            ModelViewer.Instance.Initialize();
+#endif
             if (OnLogoutEnded != null)
                 OnLogoutEnded(this, new System.EventArgs() { });
 
             m_isLoggingOut = false;
+        }
+
+        void SalesInfoResponseHandler(Response response)
+        {
+            Debug.Log(string.Format("Inserting sales info | Error: {0} | Message: {1}", response.error, response.message));
+
+            m_salesInfoResponse = response;
         }
 
         IEnumerator ThreadedInsertInfo()
