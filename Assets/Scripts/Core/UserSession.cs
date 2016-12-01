@@ -200,6 +200,12 @@ namespace CopierAR
             if (!IsLoggedIn())
             {
                 SessionManager.ClearSession();
+
+                if (OnLogoutEnded != null)
+                    OnLogoutEnded(this, new System.EventArgs() { });
+
+                m_isLoggingOut = false;
+
                 yield break;
             }
 #if DIRECT
