@@ -197,7 +197,7 @@ PlayerSettings:
   AndroidTargetDevice: 3
   AndroidSplashScreenScale: 0
   androidSplashScreen: {fileID: 0}
-  AndroidKeystoreName: C:/Users/justl/Documents/GitHub/PrinterAR/Keystores/mages_copier.keystore
+  AndroidKeystoreName: E:/Users/Admin/Documents/Unity Projects/PrinterAR/Keystores/mages_copier.keystore
   AndroidKeyaliasName: copier
   AndroidTVCompatibility: 0
   AndroidIsGame: 0

@@ -7,7 +7,7 @@ EditorBuildSettings:
   m_Scenes:
   - enabled: 1
     path: Assets/Scenes/CopierAR-0-Main.unity
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CopierAR-Test-0-Database.unity
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/CopierAR-Test-1-ImageTracking.unity
