@@ -2,9 +2,9 @@
 {
     public static string SAVED_NAME_PREF_KEY = "SAVED_NAME";
 
-    //const string WEBSERVICE_URL = "http://magesgp-001-site1.gtempurl.com/";
-    const string WEBSERVICE_URL = "http://magesdev-001-site1.itempurl.com/";
-    //const string WEBSERVICE_URL = "http://66.96.194.225:8000/Copier/";
+    //const string WEBSERVICE_URL = "http://magesgp-001-site1.gtempurl.com/"; // Expired on 2017/01/05
+    //const string WEBSERVICE_URL = "http://magesdev-001-site1.itempurl.com/"; // Expiring on 2017/03/17
+    const string WEBSERVICE_URL = "http://66.96.194.225:8000/Copier/"; // iOOSH domain
 
 
     public const string LOGIN_URL = WEBSERVICE_URL + "Login";
