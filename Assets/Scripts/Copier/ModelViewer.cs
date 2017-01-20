@@ -80,7 +80,7 @@ namespace CopierAR
             }
         }
 
-        public List<Copier> CopierList = new List<Copier>();
+        public static List<Copier> CopierList = new List<Copier>();
         public List<GameObject> ModelList = new List<GameObject>();
         public List<CopierController> ControllerList = new List<CopierController>();
         public List<ModelsDuraFreq> ModelDuraFreqList = new List<ModelsDuraFreq>();
@@ -89,7 +89,10 @@ namespace CopierAR
         //public static Dictionary<CopierSeries, GameObject> ShowcaseObjectList = new Dictionary<CopierSeries, GameObject>();
 
         private int m_viewIndex = 0;
+        public int GetCurrentViewIndex() { return m_viewIndex; }
         private int m_previousIndex = 0;
+
+        private static ModelsDuraFreq m_modelDuraFreq = new ModelsDuraFreq();
 
         public CopierTrackableEventHandler CopierTrackableEventHandler;
 
@@ -153,6 +156,7 @@ namespace CopierAR
             ModelDataList.Clear();
             //ShowcaseGroupList.Clear();
             //ShowcaseObjectList.Clear();
+            m_modelDuraFreq = new ModelsDuraFreq();
 
             // Initialize dictionaries
             for (int i = 0; i < CopierDatabase.copiers.Length; i++)
@@ -268,7 +272,14 @@ namespace CopierAR
             if (m_previousIndex != -1)
             {
                 StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
-            }
+
+                m_modelDuraFreq = GetModelDuraFrequency(m_previousIndex);
+
+                // Reset demo duration time
+                m_modelDuraFreq.DemoDuration = 0;
+                // Send insert command
+
+            }           
 
             // Hide models
             foreach (GameObject model in ModelList)
@@ -308,7 +319,8 @@ namespace CopierAR
                 OnModelSelected(this, new ModelSelectedEventArgs
                 {
                     Copier = CopierList[index],
-                    ModelFrequency = GetModelFrequency()
+                    //ModelFrequency = GetModelFrequency()                    
+                    ModelFrequency = m_modelDuraFreq
                 });
             }
 
@@ -398,6 +410,28 @@ namespace CopierAR
             return mdf;
         }
 
+        public static ModelsDuraFreq GetModelDuraFrequency(int index)
+        {
+            ModelsDuraFreq mdf = new ModelsDuraFreq();
+
+            //string models = "";
+            //string demoDurations = "";
+            //string frequencies = "";
+
+            //foreach (ModelsDuraFreq _mdf in ModelDataList.Values)
+            //{
+            //    models += string.Format("{0} ", _mdf.Model);
+            //    demoDurations += string.Format("{0} ", Converter.ToMinutesAndSeconds((int)_mdf.DemoDuration));
+            //    frequencies += string.Format("{0} ", _mdf.Frequency);
+            //}
+
+            mdf.ModelString = CopierList[index].CopierName;
+            mdf.DemoDurationString = Converter.ToMinutesAndSeconds((int)m_modelDuraFreq.DemoDuration);
+            mdf.FrequencyString = "1";  // Hard-coded value
+
+            return mdf;
+        }
+
         private void DisplayRenderers(Renderer[] renderers, bool value)
         {
             foreach (var rend in renderers)
@@ -412,6 +446,7 @@ namespace CopierAR
             if (UserInterface.IsDemoing())
             {
                 ModelDuraFreqList[m_viewIndex].DemoDuration += Time.deltaTime;
+                m_modelDuraFreq.DemoDuration += Time.deltaTime;
             }
 
             if (CopierTrackableEventHandler.isActiveAndEnabled)

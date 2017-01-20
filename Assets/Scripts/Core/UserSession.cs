@@ -86,6 +86,24 @@ namespace CopierAR
 
         private void ModelViewer_OnModelSelected(object sender, ModelSelectedEventArgs args)
         {
+            if (args.ModelFrequency.ModelString == "")
+                return;
+
+            SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.ModelString);
+            SessionManager.UpdateDemoDuration(args.ModelFrequency.DemoDurationString);
+            SessionManager.UpdateFrequency(args.ModelFrequency.FrequencyString);
+
+            StartCoroutine(InsertSalesInfo());
+        }
+
+        IEnumerator InsertSalesInfo()
+        {
+#if WEBSERVICE
+            // Insert sales info row with HTTP POST approach:
+            yield return StartCoroutine(m_salesInfoService.SendSalesInfo(SessionManager.Session.SalesInfoData,
+                SalesInfoResponseHandler));
+#endif
+            Debug.Log(string.Format("{0}: {1}", m_salesInfoResponse.responseType.ToString(), m_salesInfoResponse.message));
 
         }
 
@@ -191,11 +209,15 @@ namespace CopierAR
             if (OnLogoutStarted != null)
                 OnLogoutStarted(this, new System.EventArgs() { });
 
-            //SessionManager.UpdateDemoDuration(GetDemoDuration());
-            ModelsDuraFreq mdf = ModelViewer.GetModelFrequency();
-            SessionManager.UpdatePhotoCopierModel(mdf.ModelString);
-            SessionManager.UpdateDemoDuration(mdf.DemoDurationString);
-            SessionManager.UpdateFrequency(mdf.FrequencyString);
+            if (UserInterface.IsDemoing())
+            {
+                //SessionManager.UpdateDemoDuration(GetDemoDuration());
+                ModelsDuraFreq mdf = ModelViewer.GetModelDuraFrequency(ModelViewer.Instance.GetCurrentViewIndex());
+
+                SessionManager.UpdatePhotoCopierModel(mdf.ModelString);
+                SessionManager.UpdateDemoDuration(mdf.DemoDurationString);
+                SessionManager.UpdateFrequency(mdf.FrequencyString);
+            }
 
             if (!IsLoggedIn())
             {
@@ -215,8 +237,11 @@ namespace CopierAR
             Debug.Log("[User Session Logout State] " + task.State);
 #elif WEBSERVICE
             // Insert sales info row with HTTP POST approach:
-            yield return StartCoroutine(m_salesInfoService.SendSalesInfo(SessionManager.Session.SalesInfoData,
-                SalesInfoResponseHandler));
+            if (SessionManager.Session.SalesInfoData.PhotoCopierModel != "")
+            {
+                yield return StartCoroutine(m_salesInfoService.SendSalesInfo(SessionManager.Session.SalesInfoData,
+                    SalesInfoResponseHandler));
+            }
 #endif
             Debug.Log(string.Format("{0}: {1}", m_salesInfoResponse.responseType.ToString(), m_salesInfoResponse.message));
 
