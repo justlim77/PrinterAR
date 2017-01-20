@@ -17,6 +17,7 @@ namespace CopierAR
     {
         public Copier Copier;
         public ModelsDuraFreq ModelFrequency;
+        public bool UpdateDB;
     }
 
     public class ViewModeChangedEventArgs : System.EventArgs
@@ -43,6 +44,11 @@ namespace CopierAR
             ModelString = "";
             DemoDurationString = "";
             FrequencyString = "";
+        }
+
+        public override string ToString()
+        {
+            return string.Format("{0}, {1}, {2}", ModelString, DemoDurationString, FrequencyString);
         }
     }
 
@@ -235,7 +241,8 @@ namespace CopierAR
             ModelGroup.transform.parent = null;
             ShowcaseCamera.enabled = true;
 
-            ShowCurrentModel();
+            //ShowCurrentModel();
+            SelectModel(m_viewIndex, false);
         }
 
         public void LifeScale()
@@ -244,7 +251,9 @@ namespace CopierAR
             ModelGroup.transform.parent = LifeScaleParent;
             ShowcaseCamera.enabled = false;
 
-            ShowCurrentModel();
+            //ShowCurrentModel();
+            SelectModel(m_viewIndex, false);
+
         }
 
         public void NextModel()
@@ -266,19 +275,27 @@ namespace CopierAR
             SelectModel(m_viewIndex);
         }
 
-        private void SelectModel(int index)
+        public bool IsDifferentModelSelected()
         {
-            // Reset previous model
+            return m_viewIndex != m_previousIndex;
+        }
+
+        private void SelectModel(int index, bool updateDB = true)
+        {
+            // If previous model exists, reset previous model
             if (m_previousIndex != -1)
             {
                 StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
 
                 m_modelDuraFreq = GetModelDuraFrequency(m_previousIndex);
+                Debug.Log(string.Format("MDF: {0} {1}", m_modelDuraFreq.ModelString, m_modelDuraFreq.DemoDurationString));
 
-                // Reset demo duration time
-                m_modelDuraFreq.DemoDuration = 0;
-                // Send insert command
-
+                // Reset demo duration time if viewing different model
+                if (m_viewIndex != m_previousIndex)
+                {
+                    Debug.Log("Resetting demo duration to 0");
+                    m_modelDuraFreq.DemoDuration = 0;
+                }
             }           
 
             // Hide models
@@ -320,7 +337,8 @@ namespace CopierAR
                 {
                     Copier = CopierList[index],
                     //ModelFrequency = GetModelFrequency()                    
-                    ModelFrequency = m_modelDuraFreq
+                    ModelFrequency = m_modelDuraFreq,
+                    UpdateDB = updateDB
                 });
             }
 
@@ -426,6 +444,7 @@ namespace CopierAR
             //}
 
             mdf.ModelString = CopierList[index].CopierName;
+            mdf.DemoDuration = m_modelDuraFreq.DemoDuration;
             mdf.DemoDurationString = Converter.ToMinutesAndSeconds((int)m_modelDuraFreq.DemoDuration);
             mdf.FrequencyString = "1";  // Hard-coded value
 

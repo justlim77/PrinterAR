@@ -122,7 +122,7 @@ namespace CopierAR
                         Debug.Log("Response received: " + httpResponse.text);
 
                         RegistrationData rd = JsonUtility.FromJson<RegistrationData>(httpResponse.text);
-                        Debug.Log(string.Format("DB {0}'s {1} vs user {2} PWD", rd.CName, rd.CPwd, loginData.CPwd));
+                        //Debug.Log(string.Format("DB {0}'s {1} vs user {2} PWD", rd.CName, rd.CPwd, loginData.CPwd));
                         if (rd.CPwd == loginData.CPwd)
                         {
                             response.error = false;

@@ -200,7 +200,7 @@ namespace CopierAR
             // Check for required fields
             if (!isValid || !success)
             {
-                Debug.Log(string.Format("{0},{1}", loginData.CName, loginData.CPwd));
+                //Debug.Log(string.Format("{0},{1}", loginData.CName, loginData.CPwd));
                 return;
             }
 

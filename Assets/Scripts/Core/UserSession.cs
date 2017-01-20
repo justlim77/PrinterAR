@@ -86,8 +86,10 @@ namespace CopierAR
 
         private void ModelViewer_OnModelSelected(object sender, ModelSelectedEventArgs args)
         {
-            if (args.ModelFrequency.ModelString == "")
+            if (args.ModelFrequency.ModelString == "" || args.UpdateDB == false)
                 return;
+
+            Debug.Log("Updating on model selected: " + args.ModelFrequency.ToString());
 
             SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.ModelString);
             SessionManager.UpdateDemoDuration(args.ModelFrequency.DemoDurationString);
@@ -213,6 +215,8 @@ namespace CopierAR
             {
                 //SessionManager.UpdateDemoDuration(GetDemoDuration());
                 ModelsDuraFreq mdf = ModelViewer.GetModelDuraFrequency(ModelViewer.Instance.GetCurrentViewIndex());
+
+                Debug.Log("Logging out with: " + mdf.ToString());
 
                 SessionManager.UpdatePhotoCopierModel(mdf.ModelString);
                 SessionManager.UpdateDemoDuration(mdf.DemoDurationString);
