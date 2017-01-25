@@ -40,7 +40,7 @@ namespace CopierAR
             form.AddField("PostalCod", salesData.PostalCod.ToString());
             form.AddField("LoginTime", salesData.LoginTime.ToString());
             form.AddField("PhotoCopierModel", salesData.PhotoCopierModel);
-            form.AddField("DemoDuration", salesData.DemoDuration);
+            form.AddField("DemoDuration", salesData.DemoDuration.ToString());
             form.AddField("Frequency", salesData.Frequency);
 
             // Sending request:

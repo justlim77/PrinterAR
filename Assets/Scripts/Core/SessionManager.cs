@@ -57,11 +57,11 @@ namespace CopierAR
         {
             Session.SalesInfoData.PhotoCopierModel = PhotoCopierModel;
         }
-        public static void UpdateDemoDuration(string DemoDuration)
+        public static void UpdateDemoDuration(System.DateTime DemoDuration)
         {
             Session.SalesInfoData.DemoDuration = DemoDuration;
         }
-        public static void UpdateFrequency(string Frequency)
+        public static void UpdateFrequency(int Frequency)
         {
             Session.SalesInfoData.Frequency = Frequency;
         }

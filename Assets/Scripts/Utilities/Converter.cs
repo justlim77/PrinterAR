@@ -15,4 +15,11 @@ public static class Converter
             timeSpan.Minutes,
             timeSpan.Seconds);        
     }
+
+    public static TimeSpan ToTimeSpanInMinsAndSecs(int seconds)
+    {
+        TimeSpan timeSpan = new TimeSpan(0, 0, seconds);
+        return timeSpan;
+    }
+
 }

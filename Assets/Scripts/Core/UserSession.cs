@@ -86,14 +86,14 @@ namespace CopierAR
 
         private void ModelViewer_OnModelSelected(object sender, ModelSelectedEventArgs args)
         {
-            if (args.ModelFrequency.ModelString == "" || args.UpdateDB == false)
+            if (args.ModelFrequency.Model == "" || args.UpdateDB == false)
                 return;
 
             Debug.Log("Updating on model selected: " + args.ModelFrequency.ToString());
 
-            SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.ModelString);
-            SessionManager.UpdateDemoDuration(args.ModelFrequency.DemoDurationString);
-            SessionManager.UpdateFrequency(args.ModelFrequency.FrequencyString);
+            SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.Model);
+            SessionManager.UpdateDemoDuration(args.ModelFrequency.DemoDuration);
+            SessionManager.UpdateFrequency(args.ModelFrequency.Frequency);
 
             StartCoroutine(InsertSalesInfo());
         }
@@ -218,9 +218,9 @@ namespace CopierAR
 
                 Debug.Log("Logging out with: " + mdf.ToString());
 
-                SessionManager.UpdatePhotoCopierModel(mdf.ModelString);
-                SessionManager.UpdateDemoDuration(mdf.DemoDurationString);
-                SessionManager.UpdateFrequency(mdf.FrequencyString);
+                SessionManager.UpdatePhotoCopierModel(mdf.Model);
+                SessionManager.UpdateDemoDuration(mdf.DemoDuration);
+                SessionManager.UpdateFrequency(mdf.Frequency);
             }
 
             if (!IsLoggedIn())

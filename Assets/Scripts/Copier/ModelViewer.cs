@@ -28,27 +28,27 @@ namespace CopierAR
     public class ModelsDuraFreq
     {
         public string Model;
-        public float DemoDuration;
+        public DateTime DemoDuration;
         public int Frequency;
 
-        public string ModelString;
-        public string DemoDurationString;
-        public string FrequencyString;
+        //public string ModelString;
+        //public string DemoDurationString;
+        //public string FrequencyString;
 
         public ModelsDuraFreq()
         {
             Model = "";
-            DemoDuration = 0;
+            DemoDuration = new DateTime();
             Frequency = 0;
 
-            ModelString = "";
-            DemoDurationString = "";
-            FrequencyString = "";
+            //ModelString = "";
+            //DemoDurationString = "";
+            //FrequencyString = "";
         }
 
         public override string ToString()
         {
-            return string.Format("{0}, {1}, {2}", ModelString, DemoDurationString, FrequencyString);
+            return string.Format("{0}, {1}, {2}", Model, DemoDuration, Frequency);
         }
     }
 
@@ -288,13 +288,14 @@ namespace CopierAR
                 StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
 
                 m_modelDuraFreq = GetModelDuraFrequency(m_previousIndex);
-                Debug.Log(string.Format("MDF: {0} {1}", m_modelDuraFreq.ModelString, m_modelDuraFreq.DemoDurationString));
+                Debug.Log(string.Format("MDF: {0} {1}", m_modelDuraFreq.Model, m_modelDuraFreq.DemoDuration));
 
                 // Reset demo duration time if viewing different model
                 if (m_viewIndex != m_previousIndex)
                 {
                     Debug.Log("Resetting demo duration to 0");
-                    m_modelDuraFreq.DemoDuration = 0;
+                    m_elapsedDemoDuration = 0.0f;
+                    m_modelDuraFreq.DemoDuration = new DateTime();
                 }
             }           
 
@@ -417,13 +418,13 @@ namespace CopierAR
             foreach (ModelsDuraFreq _mdf in ModelDataList.Values)
             {
                 models += string.Format("{0} ", _mdf.Model);
-                demoDurations += string.Format("{0} ", Converter.ToMinutesAndSeconds((int)_mdf.DemoDuration));
+                demoDurations += string.Format("{0} ", Converter.ToTimeSpanInMinsAndSecs((int)m_elapsedDemoDuration));
                 frequencies += string.Format("{0} ", _mdf.Frequency);
             }
 
-            mdf.ModelString = models;
-            mdf.DemoDurationString = demoDurations;
-            mdf.FrequencyString = frequencies;
+            //mdf.ModelString = models;
+            //mdf.DemoDurationString = demoDurations;
+            //mdf.FrequencyString = frequencies;
 
             return mdf;
         }
@@ -443,10 +444,11 @@ namespace CopierAR
             //    frequencies += string.Format("{0} ", _mdf.Frequency);
             //}
 
-            mdf.ModelString = CopierList[index].CopierName;
+            mdf.Model = CopierList[index].CopierName;
+            //TimeSpan timeSpan = Converter.ToTimeSpanInMinsAndSecs((int)m_elapsedDemoDuration);  // Unnecessary
+            m_modelDuraFreq.DemoDuration.AddSeconds(m_elapsedDemoDuration);
             mdf.DemoDuration = m_modelDuraFreq.DemoDuration;
-            mdf.DemoDurationString = Converter.ToMinutesAndSeconds((int)m_modelDuraFreq.DemoDuration);
-            mdf.FrequencyString = "1";  // Hard-coded value
+            mdf.Frequency = 1;  // Hard-coded value
 
             return mdf;
         }
@@ -459,13 +461,14 @@ namespace CopierAR
             }
         }
 
+        static float m_elapsedDemoDuration = 0.0f;
         void Update()
         {
             // Update frequency view count
             if (UserInterface.IsDemoing())
             {
-                ModelDuraFreqList[m_viewIndex].DemoDuration += Time.deltaTime;
-                m_modelDuraFreq.DemoDuration += Time.deltaTime;
+                //ModelDuraFreqList[m_viewIndex].DemoDuration += Time.deltaTime;
+                m_elapsedDemoDuration += Time.deltaTime;
             }
 
             if (CopierTrackableEventHandler.isActiveAndEnabled)

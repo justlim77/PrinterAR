@@ -50,9 +50,9 @@
         public string SName = "";
         public decimal PostalCod = 0;
         public System.DateTime? LoginTime = null;
-        public string PhotoCopierModel = "";        // Append models with comma (csv)
-        public string DemoDuration = "";
-        public string Frequency = "";               // Append frequency with comma (csv)
+        public string PhotoCopierModel = "";
+        public System.DateTime? DemoDuration = null;
+        public int Frequency = 0;
 
         public void Clear()
         {
@@ -61,8 +61,8 @@
             PostalCod = 0;
             LoginTime = null;
             PhotoCopierModel = "";
-            DemoDuration = "";
-            Frequency = "";
+            DemoDuration = null;
+            Frequency = 0;
         }
     }
     public enum ResponseType
