@@ -41,7 +41,7 @@ namespace CopierAR
             form.AddField("LoginTime", salesData.LoginTime.ToString());
             form.AddField("PhotoCopierModel", salesData.PhotoCopierModel);
             form.AddField("DemoDuration", salesData.DemoDuration.ToString());
-            form.AddField("Frequency", salesData.Frequency);
+            form.AddField("Frequency", salesData.Frequency.ToString());
 
             // Sending request:
             WWW www = new WWW(Constants.SALES_INFO_URL, form);

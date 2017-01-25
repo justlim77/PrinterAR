@@ -446,7 +446,8 @@ namespace CopierAR
 
             mdf.Model = CopierList[index].CopierName;
             //TimeSpan timeSpan = Converter.ToTimeSpanInMinsAndSecs((int)m_elapsedDemoDuration);  // Unnecessary
-            m_modelDuraFreq.DemoDuration.AddSeconds(m_elapsedDemoDuration);
+            m_modelDuraFreq.DemoDuration = DateTime.Now;
+            //m_modelDuraFreq.DemoDuration.AddSeconds(m_elapsedDemoDuration);
             mdf.DemoDuration = m_modelDuraFreq.DemoDuration;
             mdf.Frequency = 1;  // Hard-coded value
 
