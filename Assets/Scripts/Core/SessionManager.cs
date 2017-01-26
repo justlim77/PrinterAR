@@ -57,7 +57,7 @@ namespace CopierAR
         {
             Session.SalesInfoData.PhotoCopierModel = PhotoCopierModel;
         }
-        public static void UpdateDemoDuration(System.DateTime DemoDuration)
+        public static void UpdateDemoDuration(System.TimeSpan DemoDuration)
         {
             Session.SalesInfoData.DemoDuration = DemoDuration;
         }

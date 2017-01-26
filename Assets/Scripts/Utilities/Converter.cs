@@ -18,7 +18,9 @@ public static class Converter
 
     public static TimeSpan ToTimeSpanInMinsAndSecs(int seconds)
     {
-        TimeSpan timeSpan = new TimeSpan(0, 0, seconds);
+        int s = seconds % 60;
+        int m = seconds / 60;
+        TimeSpan timeSpan = new TimeSpan(0, m, s);
         return timeSpan;
     }
 

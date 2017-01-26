@@ -51,7 +51,7 @@
         public decimal PostalCod = 0;
         public System.DateTime? LoginTime = null;
         public string PhotoCopierModel = "";
-        public System.DateTime? DemoDuration = null;
+        public System.TimeSpan? DemoDuration = null;
         public int Frequency = 0;
 
         public void Clear()

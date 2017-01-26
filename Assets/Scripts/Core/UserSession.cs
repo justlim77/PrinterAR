@@ -86,14 +86,15 @@ namespace CopierAR
 
         private void ModelViewer_OnModelSelected(object sender, ModelSelectedEventArgs args)
         {
-            if (args.ModelFrequency.Model == "" || args.UpdateDB == false)
-                return;
 
             Debug.Log("Updating on model selected: " + args.ModelFrequency.ToString());
 
             SessionManager.UpdatePhotoCopierModel(args.ModelFrequency.Model);
             SessionManager.UpdateDemoDuration(args.ModelFrequency.DemoDuration);
             SessionManager.UpdateFrequency(args.ModelFrequency.Frequency);
+
+            if (args.ModelFrequency.Model == "" || args.UpdateDB == false)
+                return;
 
             StartCoroutine(InsertSalesInfo());
         }
@@ -240,6 +241,7 @@ namespace CopierAR
             yield return StartCoroutine(task.Wait());
             Debug.Log("[User Session Logout State] " + task.State);
 #elif WEBSERVICE
+            //Debug.Log(SessionManager.Session.SalesInfoData.PhotoCopierModel + " valid: Inserting sales info...");
             // Insert sales info row with HTTP POST approach:
             if (SessionManager.Session.SalesInfoData.PhotoCopierModel != "")
             {

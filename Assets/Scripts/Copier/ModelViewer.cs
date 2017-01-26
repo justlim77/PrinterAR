@@ -28,7 +28,7 @@ namespace CopierAR
     public class ModelsDuraFreq
     {
         public string Model;
-        public DateTime DemoDuration;
+        public TimeSpan DemoDuration;
         public int Frequency;
 
         //public string ModelString;
@@ -38,7 +38,7 @@ namespace CopierAR
         public ModelsDuraFreq()
         {
             Model = "";
-            DemoDuration = new DateTime();
+            DemoDuration = new TimeSpan();
             Frequency = 0;
 
             //ModelString = "";
@@ -160,9 +160,10 @@ namespace CopierAR
             ModelList.Clear();
             ModelDuraFreqList.Clear();
             ModelDataList.Clear();
-            //ShowcaseGroupList.Clear();
-            //ShowcaseObjectList.Clear();
+
             m_modelDuraFreq = new ModelsDuraFreq();
+
+            ResetDemoDuration();
 
             // Initialize dictionaries
             for (int i = 0; i < CopierDatabase.copiers.Length; i++)
@@ -288,16 +289,27 @@ namespace CopierAR
                 StartCoroutine(ControllerList[m_previousIndex].ResetCopier());
 
                 m_modelDuraFreq = GetModelDuraFrequency(m_previousIndex);
-                Debug.Log(string.Format("MDF: {0} {1}", m_modelDuraFreq.Model, m_modelDuraFreq.DemoDuration));
-
-                // Reset demo duration time if viewing different model
-                if (m_viewIndex != m_previousIndex)
+                Debug.Log(string.Format("MDF: {0} {1}", m_modelDuraFreq.Model, m_modelDuraFreq.DemoDuration));               
+            }
+                       
+            if (OnModelSelected != null)
+            {
+                OnModelSelected(this, new ModelSelectedEventArgs
                 {
-                    Debug.Log("Resetting demo duration to 0");
-                    m_elapsedDemoDuration = 0.0f;
-                    m_modelDuraFreq.DemoDuration = new DateTime();
-                }
-            }           
+                    Copier = CopierList[index],
+                    //ModelFrequency = GetModelFrequency()                    
+                    ModelFrequency = m_modelDuraFreq,
+                    UpdateDB = updateDB
+                });
+            }
+
+            // Reset demo duration time if viewing different model
+            if (m_previousIndex != -1 && m_previousIndex != m_viewIndex)
+            {
+                Debug.Log("Resetting demo duration to 0");
+                m_elapsedDemoDuration = 0.0f;
+                m_modelDuraFreq.DemoDuration = TimeSpan.Zero;
+            }
 
             // Hide models
             foreach (GameObject model in ModelList)
@@ -332,16 +344,7 @@ namespace CopierAR
             // Debug information
             Debug.Log(string.Format("Model: {0} Duration: {1} Frequency: {2}", ModelDataList[copier].Model, ModelDataList[copier].DemoDuration, ModelDataList[copier].Frequency));
 
-            if (OnModelSelected != null)
-            {
-                OnModelSelected(this, new ModelSelectedEventArgs
-                {
-                    Copier = CopierList[index],
-                    //ModelFrequency = GetModelFrequency()                    
-                    ModelFrequency = m_modelDuraFreq,
-                    UpdateDB = updateDB
-                });
-            }
+
 
             /*
             // Hide all showcase panels
@@ -445,13 +448,19 @@ namespace CopierAR
             //}
 
             mdf.Model = CopierList[index].CopierName;
-            //TimeSpan timeSpan = Converter.ToTimeSpanInMinsAndSecs((int)m_elapsedDemoDuration);  // Unnecessary
-            m_modelDuraFreq.DemoDuration = DateTime.Now;
+            TimeSpan timeSpan = Converter.ToTimeSpanInMinsAndSecs((int)m_elapsedDemoDuration);  // Unnecessary
+            m_modelDuraFreq.DemoDuration = timeSpan;
             //m_modelDuraFreq.DemoDuration.AddSeconds(m_elapsedDemoDuration);
             mdf.DemoDuration = m_modelDuraFreq.DemoDuration;
             mdf.Frequency = 1;  // Hard-coded value
 
             return mdf;
+        }
+
+        public static void ResetDemoDuration()
+        {
+            m_elapsedDemoDuration = 0;
+            m_modelDuraFreq.DemoDuration = TimeSpan.Zero;
         }
 
         private void DisplayRenderers(Renderer[] renderers, bool value)
