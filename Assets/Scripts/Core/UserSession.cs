@@ -243,13 +243,16 @@ namespace CopierAR
 #elif WEBSERVICE
             //Debug.Log(SessionManager.Session.SalesInfoData.PhotoCopierModel + " valid: Inserting sales info...");
             // Insert sales info row with HTTP POST approach:
+            
+
             if (SessionManager.Session.SalesInfoData.PhotoCopierModel != "")
             {
                 yield return StartCoroutine(m_salesInfoService.SendSalesInfo(SessionManager.Session.SalesInfoData,
                     SalesInfoResponseHandler));
+
+                Debug.Log(string.Format("{0}: {1}", m_salesInfoResponse.responseType.ToString(), m_salesInfoResponse.message));
             }
 #endif
-            Debug.Log(string.Format("{0}: {1}", m_salesInfoResponse.responseType.ToString(), m_salesInfoResponse.message));
 
             m_isLoggedIn = false;
             m_cachedTimeStamp = 0;
