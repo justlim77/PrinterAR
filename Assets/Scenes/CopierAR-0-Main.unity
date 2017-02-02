@@ -350,6 +350,8 @@ GameObject:
   m_Component:
   - component: {fileID: 87647604}
   - component: {fileID: 87647603}
+  - component: {fileID: 87647606}
+  - component: {fileID: 87647605}
   m_Layer: 0
   m_Name: CameraManager
   m_TagString: Untagged
@@ -384,6 +386,28 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 7
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &87647605
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 87647602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4eb3d3636432dfb4fa32734d2f630c72, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &87647606
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 87647602}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 961417a5c22bc3c4baedccbdaa455dbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &95827679
 GameObject:
   m_ObjectHideFlags: 0
@@ -7327,7 +7351,6 @@ MonoBehaviour:
   LifeScaleParent: {fileID: 1091367958}
   ModelGroup: {fileID: 1359142923}
   ShowcaseCamera: {fileID: 1363776333}
-  CopierList: []
   ModelList: []
   ControllerList: []
   CopierTrackableEventHandler: {fileID: 1050555478}
