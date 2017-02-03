@@ -10,10 +10,19 @@ namespace CopierAR
         public GameObject ShowcaseCamera;
         public GameObject ImageTracker;
 
-	    // Use this for initialization
-	    void OnEnable ()
+        [SerializeField]
+        CameraSettings cameraSettings;
+
+        [SerializeField]
+        TapHandler tapHandler;
+
+        // Use this for initialization
+        void OnEnable ()
         {
             ModelViewer.OnViewModeChanged += ModelViewer_OnViewModeChanged;
+
+            cameraSettings.enabled = false;
+            tapHandler.enabled = false;
 	    }
 
         private void ModelViewer_OnViewModeChanged(object sender, ViewModeChangedEventArgs args)
@@ -35,6 +44,9 @@ namespace CopierAR
 
             ARCamera.SetActive(true);
             ImageTracker.SetActive(true);
+
+            cameraSettings.enabled = true;
+            tapHandler.enabled = true;
         }
 
         private void ShowcaseMode()
@@ -43,12 +55,17 @@ namespace CopierAR
             ARCamera.SetActive(false);
 
             ShowcaseCamera.SetActive(true);
+
+            cameraSettings.enabled = false;
+            tapHandler.enabled = false;
         }
 
         private void OnDisable()
         {
             ModelViewer.OnViewModeChanged -= ModelViewer_OnViewModeChanged;
 
+            cameraSettings.enabled = false;
+            tapHandler.enabled = false;
         }
     }
 }

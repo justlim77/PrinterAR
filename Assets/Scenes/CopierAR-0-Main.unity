@@ -373,6 +373,8 @@ MonoBehaviour:
   ARCamera: {fileID: 1196992717}
   ShowcaseCamera: {fileID: 1519207931}
   ImageTracker: {fileID: 1050555477}
+  cameraSettings: {fileID: 87647606}
+  tapHandler: {fileID: 87647605}
 --- !u!4 &87647604
 Transform:
   m_ObjectHideFlags: 0
